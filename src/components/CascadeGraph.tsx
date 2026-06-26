@@ -29,6 +29,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   Hallucination: "#60a5fa",
   "Schema Drift": "#f472b6",
   "Multi-tenant Context Leak": "#fb923c",
+  "Indirect Prompt Injection": "#2dd4bf",
+  "Multi-turn Crescendo": "#e879f9",
 };
 
 function layout(nodes: Node[]) {

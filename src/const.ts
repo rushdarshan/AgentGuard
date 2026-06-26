@@ -8,6 +8,8 @@ export const ATTACK_CATEGORIES = [
   "Hallucination",
   "Schema Drift",
   "Multi-tenant Context Leak",
+  "Indirect Prompt Injection",
+  "Multi-turn Crescendo",
 ] as const;
 
 export type AttackCategory = (typeof ATTACK_CATEGORIES)[number];

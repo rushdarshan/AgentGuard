@@ -170,7 +170,7 @@ export default function Dashboard() {
           <Card className="card-hover p-6">
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Attack surface</h3>
             <div className="space-y-2 text-sm">
-              {["Prompt Injection", "Context Overflow", "Logic Collapse", "Jailbreak", "Hallucination", "Schema Drift", "Multi-tenant Context Leak"].map(cat => (
+              {["Prompt Injection", "Context Overflow", "Logic Collapse", "Jailbreak", "Hallucination", "Schema Drift", "Multi-tenant Context Leak", "Indirect Prompt Injection", "Multi-turn Crescendo"].map(cat => (
                 <div key={cat} className="flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-accent/40" />
                   {cat}

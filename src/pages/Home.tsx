@@ -83,7 +83,7 @@ export default function Home() {
                   <div className="text-sm text-muted-foreground">Attack Vectors</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-accent">7</div>
+                  <div className="text-3xl font-bold text-accent">9</div>
                   <div className="text-sm text-muted-foreground">Attack Categories</div>
                 </div>
                 <div>
@@ -102,11 +102,11 @@ export default function Home() {
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-bold">Comprehensive Testing</h2>
             <p className="text-xl text-muted-foreground">
-              Seven attack categories to stress-test every dimension of your agent
+              Nine attack categories to stress-test every dimension of your agent
             </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
             {[
               {
                 icon: Lock,
@@ -142,6 +142,16 @@ export default function Home() {
                 icon: Globe,
                 title: "Multi-tenant Leak",
                 description: "Attempt cross-user data extraction from agent memory",
+              },
+              {
+                icon: Shield,
+                title: "Indirect Injection",
+                description: "Detect attacks through tool outputs and retrieved documents",
+              },
+              {
+                icon: Zap,
+                title: "Multi-turn Crescendo",
+                description: "Escalating multi-turn jailbreak across N conversation rounds",
               },
             ].map((feature, i) => (
               <Card key={i} className="flex flex-col gap-4 p-6">
@@ -207,6 +217,14 @@ export default function Home() {
                   <div className="flex justify-between text-sm">
                     <span>Hallucination</span>
                     <span className="badge-low">Low Risk</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Indirect Injection</span>
+                    <span className="badge-high">High Risk</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Crescendo</span>
+                    <span className="badge-critical">Critical</span>
                   </div>
                 </div>
               </div>
