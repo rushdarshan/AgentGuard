@@ -1,0 +1,86 @@
+{
+  "reviewer": "security-lens",
+  "findings": [
+    {
+      "title": "No authentication or authorization mechanism defined despite requiring per-user isolation",
+      "severity": "P0",
+      "section": "Requirements",
+      "why_it_matters": "R2 requires per-user data isolation but the document defines no login, session, or auth mechanism across any of the four key flows (F1-F4). Without authentication, user identity cannot be established, making 'Agents are isolated per user' unimplementable. An implementer reading this plan has no guidance on how to enforce the isolation the requirements demand, and has no auth boundary against which to apply the declared protectedProcedure pattern.",
+      "finding_type": "omission",
+      "autofix_class": "manual",
+      "confidence": 100,
+      "evidence": [
+        "R2. Agents are isolated per user — each engineer sees only their own agents and test runs.",
+        "Actors section lists only 'Engineer', 'LLM Judge', 'Agent Under Test' — no authentication actor, no auth provider, no login system.",
+        "Key Flows F1-F4 contain no authentication or login step — the first step is 'Engineer navigates to /agents/new' with no auth gate."
+      ]
+    },
+    {
+      "title": "Agent authentication headers stored without encryption at rest",
+      "severity": "P1",
+      "section": "Requirements",
+      "why_it_matters": "R1 allows storing 'optional auth headers' which contain bearer tokens, API keys, or other credentials used to access third-party agent endpoints. The document does not specify encryption at rest for these secrets. If the MySQL database is compromised, an attacker can extract credentials to every registered agent endpoint. The existing schema confirms authHeaders is stored as a plain TEXT column with no encryption wrapper.",
+      "finding_type": "omission",
+      "autofix_class": "manual",
+      "confidence": 100,
+      "evidence": [
+        "R1. Engineer can register agent endpoints (name, URL, description, optional auth headers) and manage them (edit, delete).",
+        "schema.ts: authHeaders: text(\"authHeaders\"), // JSON-encoded headers — stored as plaintext, no mention of encryption.",
+        "db.ts: createAgent and updateAgent pass authHeaders as-is to the DB with no encryption transformation."
+      ]
+    },
+    {
+      "title": "LLM API key storage mechanism deliberately deferred despite being a hard dependency",
+      "severity": "P1",
+      "section": "Outstanding Questions",
+      "why_it_matters": "R7 unconditionally requires an LLM API key for the judge ('Heuristic fallback is not used'), and the Dependencies/Assumptions section lists it as a prerequisite for operation. Yet the question of where to store this secret is explicitly deferred to planning. This means the plan commits to requiring a credential that exposes the operator to financial liability (API usage costs) and potential credential theft, without a security decision on its storage mechanism. The three options listed span dramatically different risk profiles (env var = safer, DB field = riskier).",
+      "finding_type": "omission",
+      "autofix_class": "gated_auto",
+      "suggested_fix": "Resolve the deferred question by selecting environment variable injection (already implied by 'LLM API key is configured' in Dependencies/Assumptions) and add an explicit requirement: 'The LLM API key MUST be injected via environment variable at deployment time. It MUST NOT be stored in the database, logged, returned in API responses, or exposed to the client.' The encrypted DB field approach can be a v2 enhancement.",
+      "confidence": 100,
+      "evidence": [
+        "R7. LLM-as-judge evaluates each agent response for failure indicators. Heuristic fallback is not used — an API key is required.",
+        "Outstanding Questions: '- [Technical] Where to store LLM API key — environment variable, encrypted DB field, or runtime config?'",
+        "Dependencies/Assumptions: '- LLM API key (OpenAI, Anthropic, or compatible) is configured for the judge.'"
+      ]
+    },
+    {
+      "title": "Third-party LLM Judge receives agent prompts and responses with no data-handling requirements",
+      "severity": "P1",
+      "section": "Actors",
+      "why_it_matters": "The LLM Judge (A2) evaluates every agent response by sending each test prompt and response to an external LLM provider (OpenAI, Anthropic, or compatible). These payloads may contain sensitive information — PII, proprietary business logic, trade secrets — if the agent under test handles such data. The document does not discuss data sensitivity classification, require any data-handling controls (anonymization, minimum necessary transmission), request user consent or acknowledgment, or note that a Data Processing Agreement (DPA) with the LLM provider may be needed for regulated data.",
+      "finding_type": "omission",
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "A2. **LLM Judge**: Evaluates agent responses to determine pass/fail per attack. Requires API key.",
+        "F2. ...LLM judge evaluates each response",
+        "R7. LLM-as-judge evaluates each agent response for failure indicators.",
+        "Dependencies/Assumptions: '- LLM API key (OpenAI, Anthropic, or compatible) is configured for the judge.'"
+      ]
+    },
+    {
+      "title": "Server-side request forgery risk from user-provided agent endpoint URL",
+      "severity": "P2",
+      "section": "Requirements",
+      "why_it_matters": "The test runner makes HTTP POST requests to user-provided agent endpoint URLs (R6, F2). No network-scope restriction is specified. If a user registers an agent URL pointing to a private network service (cloud metadata IP like 169.254.169.254, loopback address, internal API), the system will send adversarial prompts to that internal target. In a multi-tenant deployment, a compromised or malicious account could use this to probe internal infrastructure. The existing code validates URL format (z.string().url()) but not network scope.",
+      "finding_type": "omission",
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "R1. Engineer can register agent endpoints (name, URL, description, optional auth headers).",
+        "R6. Tests run against real agent HTTP endpoints (POST with JSON body `{ prompt }`). No built-in simulation.",
+        "F2. ...each attack is sent to agent endpoint",
+        "Existing code at routers.ts line 304-335: testAgentEndpoint calls fetch(url, ...) with no network-scope validation."
+      ]
+    }
+  ],
+  "residual_risks": [
+    "MOST LIKELY — Credential theft via stored auth headers: An attacker who gains access to a user session or the database (via SQLi, exposed credentials, or insider) can extract stored agent auth headers (API keys, bearer tokens) and use them to access the victim's deployed LLM agent endpoints. Mitigation requires encryption-at-rest with envelope encryption and per-user keys, plus audit logging of auth header reads.",
+    "HIGHEST IMPACT — Silent data exfiltration via LLM Judge: Every test prompt and agent response is transmitted to a third-party LLM provider with zero user disclosure. A user testing an agent that handles PII, financial data, proprietary algorithms, or internal business logic will have that data processed by an external provider without consent or contractual protection. Mitigation requires a pre-first-run disclosure dialog with explicit opt-in, a data-classification field on agent registration, and documented plans for on-premises judge deployment.",
+    "MOST SUBTLE — SSRF via agent endpoint URL probing internal infrastructure: A user configures their agent URL as http://169.254.169.254/ (cloud metadata) or http://internal-corp-service/admin (internal API). The test runner POSTs adversarial prompts to that URL, which could trigger side effects on internal services or reflect internal data back through the response displayed on the dashboard. Mitigation requires URL allowlisting (deny private/loopback/multicast/cloud-metadata ranges), requiring HTTPS, and limiting fetch to no-cors mode with error-classification that avoids information leakage."
+  ],
+  "deferred_questions": [
+    "No additional deferred questions beyond those already captured in the document's Outstanding Questions section."
+  ]
+}
