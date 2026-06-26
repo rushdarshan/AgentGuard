@@ -13,6 +13,7 @@ import AgentForm from "./pages/AgentForm";
 import TestBuilder from "./pages/TestBuilder";
 import TestRunDetail from "./pages/TestRunDetail";
 import TestRunHistory from "./pages/TestRunHistory";
+import Playground from "./pages/Playground";
 import { useAuth } from "./_core/hooks/useAuth";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { gsap } from "gsap";
@@ -51,6 +52,7 @@ function Router() {
       <Route path="/agents/:id/test" component={() => <ProtectedRoute component={TestBuilder} />} />
       <Route path="/runs" component={() => <ProtectedRoute component={TestRunHistory} />} />
       <Route path="/runs/:id" component={() => <ProtectedRoute component={TestRunDetail} />} />
+      <Route path="/playground" component={() => <ProtectedRoute component={Playground} />} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
