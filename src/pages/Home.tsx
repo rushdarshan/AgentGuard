@@ -2,7 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import {
   Shield,
   Zap,
@@ -14,10 +17,25 @@ import {
   CheckCircle,
   AlertCircle,
   Globe,
+  Loader2,
 } from "lucide-react";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
+  const launchDemo = trpc.demo.launch.useMutation();
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [, setLocation] = useLocation();
+
+  const handleLaunchDemo = async () => {
+    setDemoLoading(true);
+    try {
+      const result = await launchDemo.mutateAsync();
+      setLocation(`/runs/${result.testRunId}`);
+    } catch {
+      toast.error("Failed to launch demo");
+      setDemoLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -64,15 +82,22 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <a href={isAuthenticated ? "/dashboard" : getLoginUrl()}>
-                <Button size="lg" className="gap-2">
-                  {isAuthenticated ? "Go to Dashboard" : "Start Testing"}
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-              </a>
-              <Button size="lg" variant="outline">
-                View Demo
+              <Button size="lg" className="gap-2" onClick={handleLaunchDemo} disabled={demoLoading}>
+                {demoLoading ? (
+                  <>Launching... <Loader2 className="h-5 w-5 animate-spin" /></>
+                ) : (
+                  <>Launch Demo <Zap className="h-5 w-5" /></>
+                )}
               </Button>
+              {isAuthenticated ? (
+                <Link href="/dashboard">
+                  <Button size="lg" variant="outline">Dashboard</Button>
+                </Link>
+              ) : (
+                <a href={getLoginUrl()}>
+                  <Button size="lg" variant="outline">Get Started</Button>
+                </a>
+              )}
             </div>
 
             {/* Hero Visual */}
