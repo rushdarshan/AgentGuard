@@ -122,7 +122,7 @@ app.post("/api/auth/logout", (req, res) => {
 
 if (!isDev) {
   app.use(express.static(path.resolve(import.meta.dirname, "../dist")));
-  app.get("*", (_req, res) => {
+  app.get("*path", (_req, res) => {
     res.sendFile(path.resolve(import.meta.dirname, "../dist/index.html"));
   });
 }
