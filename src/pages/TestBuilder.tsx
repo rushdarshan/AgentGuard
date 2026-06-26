@@ -2,7 +2,6 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-
 import { Checkbox } from "@/components/ui/checkbox";
 import { useParams, useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -67,7 +66,7 @@ export default function TestBuilder() {
 
   const handleRunTests = async () => {
     if (selectedCategories.size === 0) {
-      toast.error("Select at least one attack category");
+      toast.error("SELECT AT LEAST ONE ATTACK CATEGORY");
       return;
     }
 
@@ -81,10 +80,10 @@ export default function TestBuilder() {
         agentId,
         config: finalConfig as any,
       });
-      toast.success("Test run started");
+      toast.success("TEST RUN STARTED");
       setLocation(`/runs/${result.testRunId}`);
     } catch (error) {
-      toast.error("Failed to start test run");
+      toast.error("FAILED TO START TEST RUN");
     }
   };
 
@@ -92,7 +91,7 @@ export default function TestBuilder() {
     return (
       <DashboardLayout>
         <div className="text-center">
-          <p className="text-[#787774]">Agent not found</p>
+          <p className="font-mono text-sm text-[#6B6B6B]">AGENT NOT FOUND</p>
         </div>
       </DashboardLayout>
     );
@@ -102,74 +101,64 @@ export default function TestBuilder() {
     <DashboardLayout>
       <div className="max-w-4xl space-y-8">
         <div>
-          <h1 className="font-serif text-4xl font-light tracking-[-0.02em] mb-2">Test Suite Builder</h1>
-          <p className="text-[#787774]">Configure adversarial attacks for {agent.name}</p>
+          <p className="font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">&lt; CONFIG /&gt;</p>
+          <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">TEST SUITE BUILDER</h1>
+          <p className="mt-2 font-mono text-[11px] text-[#6B6B6B]">CONFIGURE ATTACK VECTORS FOR {agent.name.toUpperCase()}</p>
         </div>
 
         <Card className="p-8">
           <div className="mb-8">
-            <h2 className="mb-4 text-xl font-semibold">Select Attack Categories</h2>
-            <div className="space-y-4">
+            <p className="mb-4 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">[ SELECT ATTACK CATEGORIES ]</p>
+            <div className="space-y-[1px] bg-[#2A2A2A]">
               {ATTACK_CATEGORIES.map((category) => (
-                <div key={category} className="flex items-center gap-3">
-                  <Checkbox
-                    id={category}
-                    checked={selectedCategories.has(category)}
-                    onCheckedChange={() => toggleCategory(category)}
-                  />
-                  <Label htmlFor={category} className="cursor-pointer font-medium">
-                    {category}
-                  </Label>
-                </div>
+                <Card key={category} className="bg-[#121212] border-0 p-4">
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      id={category}
+                      checked={selectedCategories.has(category)}
+                      onCheckedChange={() => toggleCategory(category)}
+                    />
+                    <Label htmlFor={category} className="cursor-pointer font-mono text-sm tracking-[0.05em]">
+                      {category.toUpperCase()}
+                    </Label>
+                  </div>
+                </Card>
               ))}
             </div>
           </div>
 
-          <div className="border-t border-[#EAEAEA] pt-8">
-            <h2 className="mb-6 text-xl font-semibold">Configure Attack Parameters</h2>
-            <div className="space-y-8">
+          <div className="border-t border-[#2A2A2A] pt-8">
+            <p className="mb-6 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">[ CONFIGURE ATTACK PARAMETERS ]</p>
+            <div className="space-y-[1px] bg-[#2A2A2A]">
               {ATTACK_CATEGORIES.map((category) => (
-                <div
+                <Card
                   key={category}
-                  className={`rounded-lg border p-6 ${
-                    selectedCategories.has(category)
-                      ? "border-[#111111] bg-[#F7F6F3]"
-                      : "border-[#EAEAEA] bg-white opacity-50"
-                  }`}
+                  className={`bg-[#121212] border-0 p-6 ${selectedCategories.has(category) ? "" : "opacity-40"}`}
                 >
-                  <h3 className="mb-4 font-semibold">{category}</h3>
+                  <h3 className="mb-4 font-mono text-sm font-semibold tracking-[0.05em]">{category.toUpperCase()}</h3>
 
                   <div className="space-y-6">
                     <div>
-                      <Label className="mb-3 block text-sm">
-                        Intensity:{" "}
-                        <span className="font-bold">
-                          {config[category]?.intensity || "medium"}
-                        </span>
+                      <Label className="mb-3 block font-mono text-[11px] text-[#6B6B6B]">
+                        INTENSITY: <span className="text-[#EAEAEA]">{config[category]?.intensity.toUpperCase() || "MEDIUM"}</span>
                       </Label>
-                      <div className="flex gap-3">
+                      <div className="flex gap-[1px] bg-[#2A2A2A]">
                         {(["low", "medium", "high"] as const).map((level) => (
-                          <Button
+                          <button
                             key={level}
-                            size="sm"
-                            variant={
-                              config[category]?.intensity === level ? "default" : "outline"
-                            }
+                            className={`btn-${config[category]?.intensity === level ? "solid" : "outline"} flex-1 text-center`}
                             onClick={() => updateConfig(category, "intensity", level)}
                             disabled={!selectedCategories.has(category)}
                           >
                             {level.charAt(0).toUpperCase() + level.slice(1)}
-                          </Button>
+                          </button>
                         ))}
                       </div>
                     </div>
 
                     <div>
-                      <Label className="mb-3 block text-sm">
-                        Number of Tests:{" "}
-                        <span className="font-bold">
-                          {config[category]?.count || 10}
-                        </span>
+                      <Label className="mb-3 block font-mono text-[11px] text-[#6B6B6B]">
+                        TEST COUNT: <span className="text-[#EAEAEA]">{config[category]?.count || 10}</span>
                       </Label>
                       <input
                         type="range"
@@ -179,42 +168,32 @@ export default function TestBuilder() {
                         max={100}
                         step={1}
                         disabled={!selectedCategories.has(category)}
-                        className="w-full h-2 rounded-full appearance-none bg-[#EAEAEA] cursor-pointer"
+                        className="w-full h-2 appearance-none bg-[#2A2A2A] cursor-pointer accent-[#E61919]"
                       />
-                      <p className="mt-2 text-xs text-[#787774]">
-                        Recommended: 10-20 tests per category
-                      </p>
+                      <p className="mt-2 font-mono text-[10px] text-[#6B6B6B]">&gt; RECOMMENDED: 10-20 TESTS PER CATEGORY</p>
                     </div>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           </div>
 
-          <div className="mt-8 rounded-lg border border-[#EAEAEA] bg-white p-6">
+          <Card className="mt-8 border border-[#2A2A2A] bg-[#121212] p-6">
             <div className="mb-4 flex items-center gap-2">
-              <LightningBoltIcon className="h-5 w-5" />
-              <h3 className="font-semibold">Test Summary</h3>
+              <LightningBoltIcon className="h-5 w-5 text-[#E61919]" />
+              <p className="font-mono text-sm tracking-[0.05em]">[ TEST SUMMARY ]</p>
             </div>
-            <div className="space-y-2 text-sm">
-              <p>
-                <span className="text-[#787774]">Categories:</span>{" "}
-                <span className="font-semibold">{selectedCategories.size}</span>
-              </p>
-              <p>
-                <span className="text-[#787774]">Total Tests:</span>{" "}
-                <span className="font-semibold">
-                  {Array.from(selectedCategories).reduce(
-                    (sum, cat) => sum + (config[cat]?.count || 10),
-                    0
-                  )}
-                </span>
-              </p>
-              <p className="text-[#787774]">
-                LLM will generate novel attacks tailored to your agent's description.
-              </p>
+            <div className="space-y-2 font-mono text-xs">
+              <p>&gt; <span className="text-[#6B6B6B]">CATEGORIES:</span> <span className="font-semibold">{selectedCategories.size}</span></p>
+              <p>&gt; <span className="text-[#6B6B6B]">TOTAL TESTS:</span> <span className="font-semibold">
+                {Array.from(selectedCategories).reduce(
+                  (sum, cat) => sum + (config[cat]?.count || 10),
+                  0
+                )}
+              </span></p>
+              <p className="text-[#6B6B6B]">&gt; LLM WILL GENERATE NOVEL ATTACKS TAILORED TO YOUR AGENT.</p>
             </div>
-          </div>
+          </Card>
 
           <div className="mt-8 flex gap-3">
             <Button
@@ -224,14 +203,14 @@ export default function TestBuilder() {
               className="gap-2"
             >
               <LightningBoltIcon className="h-5 w-5" />
-              Run Test Suite
+              [ EXECUTE ]
             </Button>
             <Button
               size="lg"
               variant="outline"
               onClick={() => setLocation("/agents")}
             >
-              Cancel
+              [ CANCEL ]
             </Button>
           </div>
         </Card>

@@ -155,6 +155,15 @@ export async function getTestRunResults(testRunId: number) {
   return mem.testResults.filter((r) => r.testRunId === testRunId);
 }
 
+export async function updateTestResult(resultId: number, data: Partial<{ details: string }>) {
+  const db = await getDb();
+  if (db) return db.update(testResults).set(data).where(eq(testResults.id, resultId));
+  const result = mem.testResults.find((r) => r.id === resultId);
+  if (!result) throw new Error("Test result not found");
+  Object.assign(result, data);
+  return result;
+}
+
 export async function createTestResult(testRunId: number, data: { category: string; passed: number; failed: number; severity: "critical" | "high" | "medium" | "low"; details?: string }) {
   const db = await getDb();
   if (db) return db.insert(testResults).values([{ testRunId, ...data }]);

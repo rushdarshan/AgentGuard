@@ -1,5 +1,4 @@
 import type { Config } from 'tailwindcss'
-import defaultTheme from 'tailwindcss/defaultTheme'
 
 const config: Config = {
   content: [
@@ -9,28 +8,23 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Helvetica', 'Arial', 'sans-serif'],
-        serif: ['Newsreader', 'Georgia', 'serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        sans: ['"Inter"', 'system-ui', 'sans-serif'],
+        display: ['"Inter"', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', '"IBM Plex Mono"', 'monospace'],
       },
       colors: {
-        accent: '#111111',
-        background: '#FBFBFA',
-        foreground: '#111111',
-        card: '#FFFFFF',
-        border: '#EAEAEA',
-        muted: {
-          foreground: '#787774',
-        },
-        pastel: {
-          red: { bg: '#FDEBEC', text: '#9F2F2D' },
-          blue: { bg: '#E1F3FE', text: '#1F6C9F' },
-          green: { bg: '#EDF3EC', text: '#346538' },
-          yellow: { bg: '#FBF3DB', text: '#956400' },
-        },
+        substrate: '#0A0A0A',
+        surface: '#121212',
+        phosphor: '#EAEAEA',
+        accent: '#E61919',
+        'terminal-green': '#4AF626',
+        border: '#2A2A2A',
+        muted: '#6B6B6B',
       },
-      boxShadow: {
-        subtle: '0 2px 8px rgba(0,0,0,0.04)',
+      letterSpacing: {
+        'display-tight': '-0.06em',
+        'display': '-0.03em',
+        'telemetry': '0.08em',
       },
     },
   },

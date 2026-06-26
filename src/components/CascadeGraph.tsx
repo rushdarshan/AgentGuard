@@ -20,6 +20,7 @@ interface Props {
   nodes: Node[];
   edges: Edge[];
   colorBy?: "category" | "community";
+  onNodeClick?: (category: string) => void;
 }
 
 interface SimNode extends Node {
@@ -133,8 +134,9 @@ function simulate(nodes: Node[], edges: Edge[]): SimNode[] {
   }));
 }
 
-export default function CascadeGraph({ nodes, edges, colorBy = "category" }: Props) {
+export default function CascadeGraph({ nodes, edges, colorBy = "category", onNodeClick }: Props) {
   const [dragNode, setDragNode] = useState<{ id: number; x: number; y: number } | null>(null);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
   const [zoom, setZoom] = useState(1);
   const graphRef = useRef<HTMLDivElement>(null);
 
@@ -169,6 +171,7 @@ export default function CascadeGraph({ nodes, edges, colorBy = "category" }: Pro
     const ctm = svg.getScreenCTM()!.inverse();
     const p = pt.matrixTransform(ctm);
     setDragNode({ id, x: p.x, y: p.y });
+    setDragStart({ x: e.clientX, y: e.clientY });
   }, []);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
@@ -183,7 +186,22 @@ export default function CascadeGraph({ nodes, edges, colorBy = "category" }: Pro
     setDragNode((prev) => prev ? { ...prev, x: p.x, y: p.y } : null);
   }, [dragNode]);
 
-  const handlePointerUp = useCallback(() => setDragNode(null), []);
+  const handlePointerUp = useCallback(() => {
+    setDragNode(null);
+    setDragStart(null);
+  }, []);
+
+  const handleNodePointerUp = useCallback((e: React.PointerEvent, category: string) => {
+    if (dragStart) {
+      const dx = e.clientX - dragStart.x;
+      const dy = e.clientY - dragStart.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 6 && onNodeClick) {
+        onNodeClick(category);
+      }
+    }
+    handlePointerUp();
+  }, [dragStart, onNodeClick, handlePointerUp]);
 
   const displayNodes = useMemo(
     () =>
@@ -269,7 +287,7 @@ export default function CascadeGraph({ nodes, edges, colorBy = "category" }: Pro
               : CATEGORY_COLORS[n.category] || "#818CF8";
             const langLabel = n.language && n.language !== "en" ? n.language : "";
             return (
-              <g key={n.id} data-node onPointerDown={(e) => handlePointerDown(e, n.id)} style={{ cursor: "pointer" }}>
+              <g key={n.id} data-node onPointerDown={(e) => handlePointerDown(e, n.id)} onPointerUp={(e) => handleNodePointerUp(e, n.category)} style={{ cursor: "pointer" }}>
                 <circle cx={n.x} cy={n.y} r={NODE_RADIUS} fill="rgb(15 23 42)" stroke={color} strokeWidth={2} filter={`drop-shadow(0 0 4px ${color}80)`}>
                   <animate attributeName="stroke-opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />
                 </circle>

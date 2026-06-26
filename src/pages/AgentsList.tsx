@@ -14,7 +14,7 @@ export default function AgentsList() {
 
   useEffect(() => {
     if (deleteId === null) return;
-    if (confirm("Are you sure you want to delete this agent? This action cannot be undone.")) {
+    if (confirm("DELETE THIS AGENT?")) {
       deleteAgent.mutateAsync({ agentId: deleteId }).finally(() => setDeleteId(null));
     } else {
       setDeleteId(null);
@@ -25,49 +25,47 @@ export default function AgentsList() {
     <DashboardLayout>
       <div className="space-y-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold">Agent Endpoints</h1>
+          <div>
+            <p className="font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">&lt; ENDPOINTS /&gt;</p>
+            <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">AGENTS</h1>
+          </div>
           <Link href="/agents/new">
             <Button className="gap-2">
-              <PlusIcon className="h-5 w-5" />
-              Add Agent
+              <PlusIcon className="h-4 w-4" /> [ ADD AGENT ]
             </Button>
           </Link>
         </div>
 
         {agents.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-[1px] bg-[#2A2A2A]">
             {agents.map((agent) => (
-              <Card key={agent.id} className="p-6">
+              <Card key={agent.id} className="bg-[#121212] p-6 border-0">
                 <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold">{agent.name}</h3>
-                    <p className="text-sm text-[#787774]">{agent.url}</p>
+                    <h3 className="font-mono text-sm font-semibold tracking-[0.05em]">{agent.name}</h3>
+                    <p className="font-mono text-[11px] text-[#6B6B6B]">{agent.url}</p>
                     {agent.description && (
-                      <p className="mt-2 text-sm text-[#787774]">{agent.description}</p>
+                      <p className="mt-2 font-mono text-[11px] text-[#6B6B6B]">{agent.description}</p>
                     )}
                   </div>
-
                   <div className="flex gap-2">
                     <Link href={`/agents/${agent.id}/test`}>
                       <Button size="sm" variant="outline" className="gap-2">
-                        <PlayIcon className="h-4 w-4" />
-                        Test
+                        <PlayIcon className="h-4 w-4" /> [ TEST ]
                       </Button>
                     </Link>
                     <Link href={`/agents/${agent.id}/edit`}>
                       <Button size="sm" variant="outline" className="gap-2">
-                        <Pencil1Icon className="h-4 w-4" />
-                        Edit
+                        <Pencil1Icon className="h-4 w-4" /> [ EDIT ]
                       </Button>
                     </Link>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="gap-2 text-[#9F2F2D] hover:text-[#9F2F2D]"
+                      className="gap-2 text-[#E61919] hover:text-[#E61919] hover:border-[#E61919]"
                       onClick={() => setDeleteId(agent.id)}
                     >
-                      <TrashIcon className="h-4 w-4" />
-                      Delete
+                      <TrashIcon className="h-4 w-4" /> [ DELETE ]
                     </Button>
                   </div>
                 </div>
@@ -76,18 +74,15 @@ export default function AgentsList() {
           </div>
         ) : (
           <Card className="p-12 text-center">
-            <p className="mb-4 text-lg text-[#787774]">No agents registered yet</p>
+            <p className="font-mono text-sm text-[#6B6B6B]">NO AGENTS REGISTERED</p>
             <Link href="/agents/new">
-              <Button className="gap-2">
-                <PlusIcon className="h-5 w-5" />
-                Create Your First Agent
+              <Button className="mt-4 gap-2">
+                <PlusIcon className="h-4 w-4" /> [ CREATE FIRST AGENT ]
               </Button>
             </Link>
           </Card>
         )}
       </div>
-
-
     </DashboardLayout>
   );
 }

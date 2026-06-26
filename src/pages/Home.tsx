@@ -6,21 +6,12 @@ import { Link, useLocation } from "wouter";
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { LightningBoltIcon, ReloadIcon } from "@radix-ui/react-icons";
+import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import {
-  LightningBoltIcon,
-  BarChartIcon,
-  LockClosedIcon,
-  GearIcon,
-  ArrowUpIcon,
-  ArrowRightIcon,
-  CheckCircledIcon,
-  ExclamationTriangleIcon,
-  GlobeIcon,
-  ReloadIcon,
-} from "@radix-ui/react-icons";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -28,57 +19,87 @@ export default function Home() {
   const [demoLoading, setDemoLoading] = useState(false);
   const [, setLocation] = useLocation();
 
-  const heroRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const heroTextRef = useRef<HTMLHeadingElement>(null);
+  const numbersRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
-  const capabilitiesRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
 
-  useGSAP((_context, contextSafe) => {
-    const mm = gsap.matchMedia();
-
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const hero = heroRef.current!;
-      const features = featuresRef.current!;
-      const caps = capabilitiesRef.current!;
-      const cta = ctaRef.current!;
-
-      const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
-      heroTl.from(hero.querySelectorAll("[data-animate]"), {
-        y: 40, autoAlpha: 0, duration: 0.6, stagger: 0.15,
-      }).from(hero.querySelector("[data-stats]"), {
-        y: 60, autoAlpha: 0, scale: 0.95, duration: 0.8,
-      }, "+=0.1");
-
-      gsap.to(hero.querySelector("[data-stats]"), {
-        y: -6, duration: 3, ease: "sine.inOut", yoyo: true, repeat: -1,
+  useGSAP(() => {
+    // 1. Hero text scramble and slide up
+    const spans = heroTextRef.current?.children;
+    if (spans) {
+      const chars = "!<>-_\\/[]{}—=+*^?#________";
+      Array.from(spans).forEach((span: Element, index: number) => {
+        const targetText = span.getAttribute("data-text") || (span as HTMLElement).innerText;
+        span.setAttribute("data-text", targetText); // Store original text
+        
+        gsap.from(span, {
+          yPercent: 100,
+          opacity: 0,
+          duration: 1.2,
+          delay: index * 0.15,
+          ease: "power4.out",
+          onUpdate: function() {
+            // Scramble effect
+            const progress = this.progress();
+            if (progress >= 1) {
+              (span as HTMLElement).innerText = targetText;
+              return;
+            }
+            
+            let scrambled = "";
+            for (let i = 0; i < targetText.length; i++) {
+              if (targetText[i] === " ") {
+                scrambled += " ";
+              } else if (Math.random() > progress) {
+                scrambled += chars[Math.floor(Math.random() * chars.length)];
+              } else {
+                scrambled += targetText[i];
+              }
+            }
+            (span as HTMLElement).innerText = scrambled;
+          }
+        });
       });
+    }
 
-      ScrollTrigger.batch(features.querySelectorAll("[data-card]"), {
-        onEnter: (batch) => gsap.fromTo(batch,
-          { y: 50, autoAlpha: 0 },
-          { y: 0, autoAlpha: 1, duration: 0.5, stagger: 0.08, ease: "power2.out", overwrite: true },
-        ),
-        onLeaveBack: (batch) => gsap.set(batch, { autoAlpha: 0, y: 50, overwrite: true }),
-        start: "top 85%",
+    // 2. Number counters
+    const numberElements = numbersRef.current?.querySelectorAll("[data-number]");
+    if (numberElements) {
+      numberElements.forEach((el) => {
+        const target = parseInt(el.getAttribute("data-number") || "0");
+        gsap.fromTo(el,
+          { innerHTML: 0 },
+          {
+            innerHTML: target,
+            duration: 2,
+            ease: "power2.out",
+            snap: { innerHTML: 1 },
+            scrollTrigger: {
+              trigger: numbersRef.current,
+              start: "top 80%",
+            }
+          }
+        );
       });
+    }
 
-      const capsTl = gsap.timeline({
-        scrollTrigger: { trigger: caps, start: "top 75%", toggleActions: "play none none reverse" },
+    // 3. Feature grid stagger
+    const featureCards = featuresRef.current?.children;
+    if (featureCards) {
+      gsap.from(featureCards, {
+        y: 30,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: featuresRef.current,
+          start: "top 75%",
+        }
       });
-      capsTl.from(caps.querySelectorAll("[data-animate]"), {
-        x: -30, autoAlpha: 0, duration: 0.5, stagger: 0.1,
-      }).from(caps.querySelector("[data-scorecard]"), {
-        x: 40, autoAlpha: 0, duration: 0.7,
-      }, "-=0.2");
-
-      gsap.from(cta.querySelector("[data-cta]"), {
-        y: 30, autoAlpha: 0, scale: 0.97, duration: 0.7, ease: "power3.out",
-        scrollTrigger: { trigger: cta, start: "top 80%", toggleActions: "play none none reverse" },
-      });
-    });
-
-    return () => mm.revert();
-  }, { scope: heroRef, dependencies: [] });
+    }
+  }, { scope: containerRef });
 
   const handleLaunchDemo = async () => {
     setDemoLoading(true);
@@ -92,25 +113,23 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-[#111111]">
-      {/* Ambient background */}
-      <div className="fixed inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0,0,0,0.02) 0%, transparent 60%)" }} />
-
+    <div ref={containerRef} className="min-h-screen bg-[#0A0A0A] text-[#EAEAEA] font-sans">
       {/* Navigation */}
-      <nav className="relative border-b border-[#EAEAEA]">
+      <nav className="border-b border-[#2A2A2A]">
         <div className="container flex items-center justify-between py-4">
-          <div className="flex items-center gap-2">
-            <LightningBoltIcon className="h-8 w-8" />
-            <span className="text-2xl font-bold tracking-tight">AgentGuard</span>
+          <div className="flex items-center gap-3">
+            <LightningBoltIcon className="h-5 w-5 text-[#E61919]" />
+              <span className="font-display text-lg font-black tracking-[-0.03em]">AGENTGUARD</span>
+              <span className="ml-3 font-mono text-[10px] tracking-[0.1em] text-[#E61919] border border-[#E61919] px-1.5 py-0.5">BRUTAL</span>
           </div>
           <div>
             {isAuthenticated ? (
               <Link href="/dashboard">
-                <Button variant="default">Dashboard</Button>
+                <Button variant="default">[ DASHBOARD ]</Button>
               </Link>
             ) : (
               <a href={getLoginUrl()}>
-                <Button variant="default">Get Started</Button>
+                <Button variant="default">[ GET STARTED ]</Button>
               </a>
             )}
           </div>
@@ -118,53 +137,61 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative py-24 md:py-40">
+      <section className="py-24 md:py-40">
         <div className="container">
           <div className="mx-auto max-w-4xl text-center">
-            <p data-animate className="mb-4 text-sm font-semibold uppercase tracking-[0.15em] text-[#787774]">
-              AI Agent Reliability Testing
+            <p className="mb-6 font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">
+              &lt; BRUTAL PRE-DEPLOYMENT STRESS TEST FOR AI AGENTS /&gt;
             </p>
 
-            <h1 data-animate className="font-serif text-6xl font-light leading-[1.1] tracking-[-0.03em] md:text-8xl">
-              CI for Your AI Agents
+            <h1 ref={heroTextRef} className="font-display text-7xl font-black uppercase leading-[0.85] tracking-[-0.06em] md:text-[10rem] flex flex-col overflow-hidden">
+              <span className="will-change-transform" data-text="CI FOR">CI FOR</span>
+              <span className="will-change-transform" data-text="YOUR AI">YOUR AI</span>
+              <span className="will-change-transform" data-text="AGENTS">AGENTS</span>
             </h1>
 
-            <p data-animate className="mx-auto mt-6 max-w-2xl text-lg text-[#787774]">
-              Catch agent failures before your users do. Run adversarial test suites, detect prompt injection attacks, and measure reliability with precision.
+            <p className="mx-auto mt-8 max-w-2xl font-mono text-sm text-[#6B6B6B]">
+              &gt; CATCH AGENT FAILURES BEFORE YOUR USERS DO
+            </p>
+            <p className="mx-auto max-w-2xl font-mono text-sm text-[#6B6B6B]">
+              &gt; RUN ADVERSARIAL TEST SUITES &mdash; DETECT ATTACKS &mdash; MEASURE RELIABILITY
+            </p>
+            <p className="mx-auto max-w-2xl font-mono text-sm text-[#E61919]">
+              &gt; LAUNCH A DEMO. WE&rsquo;LL BRUTALIZE YOUR AGENT IN 60 SECONDS.
             </p>
 
-            <div data-animate className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button size="lg" className="gap-2" onClick={handleLaunchDemo} disabled={demoLoading}>
                 {demoLoading ? (
-                  <>Launching... <ReloadIcon className="h-5 w-5 animate-spin" /></>
+                  <>&gt; LAUNCHING... <ReloadIcon className="h-5 w-5 animate-spin" /></>
                 ) : (
-                  <>Launch Demo <LightningBoltIcon className="h-5 w-5" /></>
+                  <>&gt; LAUNCH DEMO <LightningBoltIcon className="h-5 w-5" /></>
                 )}
               </Button>
               {isAuthenticated ? (
                 <Link href="/dashboard">
-                  <Button size="lg" variant="outline">Dashboard</Button>
+                  <Button variant="outline" size="lg">[ DASHBOARD ]</Button>
                 </Link>
               ) : (
                 <a href={getLoginUrl()}>
-                  <Button size="lg" variant="outline">Get Started</Button>
+                  <Button variant="outline" size="lg">[ GET STARTED ]</Button>
                 </a>
               )}
             </div>
 
-            <div data-stats className="mt-16 rounded-lg border border-[#EAEAEA] bg-white p-8">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-3xl font-bold">100+</div>
-                  <div className="mt-1 text-sm text-[#787774]">Attack Vectors</div>
+            <div className="mt-16 border border-[#2A2A2A] p-8">
+              <div ref={numbersRef} className="grid grid-cols-3 gap-4 text-center">
+                <div className="border-r border-[#2A2A2A] pr-4">
+                  <div className="font-display text-4xl font-black text-[#E61919]"><span data-number="100">0</span>+</div>
+                  <div className="mt-1 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">ATTACK VECTORS</div>
+                </div>
+                <div className="border-r border-[#2A2A2A] pr-4">
+                  <div className="font-display text-4xl font-black text-[#E61919]" data-number="9">0</div>
+                  <div className="mt-1 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">ATTACK CATEGORIES</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold">9</div>
-                  <div className="mt-1 text-sm text-[#787774]">Attack Categories</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold">0-100</div>
-                  <div className="mt-1 text-sm text-[#787774]">Reliability Score</div>
+                  <div className="font-display text-4xl font-black text-[#E61919]">0-<span data-number="100">0</span></div>
+                  <div className="mt-1 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">RELIABILITY SCORE</div>
                 </div>
               </div>
             </div>
@@ -173,135 +200,96 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section ref={featuresRef} className="border-t border-[#EAEAEA] py-24 md:py-40">
+      <section className="border-t border-[#2A2A2A] py-24 md:py-40">
         <div className="container">
           <div className="mb-16 text-center">
-            <h2 className="font-serif text-4xl font-light tracking-[-0.02em] md:text-5xl">Comprehensive Testing</h2>
-            <p className="mt-4 text-lg text-[#787774]">
-              Nine attack categories to probe every dimension of your agent
+            <p className="font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">&lt; FULL ATTACK SURFACE &gt;</p>
+            <h2 className="mt-4 font-display text-5xl font-black uppercase tracking-[-0.04em] md:text-7xl">
+              BRUTALIZE<br />YOUR AGENT
+            </h2>
+            <p className="mt-4 font-mono text-xs tracking-[0.1em] text-[#6B6B6B]">
+              NINE ATTACK CATEGORIES &mdash; PROBE EVERY FAILURE MODE
             </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div ref={featuresRef} className="grid gap-[1px] bg-[#2A2A2A] md:grid-cols-3">
             {[
-              {
-                icon: LockClosedIcon,
-                title: "Prompt Injection",
-                description: "Detect instruction override and context hijacking attacks",
-              },
-              {
-                icon: GearIcon,
-                title: "Context Overflow",
-                description: "Test behavior under extreme input and memory pressure",
-              },
-              {
-                icon: ArrowUpIcon,
-                title: "Logic Collapse",
-                description: "Identify reasoning failures and contradictions",
-              },
-              {
-                icon: LockClosedIcon,
-                title: "Jailbreak",
-                description: "Verify safety guardrails and constraint adherence",
-              },
-              {
-                icon: BarChartIcon,
-                title: "Hallucination",
-                description: "Catch fabricated responses and false information",
-              },
-              {
-                icon: ExclamationTriangleIcon,
-                title: "Schema Drift",
-                description: "Test tool calling under unexpected input shapes",
-              },
-              {
-                icon: GlobeIcon,
-                title: "Multi-tenant Leak",
-                description: "Attempt cross-user data extraction from agent memory",
-              },
-              {
-                icon: LightningBoltIcon,
-                title: "Indirect Injection",
-                description: "Detect attacks through tool outputs and retrieved documents",
-              },
-              {
-                icon: LightningBoltIcon,
-                title: "Multi-turn Crescendo",
-                description: "Escalating jailbreak across multiple conversation rounds",
-              },
+              { title: "PROMPT INJECTION", desc: "INSTRUCTION OVERRIDE &amp; CONTEXT HIJACKING" },
+              { title: "CONTEXT OVERFLOW", desc: "EXTREME INPUT &amp; MEMORY PRESSURE" },
+              { title: "LOGIC COLLAPSE", desc: "REASONING FAILURES &amp; CONTRADICTIONS" },
+              { title: "JAILBREAK", desc: "SAFETY GUARDRAIL VIOLATIONS" },
+              { title: "HALLUCINATION", desc: "FABRICATED RESPONSES &amp; FALSE INFO" },
+              { title: "SCHEMA DRIFT", desc: "UNEXPECTED INPUT SHAPES" },
+              { title: "MULTI-TENANT LEAK", desc: "CROSS-USER DATA EXTRACTION" },
+              { title: "INDIRECT INJECTION", desc: "ATTACKS VIA TOOL OUTPUTS" },
+              { title: "MULTI-TURN CRESCENDO", desc: "ESCALATING JAILBREAK OVER TURNS" },
             ].map((feature, i) => (
-              <Card key={i} data-card className="flex flex-col gap-3 p-6">
-                <feature.icon className="h-6 w-6" />
-                <h3 className="font-semibold">{feature.title}</h3>
-                <p className="text-sm text-[#787774]">{feature.description}</p>
-              </Card>
+              <div key={i} className="bg-[#121212] p-6 will-change-transform">
+                <span className="font-mono text-[10px] tracking-[0.1em] text-[#E61919]">0{i + 1}</span>
+                <h3 className="mt-2 font-display text-lg font-bold uppercase tracking-[-0.02em] text-[#EAEAEA]">
+                  {feature.title}
+                </h3>
+                <p className="mt-2 font-mono text-[11px] tracking-[0.05em] text-[#6B6B6B]">{feature.desc}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Capabilities Section */}
-      <section ref={capabilitiesRef} className="border-t border-[#EAEAEA] py-24 md:py-40">
+      <section className="border-t border-[#2A2A2A] py-24 md:py-40">
         <div className="container">
           <div className="grid gap-16 md:grid-cols-2">
             <div>
-              <h2 className="font-serif text-4xl font-light tracking-[-0.02em] md:text-5xl">Built for Developers</h2>
-              <ul className="mt-8 space-y-4">
+              <p className="font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">&lt; FEATURES &gt;</p>
+              <h2 className="mt-4 font-display text-5xl font-black uppercase tracking-[-0.04em] md:text-7xl">
+                BUILT FOR<br />DEVELOPERS
+              </h2>
+              <ul className="mt-10 space-y-4">
                 {[
-                  "Real-time test execution with live progress streaming",
-                  "LLM-powered dynamic attack generation tailored to your agent",
-                  "Reliability scorecard with severity badges on a 0-100 scale",
-                  "Failure-cascade graph visualization to trace dependency chains",
-                  "Test history with filtering, sorting, and run comparison",
-                  "Secure endpoint management with encrypted auth headers",
+                  "REAL-TIME TEST EXECUTION WITH LIVE PROGRESS",
+                  "LLM-POWERED DYNAMIC ATTACK GENERATION",
+                  "RELIABILITY SCORECARD WITH SEVERITY RATINGS",
+                  "FAILURE-CASCADE GRAPH VISUALIZATION",
+                  "TEST HISTORY WITH FILTERING AND COMPARISON",
+                  "SECURE ENDPOINT MANAGEMENT",
                 ].map((item, i) => (
-                  <div key={i} data-animate className="flex gap-3">
-                    <CheckCircledIcon className="mt-0.5 h-5 w-5 flex-shrink-0" />
-                    <span className="text-[#787774]">{item}</span>
+                  <div key={i} className="flex gap-3">
+                    <span className="mt-0.5 text-[#E61919] font-mono text-xs">&gt;</span>
+                    <span className="font-mono text-sm tracking-[0.02em] text-[#6B6B6B]">{item}</span>
                   </div>
                 ))}
               </ul>
             </div>
 
-            <div data-scorecard className="rounded-lg border border-[#EAEAEA] bg-white p-8">
-              <div className="space-y-6">
+            <div className="border border-[#2A2A2A] p-8">
+              <p className="font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">[ RELIABILITY METRICS ]</p>
+              <div className="mt-6 space-y-6">
                 <div>
-                  <div className="mb-2 text-sm font-semibold">Reliability Score</div>
-                  <div className="h-2 w-full rounded-full bg-[#EAEAEA]">
-                    <div className="h-full w-3/4 rounded-full bg-[#111111]"></div>
+                  <div className="mb-2 font-mono text-xs tracking-[0.08em] text-[#EAEAEA]">SYSTEM SCORE</div>
+                  <div className="h-2 border border-[#2A2A2A] bg-[#0A0A0A]">
+                    <div className="h-full w-3/4 bg-[#EAEAEA]"></div>
                   </div>
-                  <div className="mt-2 text-2xl font-bold">75/100</div>
+                  <div className="mt-2 font-display text-3xl font-black">75<sub className="font-mono text-xs text-[#6B6B6B]">/100</sub></div>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Prompt Injection</span>
-                    <span className="badge badge-high">High Risk</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Context Overflow</span>
-                    <span className="badge badge-low">Low Risk</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Logic Collapse</span>
-                    <span className="badge badge-medium">Medium Risk</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Jailbreak</span>
-                    <span className="badge badge-critical">Critical</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Hallucination</span>
-                    <span className="badge badge-low">Low Risk</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Indirect Injection</span>
-                    <span className="badge badge-high">High Risk</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Crescendo</span>
-                    <span className="badge badge-critical">Critical</span>
-                  </div>
+                  {[
+                    ["PROMPT INJECTION", "HIGH"],
+                    ["CONTEXT OVERFLOW", "LOW"],
+                    ["LOGIC COLLAPSE", "MEDIUM"],
+                    ["JAILBREAK", "CRITICAL"],
+                    ["HALLUCINATION", "LOW"],
+                    ["INDIRECT INJECTION", "HIGH"],
+                    ["CRESCENDO", "CRITICAL"],
+                  ].map(([cat, sev]) => (
+                    <div key={cat} className="flex justify-between items-center border-b border-[#1A1A1A] pb-1">
+                      <span className="font-mono text-xs tracking-[0.05em] text-[#EAEAEA]">{cat}</span>
+                      <span className={`badge ${sev === "CRITICAL" ? "badge-critical" : sev === "HIGH" ? "badge-high" : sev === "MEDIUM" ? "badge-medium" : "badge-low"}`}>
+                        {sev}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -310,18 +298,20 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section ref={ctaRef} className="border-t border-[#EAEAEA] py-24 md:py-40">
+      <section className="border-t border-[#2A2A2A] py-24 md:py-40">
         <div className="container">
-          <div data-cta className="rounded-lg border border-[#EAEAEA] bg-white p-12 text-center">
-            <h2 className="font-serif text-4xl font-light tracking-[-0.02em]">Ready to Test Your Agents?</h2>
-            <p className="mt-4 text-lg text-[#787774]">
-              Start with a free test run today.
+          <div className="border border-[#2A2A2A] p-16 text-center">
+            <p className="font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">&lt; STRESS TEST &gt;</p>
+            <h2 className="mt-6 font-display text-5xl font-black uppercase tracking-[-0.04em] md:text-7xl">
+              BRUTALIZE YOUR<br />AGENT BEFORE<br />YOUR USERS DO
+            </h2>
+            <p className="mt-4 font-mono text-xs tracking-[0.1em] text-[#6B6B6B]">
+              LAUNCH A DEMO. IT&rsquo;S FREE. YOUR AGENT WILL NOT ENJOY IT.
             </p>
-            <div className="mt-8">
+            <div className="mt-10">
               <a href={isAuthenticated ? "/dashboard" : getLoginUrl()}>
                 <Button size="lg" className="gap-2">
-                  {isAuthenticated ? "Go to Dashboard" : "Get Started Free"}
-                  <ArrowRightIcon className="h-5 w-5" />
+                  {isAuthenticated ? "> GO TO DASHBOARD" : "> GET STARTED FREE"}
                 </Button>
               </a>
             </div>
@@ -330,15 +320,15 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#EAEAEA] py-8">
+      <footer className="border-t border-[#2A2A2A] py-8">
         <div className="container">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="flex items-center gap-2">
-              <LightningBoltIcon className="h-6 w-6" />
-              <span className="font-semibold">AgentGuard</span>
+              <LightningBoltIcon className="h-4 w-4 text-[#E61919]" />
+              <span className="font-mono text-xs tracking-[0.08em]">[ AGENTGUARD ]</span>
             </div>
-            <p className="text-sm text-[#787774]">
-              &copy; 2026 AgentGuard. Built for the HACKHAZARDS &apos;26 hackathon.
+            <p className="font-mono text-[10px] text-[#6B6B6B]">
+              &copy; 2026 AGENTGUARD &mdash; BUILT FOR HACKHAZARDS &apos;26
             </p>
           </div>
         </div>

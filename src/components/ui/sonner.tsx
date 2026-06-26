@@ -6,9 +6,12 @@ export function Toaster() {
       position="bottom-right"
       toastOptions={{
         style: {
-          background: "#FFFFFF",
-          border: "1px solid #EAEAEA",
-          color: "#111111",
+          background: "#121212",
+          border: "1px solid #2A2A2A",
+          color: "#EAEAEA",
+          fontFamily: "JetBrains Mono, monospace",
+          fontSize: "12px",
+          borderRadius: "0",
         },
       }}
     />

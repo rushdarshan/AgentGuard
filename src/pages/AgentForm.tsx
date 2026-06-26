@@ -50,31 +50,34 @@ export default function AgentForm() {
           agentId,
           ...formData,
         });
-        toast.success("Agent updated successfully");
+        toast.success("AGENT UPDATED");
       } else {
         await createAgent.mutateAsync(formData);
-        toast.success("Agent created successfully");
+        toast.success("AGENT REGISTERED");
       }
       setLocation("/agents");
     } catch (error) {
-      toast.error("Failed to save agent");
+      toast.error("FAILED TO SAVE AGENT");
     }
   };
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl">
-        <h1 className="font-serif text-4xl font-light tracking-[-0.02em] mb-8">
-          {isEdit ? "Edit Agent" : "Register New Agent"}
-        </h1>
+      <div className="max-w-2xl space-y-8">
+        <div>
+          <p className="font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">&lt; REGISTRATION /&gt;</p>
+          <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">
+            {isEdit ? "EDIT AGENT" : "REGISTER AGENT"}
+          </h1>
+        </div>
 
         <Card className="p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="name">Agent Name</Label>
+              <Label htmlFor="name">AGENT NAME</Label>
               <Input
                 id="name"
-                placeholder="e.g., Customer Support Bot"
+                placeholder="e.g. Customer Support Bot"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
@@ -82,7 +85,7 @@ export default function AgentForm() {
             </div>
 
             <div>
-              <Label htmlFor="url">Endpoint URL</Label>
+              <Label htmlFor="url">ENDPOINT URL</Label>
               <Input
                 id="url"
                 type="url"
@@ -94,7 +97,7 @@ export default function AgentForm() {
             </div>
 
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">DESCRIPTION</Label>
               <Textarea
                 id="description"
                 placeholder="Describe what this agent does (helps with attack generation)"
@@ -105,29 +108,29 @@ export default function AgentForm() {
             </div>
 
             <div>
-              <Label htmlFor="authHeaders">Authentication Headers (JSON)</Label>
+              <Label htmlFor="authHeaders">AUTH HEADERS (JSON)</Label>
               <Textarea
                 id="authHeaders"
-                placeholder='{"Authorization": "Bearer YOUR_TOKEN", "X-API-Key": "YOUR_KEY"}'
+                placeholder='{"Authorization": "Bearer TOKEN", "X-API-Key": "KEY"}'
                 value={formData.authHeaders}
                 onChange={(e) => setFormData({ ...formData, authHeaders: e.target.value })}
                 rows={4}
               />
-              <p className="mt-2 text-xs text-[#787774]">
-                Optional. Provide headers as JSON. Will be encrypted and used for all test requests.
+              <p className="mt-2 font-mono text-[10px] text-[#6B6B6B]">
+                &gt; OPTIONAL. PROVIDED AS JSON. WILL BE ENCRYPTED AND USED FOR ALL TEST REQUESTS.
               </p>
             </div>
 
             <div className="flex gap-3">
               <Button type="submit" disabled={createAgent.isPending || updateAgent.isPending}>
-                {isEdit ? "Update Agent" : "Create Agent"}
+                [ {isEdit ? "UPDATE" : "REGISTER"} ]
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setLocation("/agents")}
               >
-                Cancel
+                [ CANCEL ]
               </Button>
             </div>
           </form>
