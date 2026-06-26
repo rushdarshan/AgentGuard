@@ -4,3 +4,15 @@ dist
 *.local
 __pycache__
 *.pyc
+
+# Agent config files (not project source)
+.agents/
+.opencode/
+skills-lock.json
+session-*.md
+clawpatrol-*.hcl
+docs/brainstorms/
+docs/plans/
+docs/solutions/
+plans/
+*.plan.md
