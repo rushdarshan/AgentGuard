@@ -4,11 +4,13 @@ import { Card } from "@/components/ui/card";
 import { useParams, useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import CascadeGraph from "@/components/CascadeGraph";
-import { Loader2, Download, ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import { Loader2, Download, ArrowLeft, Palette } from "lucide-react";
 
 export default function TestRunDetail() {
   const params = useParams();
   const [, setLocation] = useLocation();
+  const [colorBy, setColorBy] = useState<"category" | "community">("category");
   const testRunId = parseInt(params?.id || "0");
 
   const { data: testRun, isLoading } = trpc.testRuns.get.useQuery(
@@ -201,10 +203,19 @@ export default function TestRunDetail() {
           <div>
             <h2 className="page-title mb-4 text-2xl font-bold">Cascade analysis</h2>
             <Card className="p-6">
-              <p className="mb-4 text-sm text-muted-foreground">
-                {neoCascades.edges.length} cascade relationship{neoCascades.edges.length !== 1 ? "s" : ""} detected
-              </p>
-              <CascadeGraph nodes={neoCascades.nodes} edges={neoCascades.edges} />
+              <div className="mb-4 flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  {neoCascades.edges.length} cascade relationship{neoCascades.edges.length !== 1 ? "s" : ""} detected
+                </p>
+                <button
+                  onClick={() => setColorBy(c => c === "category" ? "community" : "category")}
+                  className="flex items-center gap-1 rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <Palette className="h-3 w-3" />
+                  Color by {colorBy === "category" ? "community" : "category"}
+                </button>
+              </div>
+              <CascadeGraph nodes={neoCascades.nodes} edges={neoCascades.edges} colorBy={colorBy} />
             </Card>
           </div>
         )}

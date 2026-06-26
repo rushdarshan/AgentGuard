@@ -7,7 +7,7 @@ import * as db from "./db";
 import { invokeLLM, evaluateWithLLM } from "./_core/llm";
 import { TRPCError } from "@trpc/server";
 import { encrypt } from "./_core/encryption";
-import { ensureSchema, saveCascade, getCascadesGraph, getCascadePatterns } from "./_core/neo4j";
+import { ensureSchema, saveCascade, getCascadesGraph, getCascadePatterns, detectCommunities } from "./_core/neo4j";
 import { translatePrompts, sarvamChat } from "./_core/sarvam";
 import { SessionManager } from "./_core/session-manager";
 import { ENV } from "./_core/env";
@@ -351,6 +351,7 @@ async function executeTestRunAsync(
       }
     }
     await saveCascade(testRunId, edges);
+    await detectCommunities(testRunId);
   } catch (error) {
     console.error("[TestRun] Execution failed:", error);
     await db.updateTestRun(testRunId, userId, { status: "failed", completedAt: new Date() });

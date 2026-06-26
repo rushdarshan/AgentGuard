@@ -4,6 +4,8 @@ interface Node {
   id: number;
   category: string;
   passRate: number;
+  language?: string;
+  community?: number | null;
 }
 
 interface Edge {
@@ -15,6 +17,7 @@ interface Edge {
 interface Props {
   nodes: Node[];
   edges: Edge[];
+  colorBy?: "category" | "community";
 }
 
 const NODE_SIZE = 36;
@@ -33,6 +36,11 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Multi-turn Crescendo": "#e879f9",
 };
 
+const COMMUNITY_PALETTE = [
+  "#f43f5e", "#3b82f6", "#22c55e", "#eab308", "#a855f7",
+  "#06b6d4", "#f97316", "#ec4899", "#14b8a6", "#6366f1",
+];
+
 function layout(nodes: Node[]) {
   const totalW = Math.max(nodes.length - 1, 1) * SPACING + PAD * 2;
   const startX = PAD;
@@ -47,7 +55,7 @@ function layout(nodes: Node[]) {
   };
 }
 
-export default function CascadeGraph({ nodes, edges }: Props) {
+export default function CascadeGraph({ nodes, edges, colorBy = "category" }: Props) {
   const { width, height, positioned } = useMemo(() => layout(nodes), [nodes]);
 
   const edgeMap = useMemo(() => {
@@ -101,8 +109,12 @@ export default function CascadeGraph({ nodes, edges }: Props) {
           );
         })}
         {positioned.map((n) => {
-          const color = CATEGORY_COLORS[n.category] || "#818CF8";
+          const cIdx = n.community != null ? n.community % COMMUNITY_PALETTE.length : -1;
+          const color = colorBy === "community" && cIdx >= 0
+            ? COMMUNITY_PALETTE[cIdx]
+            : CATEGORY_COLORS[n.category] || "#818CF8";
           const passPct = n.passRate;
+          const langLabel = n.language && n.language !== "en" ? n.language : "";
           return (
             <g key={n.id}>
               <circle cx={n.x + NODE_SIZE / 2} cy={n.y + NODE_SIZE / 2} r={NODE_SIZE / 2} fill="rgb(15 23 42)" stroke={color} strokeWidth={2} filter={`drop-shadow(0 0 4px ${color}80)`}>
@@ -111,9 +123,19 @@ export default function CascadeGraph({ nodes, edges }: Props) {
               <text x={n.x + NODE_SIZE / 2} y={n.y + NODE_SIZE / 2} textAnchor="middle" dominantBaseline="central" fill="rgb(226 232 240)" fontSize={11} fontWeight="bold">
                 {passPct}%
               </text>
-              <text x={n.x + NODE_SIZE / 2} y={n.y + NODE_SIZE / 2 + NODE_SIZE / 2 + 12} textAnchor="middle" fill="rgb(148 163 184)" fontSize={10}>
+              <text x={n.x + NODE_SIZE / 2} y={n.y + NODE_SIZE / 2 + NODE_SIZE / 2 + 10} textAnchor="middle" fill="rgb(148 163 184)" fontSize={10}>
                 {n.category}
               </text>
+              {langLabel && (
+                <text x={n.x + NODE_SIZE / 2} y={n.y + NODE_SIZE / 2 + NODE_SIZE / 2 + 22} textAnchor="middle" fill="rgb(100 116 139)" fontSize={9}>
+                  {langLabel}
+                </text>
+              )}
+              {cIdx >= 0 && colorBy === "community" && (
+                <text x={n.x + NODE_SIZE / 2} y={n.y + NODE_SIZE / 2 - NODE_SIZE / 2 - 6} textAnchor="middle" fill="rgb(148 163 184)" fontSize={8}>
+                  C{n.community}
+                </text>
+              )}
             </g>
           );
         })}
