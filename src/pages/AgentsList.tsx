@@ -4,15 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Link, useLocation } from "wouter";
 import { Plus, Trash2, Edit2, Play } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { useState, useEffect } from "react";
 
 export default function AgentsList() {
   const { data: agents = [] } = trpc.agents.list.useQuery();
@@ -20,12 +12,14 @@ export default function AgentsList() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [, setLocation] = useLocation();
 
-  const handleDelete = async () => {
-    if (deleteId) {
-      await deleteAgent.mutateAsync({ agentId: deleteId });
+  useEffect(() => {
+    if (deleteId === null) return;
+    if (confirm("Are you sure you want to delete this agent? This action cannot be undone.")) {
+      deleteAgent.mutateAsync({ agentId: deleteId }).finally(() => setDeleteId(null));
+    } else {
       setDeleteId(null);
     }
-  };
+  }, [deleteId]);
 
   return (
     <DashboardLayout>
@@ -93,20 +87,7 @@ export default function AgentsList() {
         )}
       </div>
 
-      <AlertDialog open={deleteId !== null} onOpenChange={(open) => !open && setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogTitle>Delete Agent</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete this agent? This action cannot be undone.
-          </AlertDialogDescription>
-          <div className="flex gap-2">
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-              Delete
-            </AlertDialogAction>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
+
     </DashboardLayout>
   );
 }

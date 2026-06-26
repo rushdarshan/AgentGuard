@@ -2,7 +2,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { useParams, useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -171,14 +171,15 @@ export default function TestBuilder() {
                           {config[category]?.count || 10}
                         </span>
                       </Label>
-                      <Slider
-                        value={[config[category]?.count || 10]}
-                        onValueChange={(value) => updateConfig(category, "count", value[0])}
+                      <input
+                        type="range"
+                        value={config[category]?.count || 10}
+                        onChange={(e) => updateConfig(category, "count", parseInt(e.target.value))}
                         min={1}
                         max={100}
                         step={1}
                         disabled={!selectedCategories.has(category)}
-                        className="w-full"
+                        className="w-full h-2 rounded-full appearance-none bg-border cursor-pointer accent-[#00d9ff]"
                       />
                       <p className="mt-2 text-xs text-muted-foreground">
                         Recommended: 10-20 tests per category

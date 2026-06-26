@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
 import { Plus, TrendingUp, AlertCircle, CheckCircle, Clock, GitBranch } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { reliabilityBadge, reliabilityLabel } from "@/const";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -102,23 +103,9 @@ export default function Dashboard() {
                         </div>
 
                         <div
-                          className={`rounded-full px-3 py-1 text-sm font-medium ${
-                            (run.reliabilityScore || 0) >= 80
-                              ? "badge-low"
-                              : (run.reliabilityScore || 0) >= 60
-                                ? "badge-medium"
-                                : (run.reliabilityScore || 0) >= 40
-                                  ? "badge-high"
-                                  : "badge-critical"
-                          }`}
+                          className={`rounded-full px-3 py-1 text-sm font-medium ${reliabilityBadge(run.reliabilityScore || 0)}`}
                         >
-                          {(run.reliabilityScore || 0) >= 80
-                            ? "Healthy"
-                            : (run.reliabilityScore || 0) >= 60
-                              ? "Caution"
-                              : (run.reliabilityScore || 0) >= 40
-                                ? "Warning"
-                                : "Critical"}
+                          {reliabilityLabel(run.reliabilityScore || 0)}
                         </div>
                       </div>
                     </div>

@@ -23,3 +23,15 @@ export const RELIABILITY_THRESHOLDS = {
   caution: 60,
   warning: 40,
 } as const;
+
+export function reliabilityBadge(score: number): string {
+  return score >= 80 ? "badge-low" : score >= 60 ? "badge-medium" : score >= 40 ? "badge-high" : "badge-critical";
+}
+
+export function reliabilityLabel(score: number): string {
+  return score >= 80 ? "Healthy" : score >= 60 ? "Caution" : score >= 40 ? "Warning" : "Critical";
+}
+
+export function reliabilityColor(score: number): string {
+  return score >= 80 ? "text-green-400" : score >= 60 ? "text-yellow-400" : score >= 40 ? "text-orange-400" : "text-red-400";
+}

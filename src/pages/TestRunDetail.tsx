@@ -6,6 +6,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import CascadeGraph from "@/components/CascadeGraph";
 import { useState } from "react";
 import { Loader2, Download, ArrowLeft, Palette } from "lucide-react";
+import { reliabilityColor } from "@/const";
 
 export default function TestRunDetail() {
   const params = useParams();
@@ -54,14 +55,7 @@ export default function TestRunDetail() {
     cancelled: "text-gray-400",
   } as Record<string, string>)[testRun.status] || "text-muted-foreground";
 
-  const scoreColor =
-    (testRun.reliabilityScore || 0) >= 80
-      ? "text-green-400"
-      : (testRun.reliabilityScore || 0) >= 60
-        ? "text-yellow-400"
-        : (testRun.reliabilityScore || 0) >= 40
-          ? "text-orange-400"
-          : "text-red-400";
+  const scoreColor = reliabilityColor(testRun.reliabilityScore || 0);
 
   const glowColor = scoreColor
     .replace("green-400", "glow-text-green")

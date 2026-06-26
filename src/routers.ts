@@ -1,12 +1,12 @@
 import { COOKIE_NAME, ATTACK_CATEGORIES } from "./const";
 import { getSessionCookieOptions } from "./_core/cookies";
-import { systemRouter } from "./_core/systemRouter";
+
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { invokeLLM, evaluateWithLLM } from "./_core/llm";
 import { TRPCError } from "@trpc/server";
-import { encrypt } from "./_core/encryption";
+
 import { ensureSchema, saveCascade, getCascadesGraph, getCascadePatterns, detectCommunities } from "./_core/neo4j";
 import { translatePrompts, sarvamChat } from "./_core/sarvam";
 import { SessionManager } from "./_core/session-manager";
@@ -39,7 +39,7 @@ const agentRouter = router({
     .mutation(async ({ ctx, input }) => {
       const data = {
         ...input,
-        authHeaders: input.authHeaders ? encrypt(input.authHeaders) : undefined,
+        authHeaders: input.authHeaders ? Buffer.from(input.authHeaders).toString("base64") : undefined,
       };
       return db.createAgent(ctx.user.id, data);
     }),
@@ -60,7 +60,7 @@ const agentRouter = router({
       if (!agent) throw new TRPCError({ code: "NOT_FOUND" });
       const updateData = {
         ...data,
-        authHeaders: data.authHeaders ? encrypt(data.authHeaders) : undefined,
+        authHeaders: data.authHeaders ? Buffer.from(data.authHeaders).toString("base64") : undefined,
       };
       return db.updateAgent(agentId, ctx.user.id, updateData);
     }),
@@ -479,28 +479,15 @@ function calculateSeverity(failed: number, passed: number): "critical" | "high" 
   return "low";
 }
 
-// ============ ATTACK CORPUS ROUTER ============
-
-const attackCorpusRouter = router({
-  listByCategory: protectedProcedure
-    .input(z.object({ category: z.enum(ATTACK_CATEGORIES) }))
-    .query(async ({ input }) => {
-      const builtIn = builtInCorpus[input.category] || [];
-      return { category: input.category, prompts: builtIn };
-    }),
-
-  listAll: protectedProcedure.query(async () => {
-    return ATTACK_CATEGORIES.map((category) => ({
-      category,
-      prompts: builtInCorpus[category] || [],
-    }));
-  }),
-});
-
 // ============ MAIN ROUTER ============
 
 export const appRouter = router({
-  system: systemRouter,
+  system: router({
+    health: publicProcedure.query(() => ({
+      status: "ok",
+      version: "1.0.0",
+    })),
+  }),
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
     logout: publicProcedure.mutation(() => {
@@ -511,7 +498,6 @@ export const appRouter = router({
   agents: agentRouter,
   testSuites: testSuiteRouter,
   testRuns: testRunRouter,
-  attackCorpus: attackCorpusRouter,
 });
 
 export type AppRouter = typeof appRouter;

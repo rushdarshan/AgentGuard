@@ -6,13 +6,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { reliabilityBadge, reliabilityLabel } from "@/const";
+
 
 export default function TestRunHistory() {
   const { data: testRuns = [] } = trpc.testRuns.list.useQuery({});
@@ -42,18 +37,17 @@ export default function TestRunHistory() {
           <div className="grid gap-4 md:grid-cols-4">
             <div>
               <Label className="mb-2 block text-sm">Status</Label>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="running">Running</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="failed">Failed</SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="flex h-10 w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
+              >
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="running">Running</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+              </select>
             </div>
 
             <div>
@@ -132,23 +126,9 @@ export default function TestRunHistory() {
                       </div>
 
                       <div
-                        className={`rounded-full px-3 py-1 text-sm font-medium ${
-                          (run.reliabilityScore || 0) >= 80
-                            ? "badge-low"
-                            : (run.reliabilityScore || 0) >= 60
-                              ? "badge-medium"
-                              : (run.reliabilityScore || 0) >= 40
-                                ? "badge-high"
-                                : "badge-critical"
-                        }`}
+                        className={`rounded-full px-3 py-1 text-sm font-medium ${reliabilityBadge(run.reliabilityScore || 0)}`}
                       >
-                        {(run.reliabilityScore || 0) >= 80
-                          ? "Healthy"
-                          : (run.reliabilityScore || 0) >= 60
-                            ? "Caution"
-                            : (run.reliabilityScore || 0) >= 40
-                              ? "Warning"
-                              : "Critical"}
+                        {reliabilityLabel(run.reliabilityScore || 0)}
                       </div>
                     </div>
                   </div>
