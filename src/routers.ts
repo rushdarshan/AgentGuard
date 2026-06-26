@@ -234,6 +234,35 @@ const testRunRouter = router({
     }),
 });
 
+// ============ DEMO ROUTER ============
+
+const demoRouter = router({
+  launch: protectedProcedure.mutation(async ({ ctx }) => {
+    const host = ctx.req.headers.host || "localhost:4000";
+    const protocol = host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
+    const demoUrl = `${protocol}://${host}/api/demo-agent`;
+
+    const demoAgent = await db.createAgent(ctx.user.id, {
+      name: "Demo Agent",
+      url: demoUrl,
+      description: "A deliberately vulnerable agent for demo purposes. Tests against this agent demonstrate all 9 attack categories.",
+    });
+
+    const allCats = ATTACK_CATEGORIES.reduce((acc, cat) => {
+      acc[cat] = { intensity: "medium", count: 10 };
+      return acc;
+    }, {} as Record<string, { intensity: string; count: number }>);
+
+    const agentId = (demoAgent as any).id;
+    const result = await db.createTestRun(ctx.user.id, agentId, undefined);
+    const testRunId = (result as any).insertId ?? (result as any).id;
+
+    executeTestRunAsync(testRunId, ctx.user.id, agentId, demoAgent, allCats).catch(console.error);
+
+    return { testRunId, agentId };
+  }),
+});
+
 // Async test execution (simplified - in production use a proper job queue)
 async function executeTestRunAsync(
   testRunId: number,
@@ -498,6 +527,7 @@ export const appRouter = router({
   agents: agentRouter,
   testSuites: testSuiteRouter,
   testRuns: testRunRouter,
+  demo: demoRouter,
 });
 
 export type AppRouter = typeof appRouter;
