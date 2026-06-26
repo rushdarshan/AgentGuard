@@ -3,22 +3,24 @@ import { Card } from "@/components/ui/card";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { Link, useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { useGSAP } from "@gsap/react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
-  Shield,
-  Zap,
-  BarChart3,
-  Lock,
-  Cpu,
-  TrendingUp,
-  ArrowRight,
-  CheckCircle,
-  AlertCircle,
-  Globe,
-  Loader2,
-} from "lucide-react";
+  LightningBoltIcon,
+  BarChartIcon,
+  LockClosedIcon,
+  GearIcon,
+  ArrowUpIcon,
+  ArrowRightIcon,
+  CheckCircledIcon,
+  ExclamationTriangleIcon,
+  GlobeIcon,
+  ReloadIcon,
+} from "@radix-ui/react-icons";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -26,26 +28,80 @@ export default function Home() {
   const [demoLoading, setDemoLoading] = useState(false);
   const [, setLocation] = useLocation();
 
+  const heroRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const capabilitiesRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
+  useGSAP((_context, contextSafe) => {
+    const mm = gsap.matchMedia();
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const hero = heroRef.current!;
+      const features = featuresRef.current!;
+      const caps = capabilitiesRef.current!;
+      const cta = ctaRef.current!;
+
+      const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      heroTl.from(hero.querySelectorAll("[data-animate]"), {
+        y: 40, autoAlpha: 0, duration: 0.6, stagger: 0.15,
+      }).from(hero.querySelector("[data-stats]"), {
+        y: 60, autoAlpha: 0, scale: 0.95, duration: 0.8,
+      }, "+=0.1");
+
+      gsap.to(hero.querySelector("[data-stats]"), {
+        y: -6, duration: 3, ease: "sine.inOut", yoyo: true, repeat: -1,
+      });
+
+      ScrollTrigger.batch(features.querySelectorAll("[data-card]"), {
+        onEnter: (batch) => gsap.fromTo(batch,
+          { y: 50, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, duration: 0.5, stagger: 0.08, ease: "power2.out", overwrite: true },
+        ),
+        onLeaveBack: (batch) => gsap.set(batch, { autoAlpha: 0, y: 50, overwrite: true }),
+        start: "top 85%",
+      });
+
+      const capsTl = gsap.timeline({
+        scrollTrigger: { trigger: caps, start: "top 75%", toggleActions: "play none none reverse" },
+      });
+      capsTl.from(caps.querySelectorAll("[data-animate]"), {
+        x: -30, autoAlpha: 0, duration: 0.5, stagger: 0.1,
+      }).from(caps.querySelector("[data-scorecard]"), {
+        x: 40, autoAlpha: 0, duration: 0.7,
+      }, "-=0.2");
+
+      gsap.from(cta.querySelector("[data-cta]"), {
+        y: 30, autoAlpha: 0, scale: 0.97, duration: 0.7, ease: "power3.out",
+        scrollTrigger: { trigger: cta, start: "top 80%", toggleActions: "play none none reverse" },
+      });
+    });
+
+    return () => mm.revert();
+  }, { scope: heroRef, dependencies: [] });
+
   const handleLaunchDemo = async () => {
     setDemoLoading(true);
     try {
       const result = await launchDemo.mutateAsync();
       setLocation(`/runs/${result.testRunId}`);
-    } catch {
-      toast.error("Failed to launch demo");
+    } catch (e) {
+      toast.error(`Failed to launch demo: ${(e as Error).message}`);
       setDemoLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="scanline" aria-hidden="true" />
+    <div className="min-h-screen bg-[#FBFBFA] text-[#111111]">
+      {/* Ambient background */}
+      <div className="fixed inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0,0,0,0.02) 0%, transparent 60%)" }} />
+
       {/* Navigation */}
-      <nav className="border-b border-border/50 backdrop-blur-sm">
+      <nav className="relative border-b border-[#EAEAEA]">
         <div className="container flex items-center justify-between py-4">
           <div className="flex items-center gap-2">
-            <Shield className="h-8 w-8 text-accent" />
-            <span className="text-2xl font-bold">AgentGuard</span>
+            <LightningBoltIcon className="h-8 w-8" />
+            <span className="text-2xl font-bold tracking-tight">AgentGuard</span>
           </div>
           <div>
             {isAuthenticated ? (
@@ -62,31 +118,27 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-32">
+      <section ref={heroRef} className="relative py-24 md:py-40">
         <div className="container">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/50 bg-card/50 px-4 py-2 backdrop-blur-sm">
-              <Zap className="h-4 w-4 text-accent" />
-              <span className="text-sm font-medium">AI Agent Reliability Testing</span>
-            </div>
+          <div className="mx-auto max-w-4xl text-center">
+            <p data-animate className="mb-4 text-sm font-semibold uppercase tracking-[0.15em] text-[#787774]">
+              AI Agent Reliability Testing
+            </p>
 
-            <h1 className="mb-6 text-5xl font-bold md:text-7xl">
-              CI for Your{" "}
-              <span className="text-accent">
-                AI Agents
-              </span>
+            <h1 data-animate className="font-serif text-6xl font-light leading-[1.1] tracking-[-0.03em] md:text-8xl">
+              CI for Your AI Agents
             </h1>
 
-            <p className="mb-8 text-xl text-muted-foreground md:text-2xl">
+            <p data-animate className="mx-auto mt-6 max-w-2xl text-lg text-[#787774]">
               Catch agent failures before your users do. Run adversarial test suites, detect prompt injection attacks, and measure reliability with precision.
             </p>
 
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <div data-animate className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button size="lg" className="gap-2" onClick={handleLaunchDemo} disabled={demoLoading}>
                 {demoLoading ? (
-                  <>Launching... <Loader2 className="h-5 w-5 animate-spin" /></>
+                  <>Launching... <ReloadIcon className="h-5 w-5 animate-spin" /></>
                 ) : (
-                  <>Launch Demo <Zap className="h-5 w-5" /></>
+                  <>Launch Demo <LightningBoltIcon className="h-5 w-5" /></>
                 )}
               </Button>
               {isAuthenticated ? (
@@ -100,20 +152,19 @@ export default function Home() {
               )}
             </div>
 
-            {/* Hero Visual */}
-            <div className="mt-16 rounded-lg border border-border/50 bg-card/30 p-8 backdrop-blur-sm">
+            <div data-stats className="mt-16 rounded-lg border border-[#EAEAEA] bg-white p-8">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <div className="text-3xl font-bold text-accent">100+</div>
-                  <div className="text-sm text-muted-foreground">Attack Vectors</div>
+                  <div className="text-3xl font-bold">100+</div>
+                  <div className="mt-1 text-sm text-[#787774]">Attack Vectors</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-accent">9</div>
-                  <div className="text-sm text-muted-foreground">Attack Categories</div>
+                  <div className="text-3xl font-bold">9</div>
+                  <div className="mt-1 text-sm text-[#787774]">Attack Categories</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-accent">0-100</div>
-                  <div className="text-sm text-muted-foreground">Reliability Score</div>
+                  <div className="text-3xl font-bold">0-100</div>
+                  <div className="mt-1 text-sm text-[#787774]">Reliability Score</div>
                 </div>
               </div>
             </div>
@@ -122,67 +173,67 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="border-t border-border/50 py-20 md:py-32">
+      <section ref={featuresRef} className="border-t border-[#EAEAEA] py-24 md:py-40">
         <div className="container">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-4xl font-bold">Comprehensive Testing</h2>
-            <p className="text-xl text-muted-foreground">
-              Nine attack categories to stress-test every dimension of your agent
+            <h2 className="font-serif text-4xl font-light tracking-[-0.02em] md:text-5xl">Comprehensive Testing</h2>
+            <p className="mt-4 text-lg text-[#787774]">
+              Nine attack categories to probe every dimension of your agent
             </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-3">
             {[
               {
-                icon: Lock,
+                icon: LockClosedIcon,
                 title: "Prompt Injection",
                 description: "Detect instruction override and context hijacking attacks",
               },
               {
-                icon: Cpu,
+                icon: GearIcon,
                 title: "Context Overflow",
                 description: "Test behavior under extreme input and memory pressure",
               },
               {
-                icon: TrendingUp,
+                icon: ArrowUpIcon,
                 title: "Logic Collapse",
                 description: "Identify reasoning failures and contradictions",
               },
               {
-                icon: Shield,
+                icon: LockClosedIcon,
                 title: "Jailbreak",
                 description: "Verify safety guardrails and constraint adherence",
               },
               {
-                icon: BarChart3,
+                icon: BarChartIcon,
                 title: "Hallucination",
                 description: "Catch fabricated responses and false information",
               },
               {
-                icon: AlertCircle,
+                icon: ExclamationTriangleIcon,
                 title: "Schema Drift",
                 description: "Test tool calling under unexpected input shapes",
               },
               {
-                icon: Globe,
+                icon: GlobeIcon,
                 title: "Multi-tenant Leak",
                 description: "Attempt cross-user data extraction from agent memory",
               },
               {
-                icon: Shield,
+                icon: LightningBoltIcon,
                 title: "Indirect Injection",
                 description: "Detect attacks through tool outputs and retrieved documents",
               },
               {
-                icon: Zap,
+                icon: LightningBoltIcon,
                 title: "Multi-turn Crescendo",
-                description: "Escalating multi-turn jailbreak across N conversation rounds",
+                description: "Escalating jailbreak across multiple conversation rounds",
               },
             ].map((feature, i) => (
-              <Card key={i} className="flex flex-col gap-4 p-6">
-                <feature.icon className="h-8 w-8 text-accent" />
+              <Card key={i} data-card className="flex flex-col gap-3 p-6">
+                <feature.icon className="h-6 w-6" />
                 <h3 className="font-semibold">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">{feature.description}</p>
+                <p className="text-sm text-[#787774]">{feature.description}</p>
               </Card>
             ))}
           </div>
@@ -190,34 +241,34 @@ export default function Home() {
       </section>
 
       {/* Capabilities Section */}
-      <section className="border-t border-border/50 py-20 md:py-32">
+      <section ref={capabilitiesRef} className="border-t border-[#EAEAEA] py-24 md:py-40">
         <div className="container">
-          <div className="grid gap-12 md:grid-cols-2 md:gap-16">
+          <div className="grid gap-16 md:grid-cols-2">
             <div>
-              <h2 className="mb-6 text-4xl font-bold">Built for Developers</h2>
-              <ul className="space-y-4">
+              <h2 className="font-serif text-4xl font-light tracking-[-0.02em] md:text-5xl">Built for Developers</h2>
+              <ul className="mt-8 space-y-4">
                 {[
                   "Real-time test execution with live progress streaming",
                   "LLM-powered dynamic attack generation tailored to your agent",
-                  "Reliability scorecard with severity badges (0–100 scale)",
-                  "Failure-cascade graph visualization to understand dependencies",
+                  "Reliability scorecard with severity badges on a 0-100 scale",
+                  "Failure-cascade graph visualization to trace dependency chains",
                   "Test history with filtering, sorting, and run comparison",
                   "Secure endpoint management with encrypted auth headers",
                 ].map((item, i) => (
-                  <div key={i} className="flex gap-3">
-                    <CheckCircle className="h-5 w-5 flex-shrink-0 text-accent" />
-                    <span className="text-muted-foreground">{item}</span>
+                  <div key={i} data-animate className="flex gap-3">
+                    <CheckCircledIcon className="mt-0.5 h-5 w-5 flex-shrink-0" />
+                    <span className="text-[#787774]">{item}</span>
                   </div>
                 ))}
               </ul>
             </div>
 
-            <div className="rounded-lg border border-border/50 bg-card/30 p-8 backdrop-blur-sm">
+            <div data-scorecard className="rounded-lg border border-[#EAEAEA] bg-white p-8">
               <div className="space-y-6">
                 <div>
-                  <div className="mb-2 text-sm font-semibold text-accent">Reliability Score</div>
-                  <div className="h-2 w-full rounded-full bg-border">
-                    <div className="h-full w-3/4 rounded-full bg-accent"></div>
+                  <div className="mb-2 text-sm font-semibold">Reliability Score</div>
+                  <div className="h-2 w-full rounded-full bg-[#EAEAEA]">
+                    <div className="h-full w-3/4 rounded-full bg-[#111111]"></div>
                   </div>
                   <div className="mt-2 text-2xl font-bold">75/100</div>
                 </div>
@@ -225,31 +276,31 @@ export default function Home() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Prompt Injection</span>
-                    <span className="badge-high">High Risk</span>
+                    <span className="badge badge-high">High Risk</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Context Overflow</span>
-                    <span className="badge-low">Low Risk</span>
+                    <span className="badge badge-low">Low Risk</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Logic Collapse</span>
-                    <span className="badge-medium">Medium Risk</span>
+                    <span className="badge badge-medium">Medium Risk</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Jailbreak</span>
-                    <span className="badge-critical">Critical</span>
+                    <span className="badge badge-critical">Critical</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Hallucination</span>
-                    <span className="badge-low">Low Risk</span>
+                    <span className="badge badge-low">Low Risk</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Indirect Injection</span>
-                    <span className="badge-high">High Risk</span>
+                    <span className="badge badge-high">High Risk</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Crescendo</span>
-                    <span className="badge-critical">Critical</span>
+                    <span className="badge badge-critical">Critical</span>
                   </div>
                 </div>
               </div>
@@ -259,33 +310,35 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="border-t border-border/50 py-20 md:py-32">
+      <section ref={ctaRef} className="border-t border-[#EAEAEA] py-24 md:py-40">
         <div className="container">
-          <div className="rounded-lg border border-border/50 bg-gradient-to-br from-accent/10 to-accent/5 p-12 text-center backdrop-blur-sm">
-            <h2 className="mb-4 text-4xl font-bold">Ready to Test Your Agents?</h2>
-            <p className="mb-8 text-lg text-muted-foreground">
-              Join developers building reliable AI systems. Start with a free test run today.
+          <div data-cta className="rounded-lg border border-[#EAEAEA] bg-white p-12 text-center">
+            <h2 className="font-serif text-4xl font-light tracking-[-0.02em]">Ready to Test Your Agents?</h2>
+            <p className="mt-4 text-lg text-[#787774]">
+              Start with a free test run today.
             </p>
-            <a href={isAuthenticated ? "/dashboard" : getLoginUrl()}>
-              <Button size="lg" className="gap-2">
-                {isAuthenticated ? "Go to Dashboard" : "Get Started Free"}
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-            </a>
+            <div className="mt-8">
+              <a href={isAuthenticated ? "/dashboard" : getLoginUrl()}>
+                <Button size="lg" className="gap-2">
+                  {isAuthenticated ? "Go to Dashboard" : "Get Started Free"}
+                  <ArrowRightIcon className="h-5 w-5" />
+                </Button>
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/50 py-8">
+      <footer className="border-t border-[#EAEAEA] py-8">
         <div className="container">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="flex items-center gap-2">
-              <Shield className="h-6 w-6 text-accent" />
+              <LightningBoltIcon className="h-6 w-6" />
               <span className="font-semibold">AgentGuard</span>
             </div>
-            <p className="text-sm text-muted-foreground">
-              © 2026 AgentGuard. Built for the HACKHAZARDS '26 hackathon.
+            <p className="text-sm text-[#787774]">
+              &copy; 2026 AgentGuard. Built for the HACKHAZARDS &apos;26 hackathon.
             </p>
           </div>
         </div>

@@ -64,7 +64,7 @@ export default function AgentForm() {
   return (
     <DashboardLayout>
       <div className="max-w-2xl">
-        <h1 className="mb-8 text-4xl font-bold">
+        <h1 className="font-serif text-4xl font-light tracking-[-0.02em] mb-8">
           {isEdit ? "Edit Agent" : "Register New Agent"}
         </h1>
 
@@ -113,7 +113,7 @@ export default function AgentForm() {
                 onChange={(e) => setFormData({ ...formData, authHeaders: e.target.value })}
                 rows={4}
               />
-              <p className="mt-2 text-xs text-muted-foreground">
+              <p className="mt-2 text-xs text-[#787774]">
                 Optional. Provide headers as JSON. Will be encrypted and used for all test requests.
               </p>
             </div>

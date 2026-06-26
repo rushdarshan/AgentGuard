@@ -9,23 +9,28 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"IBM Plex Sans"', ...defaultTheme.fontFamily.sans],
+        sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Helvetica', 'Arial', 'sans-serif'],
+        serif: ['Newsreader', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
       colors: {
-        accent: '#6366F1',
-        background: 'rgb(7, 11, 20)',
-        foreground: 'rgb(241, 245, 249)',
-        card: 'rgb(17, 24, 39)',
-        border: 'rgba(255, 255, 255, 0.06)',
+        accent: '#111111',
+        background: '#FBFBFA',
+        foreground: '#111111',
+        card: '#FFFFFF',
+        border: '#EAEAEA',
         muted: {
-          foreground: 'rgb(100, 116, 139)',
+          foreground: '#787774',
+        },
+        pastel: {
+          red: { bg: '#FDEBEC', text: '#9F2F2D' },
+          blue: { bg: '#E1F3FE', text: '#1F6C9F' },
+          green: { bg: '#EDF3EC', text: '#346538' },
+          yellow: { bg: '#FBF3DB', text: '#956400' },
         },
       },
       boxShadow: {
-        'glow-sm': '0 0 12px rgba(99, 102, 241, 0.25)',
-        'glow': '0 0 20px rgba(99, 102, 241, 0.3)',
-        'glow-lg': '0 0 35px rgba(99, 102, 241, 0.4)',
+        subtle: '0 2px 8px rgba(0,0,0,0.04)',
       },
     },
   },

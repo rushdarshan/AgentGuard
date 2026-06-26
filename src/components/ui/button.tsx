@@ -6,9 +6,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<string, string> = {
-  default: "bg-accent text-black hover:bg-accent/90 hover:shadow-glow-sm",
-  ghost: "text-muted-foreground hover:text-accent hover:bg-white/5",
-  outline: "border border-border/50 text-foreground hover:border-accent/30 hover:bg-white/5",
+  default: "btn-solid",
+  ghost: "btn-ghost",
+  outline: "btn-outline",
 };
 
 const sizes: Record<string, string> = {
@@ -21,7 +21,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = "default", size = "default", className = "", ...props }, ref) => (
     <button
       ref={ref}
-      className={`inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 active:scale-95 ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     />
   )

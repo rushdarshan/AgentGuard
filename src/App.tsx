@@ -14,7 +14,13 @@ import TestBuilder from "./pages/TestBuilder";
 import TestRunDetail from "./pages/TestRunDetail";
 import TestRunHistory from "./pages/TestRunHistory";
 import { useAuth } from "./_core/hooks/useAuth";
-import { Loader2 } from "lucide-react";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
+gsap.defaults({ ease: "power2.out", duration: 0.5 });
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, loading } = useAuth();
@@ -22,7 +28,7 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        <ReloadIcon className="h-8 w-8 animate-spin" />
       </div>
     );
   }

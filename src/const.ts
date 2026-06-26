@@ -33,5 +33,5 @@ export function reliabilityLabel(score: number): string {
 }
 
 export function reliabilityColor(score: number): string {
-  return score >= 80 ? "text-green-400" : score >= 60 ? "text-yellow-400" : score >= 40 ? "text-orange-400" : "text-red-400";
+  return score >= 80 ? "text-[#346538]" : score >= 60 ? "text-[#956400]" : score >= 40 ? "text-[#9F2F2D]" : "text-[#9F2F2D]";
 }

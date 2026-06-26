@@ -1,4 +1,6 @@
-import { useMemo, useRef, useState, useCallback, useEffect } from "react";
+import { useMemo, useRef, useState, useCallback } from "react";
+import { useGSAP } from "@gsap/react";
+import { gsap } from "gsap";
 
 interface Node {
   id: number;
@@ -27,12 +29,12 @@ interface SimNode extends Node {
   vy: number;
 }
 
-const NODE_RADIUS = 22;
-const REPULSION = 400;
-const ATTRACTION = 0.005;
+const NODE_RADIUS = 28;
+const REPULSION = 1200;
+const ATTRACTION = 0.003;
 const DAMPING = 0.85;
-const CENTER_FORCE = 0.01;
-const FRAMES = 80;
+const CENTER_FORCE = 0.008;
+const FRAMES = 120;
 
 const CATEGORY_COLORS: Record<string, string> = {
   "Prompt Injection": "#a78bfa",
@@ -133,6 +135,19 @@ function simulate(nodes: Node[], edges: Edge[]): SimNode[] {
 
 export default function CascadeGraph({ nodes, edges, colorBy = "category" }: Props) {
   const [dragNode, setDragNode] = useState<{ id: number; x: number; y: number } | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const graphRef = useRef<HTMLDivElement>(null);
+
+  useGSAP((_context, contextSafe) => {
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.from(graphRef.current!.querySelectorAll("g[data-node]"), {
+        autoAlpha: 0, scale: 0.8, duration: 0.4, stagger: 0.03, ease: "back.out(1.7)",
+        transformOrigin: "center center",
+      });
+    });
+    return () => mm.revert();
+  }, { scope: graphRef, dependencies: [nodes, edges] });
 
   const positioned = useMemo(() => simulate(nodes, edges), [nodes, edges]);
 
@@ -142,8 +157,8 @@ export default function CascadeGraph({ nodes, edges, colorBy = "category" }: Pro
     return map;
   }, [positioned]);
 
-  const canvasW = useMemo(() => Math.max(positioned.length * 80 + 40, 400), [positioned]);
-  const canvasH = useMemo(() => Math.max(260, positioned.length * 30 + 40), [positioned]);
+  const canvasW = useMemo(() => Math.max(positioned.length * 80 + 40, 600), [positioned]);
+  const canvasH = useMemo(() => Math.max(300, positioned.length * 40 + 40), [positioned]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent, id: number) => {
     const svg = (e.target as SVGElement).closest("svg");
@@ -181,76 +196,105 @@ export default function CascadeGraph({ nodes, edges, colorBy = "category" }: Pro
   if (nodes.length === 0) return null;
 
   return (
-    <div className="overflow-x-auto overflow-y-hidden" style={{ cursor: dragNode ? "grabbing" : "grab" }}>
-      <svg
-        width={canvasW}
-        height={canvasH}
-        className="min-w-full"
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
+    <div>
+      <div className="flex items-center justify-center gap-2 pb-3">
+        <span className="text-xs text-[#787774]">{Math.round(zoom * 100)}%</span>
+        <button
+          onClick={() => setZoom(z => Math.max(0.5, z - 0.2))}
+          className="flex h-7 w-7 items-center justify-center rounded border border-[#EAEAEA] text-sm text-[#787774] hover:text-[#111111]"
+        >
+          -
+        </button>
+        <button
+          onClick={() => setZoom(z => Math.min(3, z + 0.2))}
+          className="flex h-7 w-7 items-center justify-center rounded border border-[#EAEAEA] text-sm text-[#787774] hover:text-[#111111]"
+        >
+          +
+        </button>
+        <button
+          onClick={() => setZoom(1)}
+          className="rounded border border-[#EAEAEA] px-2 py-1 text-[11px] text-[#787774] hover:text-[#111111]"
+        >
+          Reset
+        </button>
+      </div>
+      <div
+        ref={graphRef}
+        className="grid overflow-auto"
+        style={{ placeItems: "center", cursor: dragNode ? "grabbing" : "grab" }}
       >
-        <defs>
+        <div style={{ width: canvasW * zoom, height: canvasH * zoom, overflow: "hidden" }}>
+          <svg
+            width={canvasW * zoom}
+            height={canvasH * zoom}
+            viewBox={`0 0 ${canvasW} ${canvasH}`}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
+          >
+          <defs>
+            {edges.map((e, i) => {
+              const s = edgeMap.get(e.sourceId);
+              const t = edgeMap.get(e.targetId);
+              if (!s || !t) return null;
+              return (
+                <marker key={i} id={`arrow-${i}`} viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M0,0 L10,5 L0,10 z" fill="rgb(148 163 184)" filter="drop-shadow(0 0 2px rgb(148 163 184 / 0.5))" />
+                </marker>
+              );
+            })}
+          </defs>
           {edges.map((e, i) => {
-            const s = edgeMap.get(e.sourceId);
-            const t = edgeMap.get(e.targetId);
+            const s = displayNodes.find((n) => n.id === e.sourceId);
+            const t = displayNodes.find((n) => n.id === e.targetId);
             if (!s || !t) return null;
+            const strokeW = 1 + (e.confidence / 100) * 3;
             return (
-              <marker key={i} id={`arrow-${i}`} viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                <path d="M0,0 L10,5 L0,10 z" fill="rgb(148 163 184)" filter="drop-shadow(0 0 2px rgb(148 163 184 / 0.5))" />
-              </marker>
+              <line
+                key={`edge-${i}`}
+                x1={s.x}
+                y1={s.y}
+                x2={t.x}
+                y2={t.y}
+                stroke={`rgb(148 163 184 / ${0.3 + (e.confidence / 100) * 0.5})`}
+                strokeWidth={strokeW}
+                markerEnd={`url(#arrow-${i})`}
+              />
             );
           })}
-        </defs>
-        {edges.map((e, i) => {
-          const s = displayNodes.find((n) => n.id === e.sourceId);
-          const t = displayNodes.find((n) => n.id === e.targetId);
-          if (!s || !t) return null;
-          const strokeW = 1 + (e.confidence / 100) * 3;
-          return (
-            <line
-              key={`edge-${i}`}
-              x1={s.x}
-              y1={s.y}
-              x2={t.x}
-              y2={t.y}
-              stroke={`rgb(148 163 184 / ${0.3 + (e.confidence / 100) * 0.5})`}
-              strokeWidth={strokeW}
-              markerEnd={`url(#arrow-${i})`}
-            />
-          );
-        })}
-        {displayNodes.map((n) => {
-          const cIdx = n.community != null ? n.community % COMMUNITY_PALETTE.length : -1;
-          const color = colorBy === "community" && cIdx >= 0
-            ? COMMUNITY_PALETTE[cIdx]
-            : CATEGORY_COLORS[n.category] || "#818CF8";
-          const langLabel = n.language && n.language !== "en" ? n.language : "";
-          return (
-            <g key={n.id} onPointerDown={(e) => handlePointerDown(e, n.id)} style={{ cursor: "pointer" }}>
-              <circle cx={n.x} cy={n.y} r={NODE_RADIUS} fill="rgb(15 23 42)" stroke={color} strokeWidth={2} filter={`drop-shadow(0 0 4px ${color}80)`}>
-                <animate attributeName="stroke-opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />
-              </circle>
-              <text x={n.x} y={n.y} textAnchor="middle" dominantBaseline="central" fill="rgb(226 232 240)" fontSize={11} fontWeight="bold">
-                {Math.round(n.passRate)}%
-              </text>
-              <text x={n.x} y={n.y + NODE_RADIUS + 12} textAnchor="middle" fill="rgb(148 163 184)" fontSize={9}>
-                {n.category}
-              </text>
-              {langLabel && (
-                <text x={n.x} y={n.y + NODE_RADIUS + 24} textAnchor="middle" fill="rgb(100 116 139)" fontSize={8}>
-                  {langLabel}
+          {displayNodes.map((n) => {
+            const cIdx = n.community != null ? n.community % COMMUNITY_PALETTE.length : -1;
+            const color = colorBy === "community" && cIdx >= 0
+              ? COMMUNITY_PALETTE[cIdx]
+              : CATEGORY_COLORS[n.category] || "#818CF8";
+            const langLabel = n.language && n.language !== "en" ? n.language : "";
+            return (
+              <g key={n.id} data-node onPointerDown={(e) => handlePointerDown(e, n.id)} style={{ cursor: "pointer" }}>
+                <circle cx={n.x} cy={n.y} r={NODE_RADIUS} fill="rgb(15 23 42)" stroke={color} strokeWidth={2} filter={`drop-shadow(0 0 4px ${color}80)`}>
+                  <animate attributeName="stroke-opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />
+                </circle>
+                <text x={n.x} y={n.y} textAnchor="middle" dominantBaseline="central" fill="rgb(226 232 240)" fontSize={11} fontWeight="bold">
+                  {Math.round(n.passRate)}%
                 </text>
-              )}
-              {cIdx >= 0 && colorBy === "community" && (
-                <text x={n.x} y={n.y - NODE_RADIUS - 6} textAnchor="middle" fill="rgb(148 163 184)" fontSize={8}>
-                  C{n.community}
+                <text x={n.x} y={n.y + NODE_RADIUS + 12} textAnchor="middle" fill="rgb(148 163 184)" fontSize={9}>
+                  {n.category}
                 </text>
-              )}
-            </g>
-          );
-        })}
-      </svg>
+                {langLabel && (
+                  <text x={n.x} y={n.y + NODE_RADIUS + 24} textAnchor="middle" fill="rgb(100 116 139)" fontSize={8}>
+                    {langLabel}
+                  </text>
+                )}
+                {cIdx >= 0 && colorBy === "community" && (
+                  <text x={n.x} y={n.y - NODE_RADIUS - 6} textAnchor="middle" fill="rgb(148 163 184)" fontSize={8}>
+                    C{n.community}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+          </svg>
+        </div>
+      </div>
     </div>
   );
 }

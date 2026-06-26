@@ -2,7 +2,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link, useLocation } from "wouter";
-import { Plus, Trash2, Edit2, Play } from "lucide-react";
+import { PlusIcon, TrashIcon, Pencil1Icon, PlayIcon } from "@radix-ui/react-icons";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useEffect } from "react";
 
@@ -28,7 +28,7 @@ export default function AgentsList() {
           <h1 className="text-4xl font-bold">Agent Endpoints</h1>
           <Link href="/agents/new">
             <Button className="gap-2">
-              <Plus className="h-5 w-5" />
+              <PlusIcon className="h-5 w-5" />
               Add Agent
             </Button>
           </Link>
@@ -41,32 +41,32 @@ export default function AgentsList() {
                 <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold">{agent.name}</h3>
-                    <p className="text-sm text-muted-foreground">{agent.url}</p>
+                    <p className="text-sm text-[#787774]">{agent.url}</p>
                     {agent.description && (
-                      <p className="mt-2 text-sm text-muted-foreground">{agent.description}</p>
+                      <p className="mt-2 text-sm text-[#787774]">{agent.description}</p>
                     )}
                   </div>
 
                   <div className="flex gap-2">
                     <Link href={`/agents/${agent.id}/test`}>
                       <Button size="sm" variant="outline" className="gap-2">
-                        <Play className="h-4 w-4" />
+                        <PlayIcon className="h-4 w-4" />
                         Test
                       </Button>
                     </Link>
                     <Link href={`/agents/${agent.id}/edit`}>
                       <Button size="sm" variant="outline" className="gap-2">
-                        <Edit2 className="h-4 w-4" />
+                        <Pencil1Icon className="h-4 w-4" />
                         Edit
                       </Button>
                     </Link>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="gap-2 text-red-400 hover:text-red-300"
+                      className="gap-2 text-[#9F2F2D] hover:text-[#9F2F2D]"
                       onClick={() => setDeleteId(agent.id)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <TrashIcon className="h-4 w-4" />
                       Delete
                     </Button>
                   </div>
@@ -76,10 +76,10 @@ export default function AgentsList() {
           </div>
         ) : (
           <Card className="p-12 text-center">
-            <p className="mb-4 text-lg text-muted-foreground">No agents registered yet</p>
+            <p className="mb-4 text-lg text-[#787774]">No agents registered yet</p>
             <Link href="/agents/new">
               <Button className="gap-2">
-                <Plus className="h-5 w-5" />
+                <PlusIcon className="h-5 w-5" />
                 Create Your First Agent
               </Button>
             </Link>

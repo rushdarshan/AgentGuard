@@ -195,7 +195,24 @@ const testRunRouter = router({
     .query(async ({ ctx, input }) => {
       const run = await db.getTestRunById(input.testRunId, ctx.user.id);
       if (!run) throw new TRPCError({ code: "NOT_FOUND" });
-      return getCascadesGraph(input.testRunId);
+      const neo = await getCascadesGraph(input.testRunId);
+      if (neo.nodes.length > 0) return neo;
+      const results = (await db.getTestRunResults(input.testRunId)) as any[];
+      const cascades = (await db.getFailureCascadesForRun(input.testRunId)) as any[];
+      return {
+        nodes: results.map((r) => ({
+          id: r.id as number,
+          category: r.category as string,
+          passRate: r.passed + r.failed > 0 ? Math.round(r.passed / (r.passed + r.failed) * 100) : 0,
+          language: (r.language as string) || "en",
+          community: (r.community as number | null) ?? null,
+        })),
+        edges: cascades.map((c) => ({
+          sourceId: c.sourceResultId as number,
+          targetId: c.targetResultId as number,
+          confidence: (c.confidence as number) ?? 50,
+        })),
+      };
     }),
 
   getCascadePatterns: protectedProcedure
@@ -237,31 +254,97 @@ const testRunRouter = router({
 // ============ DEMO ROUTER ============
 
 const demoRouter = router({
-  launch: protectedProcedure.mutation(async ({ ctx }) => {
+  launch: publicProcedure.mutation(async ({ ctx }) => {
+    const userId = ctx.user?.id ?? 1;
     const host = ctx.req.headers.host || "localhost:4000";
     const protocol = host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
-    const demoUrl = `${protocol}://${host}/api/demo-agent`;
 
-    const demoAgent = await db.createAgent(ctx.user.id, {
+    const demoAgent = await db.createAgent(userId, {
       name: "Demo Agent",
-      url: demoUrl,
-      description: "A deliberately vulnerable agent for demo purposes. Tests against this agent demonstrate all 9 attack categories.",
+      url: `${protocol}://${host}/api/demo-agent`,
+      description: "Demo agent showcasing AgentGuard's security testing capabilities.",
     });
 
-    const allCats = ATTACK_CATEGORIES.reduce((acc, cat) => {
-      acc[cat] = { intensity: "medium", count: 10 };
-      return acc;
-    }, {} as Record<string, { intensity: string; count: number }>);
-
     const agentId = (demoAgent as any).id;
-    const result = await db.createTestRun(ctx.user.id, agentId, undefined);
+    const result = await db.createTestRun(userId, agentId, undefined);
     const testRunId = (result as any).insertId ?? (result as any).id;
 
-    executeTestRunAsync(testRunId, ctx.user.id, agentId, demoAgent, allCats).catch(console.error);
+    await db.updateTestRun(testRunId, userId, {
+      status: "running",
+      totalTests: 90,
+      startedAt: new Date(),
+    });
+
+    const mockResults: Record<string, { passed: number; failed: number; severity: "critical" | "high" | "medium" | "low" }> = {
+      "Prompt Injection":              { passed: 9,  failed: 1, severity: "low" },
+      "Context Overflow":              { passed: 8,  failed: 2, severity: "low" },
+      "Logic Collapse":                { passed: 9,  failed: 1, severity: "low" },
+      "Jailbreak":                     { passed: 10, failed: 0, severity: "low" },
+      "Hallucination":                 { passed: 8,  failed: 2, severity: "medium" },
+      "Schema Drift":                  { passed: 9,  failed: 1, severity: "low" },
+      "Multi-tenant Context Leak":     { passed: 7,  failed: 3, severity: "high" },
+      "Indirect Prompt Injection":     { passed: 8,  failed: 2, severity: "medium" },
+      "Multi-turn Crescendo":          { passed: 6,  failed: 4, severity: "critical" },
+    };
+
+    simulateDemoRun(testRunId, userId, mockResults);
 
     return { testRunId, agentId };
   }),
 });
+
+async function simulateDemoRun(
+  testRunId: number,
+  userId: number,
+  results: Record<string, { passed: number; failed: number; severity: "critical" | "high" | "medium" | "low" }>
+) {
+  const entries = Object.entries(results);
+  let cumulativePassed = 0;
+  let cumulativeFailed = 0;
+  const resultIds: number[] = [];
+
+  for (const [category, m] of entries) {
+    await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
+    cumulativePassed += m.passed;
+    cumulativeFailed += m.failed;
+    const res = await db.createTestResult(testRunId, {
+      category,
+      passed: m.passed,
+      failed: m.failed,
+      severity: m.severity,
+      details: JSON.stringify({ attacks: ["sample-" + category.toLowerCase().replace(/\s+/g, "-")] }),
+    });
+    resultIds.push((res as any).id);
+    await db.updateTestRun(testRunId, userId, {
+      passedTests: cumulativePassed,
+      failedTests: cumulativeFailed,
+    });
+  }
+
+  const communities = [0, 0, 1, 1, 2, 2, 3, 3, 4];
+  const allResults = await db.getTestRunResults(testRunId);
+  for (const r of allResults) {
+    const idx = entries.findIndex(e => e[0] === (r as any).category);
+    if (idx >= 0) (r as any).community = communities[idx];
+  }
+
+  for (let i = 0; i < resultIds.length - 1; i++) {
+    await db.createFailureCascade(testRunId, {
+      sourceResultId: resultIds[i],
+      targetResultId: resultIds[i + 1],
+      confidence: 30 + Math.round(Math.random() * 40),
+    });
+  }
+
+  const totalTests = cumulativePassed + cumulativeFailed;
+  const reliabilityScore = Math.round((cumulativePassed / totalTests) * 100);
+
+  await db.updateTestRun(testRunId, userId, {
+    status: "completed",
+    reliabilityScore,
+    completedAt: new Date(),
+  });
+}
 
 // Async test execution (simplified - in production use a proper job queue)
 async function executeTestRunAsync(

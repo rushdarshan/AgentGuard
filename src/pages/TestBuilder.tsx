@@ -8,7 +8,7 @@ import { useParams, useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Zap } from "lucide-react";
+import { LightningBoltIcon } from "@radix-ui/react-icons";
 import { ATTACK_CATEGORIES } from "@/const";
 
 type AttackCategory = (typeof ATTACK_CATEGORIES)[number];
@@ -92,7 +92,7 @@ export default function TestBuilder() {
     return (
       <DashboardLayout>
         <div className="text-center">
-          <p className="text-muted-foreground">Agent not found</p>
+          <p className="text-[#787774]">Agent not found</p>
         </div>
       </DashboardLayout>
     );
@@ -102,13 +102,13 @@ export default function TestBuilder() {
     <DashboardLayout>
       <div className="max-w-4xl space-y-8">
         <div>
-          <h1 className="mb-2 text-4xl font-bold">Test Suite Builder</h1>
-          <p className="text-muted-foreground">Configure adversarial attacks for {agent.name}</p>
+          <h1 className="font-serif text-4xl font-light tracking-[-0.02em] mb-2">Test Suite Builder</h1>
+          <p className="text-[#787774]">Configure adversarial attacks for {agent.name}</p>
         </div>
 
         <Card className="p-8">
           <div className="mb-8">
-            <h2 className="mb-4 text-2xl font-semibold">Select Attack Categories</h2>
+            <h2 className="mb-4 text-xl font-semibold">Select Attack Categories</h2>
             <div className="space-y-4">
               {ATTACK_CATEGORIES.map((category) => (
                 <div key={category} className="flex items-center gap-3">
@@ -125,16 +125,16 @@ export default function TestBuilder() {
             </div>
           </div>
 
-          <div className="border-t border-border pt-8">
-            <h2 className="mb-6 text-2xl font-semibold">Configure Attack Parameters</h2>
+          <div className="border-t border-[#EAEAEA] pt-8">
+            <h2 className="mb-6 text-xl font-semibold">Configure Attack Parameters</h2>
             <div className="space-y-8">
               {ATTACK_CATEGORIES.map((category) => (
                 <div
                   key={category}
-                  className={`rounded-lg p-6 ${
+                  className={`rounded-lg border p-6 ${
                     selectedCategories.has(category)
-                      ? "border border-accent/50 bg-accent/5"
-                      : "border border-border/50 bg-card/30 opacity-50"
+                      ? "border-[#111111] bg-[#F7F6F3]"
+                      : "border-[#EAEAEA] bg-white opacity-50"
                   }`}
                 >
                   <h3 className="mb-4 font-semibold">{category}</h3>
@@ -143,7 +143,7 @@ export default function TestBuilder() {
                     <div>
                       <Label className="mb-3 block text-sm">
                         Intensity:{" "}
-                        <span className="font-bold text-accent">
+                        <span className="font-bold">
                           {config[category]?.intensity || "medium"}
                         </span>
                       </Label>
@@ -167,7 +167,7 @@ export default function TestBuilder() {
                     <div>
                       <Label className="mb-3 block text-sm">
                         Number of Tests:{" "}
-                        <span className="font-bold text-accent">
+                        <span className="font-bold">
                           {config[category]?.count || 10}
                         </span>
                       </Label>
@@ -179,9 +179,9 @@ export default function TestBuilder() {
                         max={100}
                         step={1}
                         disabled={!selectedCategories.has(category)}
-                        className="w-full h-2 rounded-full appearance-none bg-border cursor-pointer accent-[#00d9ff]"
+                        className="w-full h-2 rounded-full appearance-none bg-[#EAEAEA] cursor-pointer"
                       />
-                      <p className="mt-2 text-xs text-muted-foreground">
+                      <p className="mt-2 text-xs text-[#787774]">
                         Recommended: 10-20 tests per category
                       </p>
                     </div>
@@ -191,18 +191,18 @@ export default function TestBuilder() {
             </div>
           </div>
 
-          <div className="mt-8 rounded-lg border border-border/50 bg-card/30 p-6">
+          <div className="mt-8 rounded-lg border border-[#EAEAEA] bg-white p-6">
             <div className="mb-4 flex items-center gap-2">
-              <Zap className="h-5 w-5 text-accent" />
+              <LightningBoltIcon className="h-5 w-5" />
               <h3 className="font-semibold">Test Summary</h3>
             </div>
             <div className="space-y-2 text-sm">
               <p>
-                <span className="text-muted-foreground">Categories:</span>{" "}
+                <span className="text-[#787774]">Categories:</span>{" "}
                 <span className="font-semibold">{selectedCategories.size}</span>
               </p>
               <p>
-                <span className="text-muted-foreground">Total Tests:</span>{" "}
+                <span className="text-[#787774]">Total Tests:</span>{" "}
                 <span className="font-semibold">
                   {Array.from(selectedCategories).reduce(
                     (sum, cat) => sum + (config[cat]?.count || 10),
@@ -210,7 +210,7 @@ export default function TestBuilder() {
                   )}
                 </span>
               </p>
-              <p className="text-muted-foreground">
+              <p className="text-[#787774]">
                 LLM will generate novel attacks tailored to your agent's description.
               </p>
             </div>
@@ -223,7 +223,7 @@ export default function TestBuilder() {
               disabled={selectedCategories.size === 0 || createTestRun.isPending}
               className="gap-2"
             >
-              <Zap className="h-5 w-5" />
+              <LightningBoltIcon className="h-5 w-5" />
               Run Test Suite
             </Button>
             <Button

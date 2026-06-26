@@ -30,7 +30,7 @@ export default function TestRunHistory() {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        <h1 className="page-title text-4xl font-bold">Run history</h1>
+        <h1 className="font-serif text-4xl font-light tracking-[-0.02em]">Run history</h1>
 
         {/* Filters */}
         <Card className="card-hover p-6">
@@ -40,7 +40,7 @@ export default function TestRunHistory() {
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="flex h-10 w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
+                className="flex h-10 w-full rounded-lg border border-[#EAEAEA] bg-white px-3 py-2 text-sm focus:outline-none focus:border-[#111111]"
               >
                 <option value="all">All</option>
                 <option value="pending">Pending</option>
@@ -100,22 +100,22 @@ export default function TestRunHistory() {
                         <span
                           className={`text-xs font-medium ${
                             run.status === "completed"
-                              ? "text-green-400"
+                              ? "text-[#346538]"
                               : run.status === "running"
-                                ? "text-blue-400"
+                                ? "text-[#1F6C9F]"
                                 : run.status === "failed"
-                                  ? "text-red-400"
-                                  : "text-yellow-400"
+                                  ? "text-[#9F2F2D]"
+                                  : "text-[#956400]"
                           }`}
                         >
                           {run.status.toUpperCase()}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-[#787774]">
                         {run.totalTests} tests • {run.passedTests} passed • {run.failedTests}{" "}
                         failed
                       </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
+                      <p className="mt-1 text-xs text-[#787774]">
                         {new Date(run.createdAt).toLocaleString()}
                       </p>
                     </div>
@@ -125,11 +125,9 @@ export default function TestRunHistory() {
                          <p className="text-2xl font-bold">{run.totalTests > 0 ? (run.passedTests / run.totalTests * 100).toFixed(1) : "0"}%</p>
                       </div>
 
-                      <div
-                        className={`rounded-full px-3 py-1 text-sm font-medium ${reliabilityBadge(run.reliabilityScore || 0)}`}
-                      >
+                      <span className={`badge ${reliabilityBadge(run.reliabilityScore || 0)}`}>
                         {reliabilityLabel(run.reliabilityScore || 0)}
-                      </div>
+                      </span>
                     </div>
                   </div>
                 </Card>
@@ -138,7 +136,7 @@ export default function TestRunHistory() {
           </div>
         ) : (
           <Card className="card-hover p-12 text-center">
-            <p className="text-muted-foreground">No test runs match your filters</p>
+              <p className="text-[#787774]">No test runs match your filters</p>
           </Card>
         )}
       </div>

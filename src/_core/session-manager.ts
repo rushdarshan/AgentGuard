@@ -71,7 +71,7 @@ export class SessionManager {
 
     return {
       passed: verdict.passed,
-      reason: verdict.reason || "Final turn evaluated",
+      reason: verdict.reasoning || "Final turn evaluated",
       turns: session.turns.length,
       lastPrompt: lastTurn.prompt,
       lastResponse: lastTurn.response,
