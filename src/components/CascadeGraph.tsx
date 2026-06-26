@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 
 interface Node {
   id: number;
@@ -20,9 +20,19 @@ interface Props {
   colorBy?: "category" | "community";
 }
 
-const NODE_SIZE = 36;
-const SPACING = 140;
-const PAD = 40;
+interface SimNode extends Node {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+}
+
+const NODE_RADIUS = 22;
+const REPULSION = 400;
+const ATTRACTION = 0.005;
+const DAMPING = 0.85;
+const CENTER_FORCE = 0.01;
+const FRAMES = 80;
 
 const CATEGORY_COLORS: Record<string, string> = {
   "Prompt Injection": "#a78bfa",
@@ -41,98 +51,199 @@ const COMMUNITY_PALETTE = [
   "#06b6d4", "#f97316", "#ec4899", "#14b8a6", "#6366f1",
 ];
 
-function layout(nodes: Node[]) {
-  const totalW = Math.max(nodes.length - 1, 1) * SPACING + PAD * 2;
-  const startX = PAD;
-  return {
-    width: totalW,
-    height: 130,
-    positioned: nodes.map((n, i) => ({
-      ...n,
-      x: startX + i * SPACING,
-      y: 40,
-    })),
-  };
+function simulate(nodes: Node[], edges: Edge[]): SimNode[] {
+  const simNodes: SimNode[] = nodes.map((n) => ({
+    ...n,
+    x: Math.random() * 400,
+    y: Math.random() * 200,
+    vx: 0,
+    vy: 0,
+  }));
+
+  const centerX = 250;
+  const centerY = 120;
+
+  for (let iter = 0; iter < FRAMES; iter++) {
+    const cooling = 1 - iter / FRAMES;
+
+    for (let i = 0; i < simNodes.length; i++) {
+      for (let j = i + 1; j < simNodes.length; j++) {
+        const a = simNodes[i];
+        const b = simNodes[j];
+        let dx = b.x - a.x;
+        let dy = b.y - a.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const force = REPULSION / (dist * dist);
+        dx = (dx / dist) * force * cooling;
+        dy = (dy / dist) * force * cooling;
+        a.vx -= dx;
+        a.vy -= dy;
+        b.vx += dx;
+        b.vy += dy;
+      }
+    }
+
+    for (const e of edges) {
+      const a = simNodes.find((n) => n.id === e.sourceId);
+      const b = simNodes.find((n) => n.id === e.targetId);
+      if (!a || !b) continue;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      const force = (dist - 100) * ATTRACTION * cooling;
+      a.vx += (dx / dist) * force;
+      a.vy += (dy / dist) * force;
+      b.vx -= (dx / dist) * force;
+      b.vy -= (dy / dist) * force;
+    }
+
+    for (const n of simNodes) {
+      n.vx += (centerX - n.x) * CENTER_FORCE * cooling;
+      n.vy += (centerY - n.y) * CENTER_FORCE * cooling;
+    }
+
+    for (const n of simNodes) {
+      n.vx *= DAMPING;
+      n.vy *= DAMPING;
+      n.x += n.vx;
+      n.y += n.vy;
+    }
+  }
+
+  const xs = simNodes.map((n) => n.x);
+  const ys = simNodes.map((n) => n.y);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const graphW = maxX - minX || 1;
+  const graphH = maxY - minY || 1;
+
+  const canvasW = Math.max(graphW + 80, 400);
+  const canvasH = Math.max(graphH + 80, 300);
+  const padX = (canvasW - graphW) / 2;
+  const padY = (canvasH - graphH) / 2;
+
+  return simNodes.map((n) => ({
+    ...n,
+    x: ((n.x - minX) / graphW) * (canvasW - 80) + padX,
+    y: ((n.y - minY) / graphH) * (canvasH - 80) + padY,
+  }));
 }
 
 export default function CascadeGraph({ nodes, edges, colorBy = "category" }: Props) {
-  const { width, height, positioned } = useMemo(() => layout(nodes), [nodes]);
+  const [dragNode, setDragNode] = useState<{ id: number; x: number; y: number } | null>(null);
+
+  const positioned = useMemo(() => simulate(nodes, edges), [nodes, edges]);
 
   const edgeMap = useMemo(() => {
-    const map = new Map<number, Node & { x: number; y: number }>();
+    const map = new Map<number, SimNode>();
     positioned.forEach((n) => map.set(n.id, n));
     return map;
   }, [positioned]);
 
+  const canvasW = useMemo(() => Math.max(positioned.length * 80 + 40, 400), [positioned]);
+  const canvasH = useMemo(() => Math.max(260, positioned.length * 30 + 40), [positioned]);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent, id: number) => {
+    const svg = (e.target as SVGElement).closest("svg");
+    if (!svg) return;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const ctm = svg.getScreenCTM()!.inverse();
+    const p = pt.matrixTransform(ctm);
+    setDragNode({ id, x: p.x, y: p.y });
+  }, []);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!dragNode) return;
+    const svg = (e.target as SVGElement).closest("svg");
+    if (!svg) return;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const ctm = svg.getScreenCTM()!.inverse();
+    const p = pt.matrixTransform(ctm);
+    setDragNode((prev) => prev ? { ...prev, x: p.x, y: p.y } : null);
+  }, [dragNode]);
+
+  const handlePointerUp = useCallback(() => setDragNode(null), []);
+
+  const displayNodes = useMemo(
+    () =>
+      dragNode
+        ? positioned.map((n) => (n.id === dragNode.id ? { ...n, x: dragNode.x, y: dragNode.y } : n))
+        : positioned,
+    [positioned, dragNode]
+  );
+
   if (nodes.length === 0) return null;
 
   return (
-    <div className="overflow-x-auto">
-      <svg width={width} height={height} className="min-w-full">
+    <div className="overflow-x-auto overflow-y-hidden" style={{ cursor: dragNode ? "grabbing" : "grab" }}>
+      <svg
+        width={canvasW}
+        height={canvasH}
+        className="min-w-full"
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
+      >
         <defs>
           {edges.map((e, i) => {
             const s = edgeMap.get(e.sourceId);
             const t = edgeMap.get(e.targetId);
             if (!s || !t) return null;
             return (
-              <marker
-                key={i}
-                id={`arrow-${i}`}
-                viewBox="0 0 10 10"
-                refX="10"
-                refY="5"
-                markerWidth="6"
-                markerHeight="6"
-                orient="auto"
-              >
+              <marker key={i} id={`arrow-${i}`} viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
                 <path d="M0,0 L10,5 L0,10 z" fill="rgb(148 163 184)" filter="drop-shadow(0 0 2px rgb(148 163 184 / 0.5))" />
               </marker>
             );
           })}
         </defs>
         {edges.map((e, i) => {
-          const s = edgeMap.get(e.sourceId);
-          const t = edgeMap.get(e.targetId);
+          const s = displayNodes.find((n) => n.id === e.sourceId);
+          const t = displayNodes.find((n) => n.id === e.targetId);
           if (!s || !t) return null;
           const strokeW = 1 + (e.confidence / 100) * 3;
           return (
             <line
               key={`edge-${i}`}
-              x1={s.x + NODE_SIZE / 2}
-              y1={s.y + NODE_SIZE / 2}
-              x2={t.x + NODE_SIZE / 2}
-              y2={t.y + NODE_SIZE / 2}
-              stroke={`rgb(148 163 184 / ${0.3 + e.confidence / 100 * 0.5})`}
+              x1={s.x}
+              y1={s.y}
+              x2={t.x}
+              y2={t.y}
+              stroke={`rgb(148 163 184 / ${0.3 + (e.confidence / 100) * 0.5})`}
               strokeWidth={strokeW}
               markerEnd={`url(#arrow-${i})`}
             />
           );
         })}
-        {positioned.map((n) => {
+        {displayNodes.map((n) => {
           const cIdx = n.community != null ? n.community % COMMUNITY_PALETTE.length : -1;
           const color = colorBy === "community" && cIdx >= 0
             ? COMMUNITY_PALETTE[cIdx]
             : CATEGORY_COLORS[n.category] || "#818CF8";
-          const passPct = n.passRate;
           const langLabel = n.language && n.language !== "en" ? n.language : "";
           return (
-            <g key={n.id}>
-              <circle cx={n.x + NODE_SIZE / 2} cy={n.y + NODE_SIZE / 2} r={NODE_SIZE / 2} fill="rgb(15 23 42)" stroke={color} strokeWidth={2} filter={`drop-shadow(0 0 4px ${color}80)`}>
+            <g key={n.id} onPointerDown={(e) => handlePointerDown(e, n.id)} style={{ cursor: "pointer" }}>
+              <circle cx={n.x} cy={n.y} r={NODE_RADIUS} fill="rgb(15 23 42)" stroke={color} strokeWidth={2} filter={`drop-shadow(0 0 4px ${color}80)`}>
                 <animate attributeName="stroke-opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />
               </circle>
-              <text x={n.x + NODE_SIZE / 2} y={n.y + NODE_SIZE / 2} textAnchor="middle" dominantBaseline="central" fill="rgb(226 232 240)" fontSize={11} fontWeight="bold">
-                {passPct}%
+              <text x={n.x} y={n.y} textAnchor="middle" dominantBaseline="central" fill="rgb(226 232 240)" fontSize={11} fontWeight="bold">
+                {Math.round(n.passRate)}%
               </text>
-              <text x={n.x + NODE_SIZE / 2} y={n.y + NODE_SIZE / 2 + NODE_SIZE / 2 + 10} textAnchor="middle" fill="rgb(148 163 184)" fontSize={10}>
+              <text x={n.x} y={n.y + NODE_RADIUS + 12} textAnchor="middle" fill="rgb(148 163 184)" fontSize={9}>
                 {n.category}
               </text>
               {langLabel && (
-                <text x={n.x + NODE_SIZE / 2} y={n.y + NODE_SIZE / 2 + NODE_SIZE / 2 + 22} textAnchor="middle" fill="rgb(100 116 139)" fontSize={9}>
+                <text x={n.x} y={n.y + NODE_RADIUS + 24} textAnchor="middle" fill="rgb(100 116 139)" fontSize={8}>
                   {langLabel}
                 </text>
               )}
               {cIdx >= 0 && colorBy === "community" && (
-                <text x={n.x + NODE_SIZE / 2} y={n.y + NODE_SIZE / 2 - NODE_SIZE / 2 - 6} textAnchor="middle" fill="rgb(148 163 184)" fontSize={8}>
+                <text x={n.x} y={n.y - NODE_RADIUS - 6} textAnchor="middle" fill="rgb(148 163 184)" fontSize={8}>
                   C{n.community}
                 </text>
               )}
@@ -140,9 +251,6 @@ export default function CascadeGraph({ nodes, edges, colorBy = "category" }: Pro
           );
         })}
       </svg>
-      <p className="mt-1 text-center text-[11px] text-muted-foreground">
-        Sequential test pipeline — edges show failure propagation between consecutive categories
-      </p>
     </div>
   );
 }

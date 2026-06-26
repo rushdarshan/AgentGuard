@@ -245,12 +245,7 @@
     50% { opacity: 1; }
   }
 
-  @keyframes node-breathe {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 0.9; }
-  }
-
-  .page-title {
+.page-title {
     position: relative;
     display: inline-block;
   }
@@ -293,9 +288,5 @@
       animation: none;
       opacity: 0.5;
     }
-    .cascade-node-glow {
-      animation: none;
-      opacity: 0.6;
-    }
-  }
+}
 }
