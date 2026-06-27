@@ -513,6 +513,8 @@ export default function TestRunDetail() {
           let validation: Array<any> = [];
           let gates: any[] = [];
           let totalTokens = 0;
+          let judgeKappa: number | undefined;
+          let judgeUnstable = false;
           if (activeResult.details) {
             try {
               const parsed = JSON.parse(activeResult.details);
@@ -525,6 +527,10 @@ export default function TestRunDetail() {
               validation = parsed.validation || [];
               gates = parsed.gates || [];
               totalTokens = testCases.reduce((sum, tc) => sum + (tc.tokens?.used || (tc.response ? tc.response.length : 0)), 0);
+              // Extract judge reliability from first test case with model verdicts
+              const firstWithVerdicts = testCases.find(tc => tc.modelVerdicts?.length > 0);
+              if (firstWithVerdicts?.kappa != null) judgeKappa = firstWithVerdicts.kappa;
+              if (firstWithVerdicts?.unstable) judgeUnstable = true;
             } catch (e) {
               console.error("Failed to parse details", e);
             }
@@ -540,7 +546,14 @@ export default function TestRunDetail() {
               <div ref={drawerRef} className="relative w-full max-w-2xl bg-[#121212] border-l border-[#2A2A2A] h-full flex flex-col shadow-2xl p-6 md:p-8 will-change-transform">
                 <div className="flex items-center justify-between border-b border-[#2A2A2A] pb-4 mb-6">
                   <div>
-                    <span className="font-mono text-[10px] text-[#6B6B6B] tracking-[0.1em]">[ CATEGORY DETAIL ]</span>
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-[10px] text-[#6B6B6B] tracking-[0.1em]">[ CATEGORY DETAIL ]</span>
+                      {judgeKappa != null && (
+                        <span className={`font-mono text-[9px] px-1.5 py-0.5 border ${judgeUnstable ? "border-[#E61919] text-[#E61919]" : judgeKappa >= 0.6 ? "border-[#4AF626] text-[#4AF626]" : "border-[#F59E0B] text-[#F59E0B]"}`}>
+                          κ={judgeKappa}{judgeUnstable ? " UNSTABLE" : judgeKappa >= 0.6 ? " STABLE" : ""}
+                        </span>
+                      )}
+                    </div>
                     <h2 className="font-display text-2xl font-black uppercase tracking-tight mt-1 text-[#EAEAEA]">{selectedCategory}</h2>
                   </div>
                   <Button variant="outline" size="sm" onClick={() => setSelectedCategory(null)}>

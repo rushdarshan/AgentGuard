@@ -16,3 +16,8 @@ docs/plans/
 docs/solutions/
 plans/
 *.plan.md
+
+# Agent skills (dev-time tooling, not project code)
+.agents/
+.opencode/.dirac-symbol-index/
+

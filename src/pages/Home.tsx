@@ -6,10 +6,11 @@ import { Link, useLocation } from "wouter";
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { LightningBoltIcon, ReloadIcon } from "@radix-ui/react-icons";
+import { LightningBoltIcon, ReloadIcon, EyeOpenIcon, LockClosedIcon, CheckCircledIcon } from "@radix-ui/react-icons";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import DemoCascadeGraph from "@/components/DemoCascadeGraph";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -157,19 +158,21 @@ export default function Home() {
               )}
             </div>
 
-            <div className="mt-16 border border-[#2A2A2A] p-8">
-              <div ref={numbersRef} className="grid grid-cols-3 gap-4 text-center">
-                <div className="border-r border-[#2A2A2A] pr-4">
-                  <div className="font-display text-4xl font-black text-[#E61919]"><span data-number="100">0</span>+</div>
-                  <div className="mt-1 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">ATTACK VECTORS</div>
+            <div className="mt-16 border border-[#2A2A2A] p-2 md:p-6">
+              <p className="mb-4 font-mono text-[10px] tracking-[0.15em] text-[#6B6B6B] text-center">&lt; LIVE CASCADE ANALYSIS /&gt;</p>
+              <DemoCascadeGraph />
+              <div ref={numbersRef} className="mt-4 grid grid-cols-3 gap-2 text-center border-t border-[#2A2A2A] pt-4">
+                <div className="border-r border-[#2A2A2A] pr-2">
+                  <div className="font-display text-3xl font-black text-[#E61919]"><span data-number="100">0</span>+</div>
+                  <div className="mt-1 font-mono text-[9px] tracking-[0.1em] text-[#6B6B6B]">ATTACK VECTORS</div>
                 </div>
-                <div className="border-r border-[#2A2A2A] pr-4">
-                  <div className="font-display text-4xl font-black text-[#E61919]" data-number="9">0</div>
-                  <div className="mt-1 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">ATTACK CATEGORIES</div>
+                <div className="border-r border-[#2A2A2A] pr-2">
+                  <div className="font-display text-3xl font-black text-[#E61919]" data-number="9">0</div>
+                  <div className="mt-1 font-mono text-[9px] tracking-[0.1em] text-[#6B6B6B]">ATTACK CATEGORIES</div>
                 </div>
                 <div>
-                  <div className="font-display text-4xl font-black text-[#E61919]">0-<span data-number="100">0</span></div>
-                  <div className="mt-1 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">RELIABILITY SCORE</div>
+                  <div className="font-display text-3xl font-black text-[#E61919]">0-<span data-number="100">0</span></div>
+                  <div className="mt-1 font-mono text-[9px] tracking-[0.1em] text-[#6B6B6B]">RELIABILITY SCORE</div>
                 </div>
               </div>
             </div>
