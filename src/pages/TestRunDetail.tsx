@@ -82,10 +82,37 @@ export default function TestRunDetail() {
     { enabled: false }
   );
 
+  const reportHtmlQuery = trpc.testRuns.reportHtml.useQuery(
+    { testRunId },
+    { enabled: false }
+  );
+
   const jsonQuery = trpc.testRuns.exportJson.useQuery(
     { testRunId },
     { enabled: false }
   );
+
+  const rerunMutation = trpc.testRuns.create.useMutation();
+  const prevRunQuery = trpc.testRuns.list.useQuery({
+    limit: 2,
+    offset: 0,
+    agentId: (testRun as any)?.agentId,
+  }, { enabled: !!testRun });
+  const prevRunId = prevRunQuery.data?.find(r => r.id !== testRunId)?.id;
+  const graphComparisonQuery = trpc.testRuns.compareGraph.useQuery(
+    { runIdA: prevRunId!, runIdB: testRunId },
+    { enabled: !!prevRunId }
+  );
+
+  const handleRerun = async () => {
+    try {
+      const r = await rerunMutation.mutateAsync({
+        agentId: (testRun as any).agentId,
+        config: {},
+      });
+      setLocation(`/run/${r.testRunId}`);
+    } catch {}
+  };
 
   const handleExportMarkdown = async () => {
     const { data } = await reportQuery.refetch();
@@ -97,6 +124,16 @@ export default function TestRunDetail() {
     a.download = `agentguard-run-${testRunId}-report.md`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleExportPdf = async () => {
+    const { data } = await reportHtmlQuery.refetch();
+    if (!data) return;
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(data);
+    w.document.close();
+    w.focus();
   };
 
   const handleExportJson = async () => {
@@ -219,12 +256,22 @@ export default function TestRunDetail() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {prevRunId && <Button variant="outline" size="sm" onClick={() => graphComparisonQuery.refetch()}>
+              {graphComparisonQuery.isFetching ? "..." : "[ VS PREV ]"}
+            </Button>}
+            <Button variant="outline" size="sm" onClick={handleRerun} disabled={rerunMutation.isPending}>
+              {rerunMutation.isPending ? "..." : "[ RE-RUN ]"}
+            </Button>
             <Button variant="outline" className="gap-2" onClick={handleExportJson} disabled={jsonQuery.isFetching}>
               {jsonQuery.isFetching ? "..." : "[ JSON ]"}
             </Button>
             <Button variant="outline" className="gap-2" onClick={handleExportMarkdown} disabled={reportQuery.isFetching}>
               <DownloadIcon className="h-4 w-4" />
               {reportQuery.isFetching ? "EXPORTING..." : "[ EXPORT ]"}
+            </Button>
+            <Button variant="outline" className="gap-2" onClick={handleExportPdf} disabled={reportHtmlQuery.isFetching}>
+              <DownloadIcon className="h-4 w-4" />
+              {reportHtmlQuery.isFetching ? "..." : "[ PDF ]"}
             </Button>
           </div>
         </div>
@@ -434,6 +481,28 @@ export default function TestRunDetail() {
             </div>
           </div>
         </Card>
+
+        {prevRunId && graphComparisonQuery.data && (
+          <Card className="p-6">
+            <p className="font-mono mb-4 text-xs tracking-[0.15em] text-[#6B6B6B]">[ RUN #{prevRunId} DELTA ]</p>
+            {graphComparisonQuery.data.deltas.length === 0 ? (
+              <p className="font-mono text-[11px] text-[#6B6B6B] italic">No graph delta available (Neo4j may be offline).</p>
+            ) : (
+              <div className="space-y-2">
+                {graphComparisonQuery.data.deltas.map((d: any, i: number) => (
+                  <div key={i} className="flex items-center gap-2 bg-[#0A0A0A] border border-[#2A2A2A] p-2 font-mono text-[10px]">
+                    {d.change === "new" && <span className="text-[#4AF626] font-bold">+NODE</span>}
+                    {d.change === "missing" && <span className="text-[#E61919] font-bold">-NODE</span>}
+                    {d.change === "edge_new" && <span className="text-[#AAE6FF] font-bold">+EDGE</span>}
+                    {d.change === "edge_missing" && <span className="text-[#FFA500] font-bold">-EDGE</span>}
+                    {d.change === "community_shift" && <span className="text-[#FF69B4] font-bold">≈ COM</span>}
+                    <span className="text-[#EAEAEA]">{d.category || d.id || d.sourceResultId}{d.targetResultId ? ` → ${d.targetResultId}` : ""}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        )}
 
         {/* Side Inspect Drawer overlay */}
         {selectedCategory && (() => {

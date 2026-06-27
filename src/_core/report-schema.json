@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AgentGuard Report",
+  "description": "Validates AgentGuard test run findings output",
+  "type": "object",
+  "required": ["runId", "status", "reliabilityScore", "categories"],
+  "properties": {
+    "runId": { "type": "integer" },
+    "status": { "type": "string", "enum": ["completed", "failed"] },
+    "reliabilityScore": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "totalTests": { "type": "integer" },
+    "passedTests": { "type": "integer" },
+    "failedTests": { "type": "integer" },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["category", "passed", "failed", "severity"],
+        "properties": {
+          "category": { "type": "string" },
+          "passed": { "type": "integer" },
+          "failed": { "type": "integer" },
+          "severity": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["prompt", "status"],
+              "properties": {
+                "prompt": { "type": "string" },
+                "response": { "type": "string" },
+                "status": { "type": "string", "enum": ["confirmed", "flaky", "inconclusive"] }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

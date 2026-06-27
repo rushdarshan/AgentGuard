@@ -64,8 +64,81 @@ const patterns: PIIPattern[] = [
   },
 ];
 
-export function scanPII(text: string): PIISpan[] {
+const entropyCache = new Set<string>();
+
+// ponytail: Privacy Filter (OpenAI opf) optional backend — guarded for browser builds
+let _opfAvailable: boolean | null = null;
+async function scanPIIWithOPF(text: string): Promise<PIISpan[] | null> {
+  if (typeof process === "undefined" || typeof process.env === "undefined") return null;
+  if (!process.env.PII_BACKEND || process.env.PII_BACKEND !== "openai") return null;
+  if (_opfAvailable === null) {
+    try {
+      const { execSync } = await import("child_process");
+      execSync("which opf 2>/dev/null || where opf 2>nul", { encoding: "utf8", stdio: "pipe" });
+      _opfAvailable = true;
+    } catch { _opfAvailable = false; }
+  }
+  if (!_opfAvailable) return null;
+  try {
+    const { execSync } = await import("child_process");
+    const result = execSync(`opf ${JSON.stringify(text)} --json 2>/dev/null`, { encoding: "utf8", timeout: 30000, maxBuffer: 10 * 1024 * 1024 });
+    const parsed = JSON.parse(result);
+    return (parsed.spans ?? parsed).map((s: any) => ({
+      label: OPF_LABEL_MAP[s.label?.toLowerCase()] ?? "CREDENTIAL",
+      value: s.value ?? s.text ?? "",
+      start: s.start ?? 0,
+      end: s.end ?? 0,
+      score: s.score ?? 0.95,
+    }));
+  } catch { return null; }
+}
+
+const OPF_LABEL_MAP: Record<string, PIILabel> = {
+  private_email: "EMAIL",
+  private_phone: "PHONE",
+  secret: "API_KEY",
+  private_date: "INTERNAL_ID",
+  account_number: "INTERNAL_ID",
+  private_address: "INTERNAL_ID",
+};
+
+function shannonEntropy(s: string): number {
+  const len = s.length;
+  if (len === 0) return 0;
+  const freq = new Map<string, number>();
+  for (const ch of s) freq.set(ch, (freq.get(ch) ?? 0) + 1);
+  let h = 0;
+  for (const c of freq.values()) {
+    const p = c / len;
+    h -= p * Math.log2(p);
+  }
+  return h;
+}
+
+const SUSPICIOUS_CONTEXT = /\b(key|secret|password|passwd|token|auth|credential|api[_-]?key|access[_-]?key|private|bearer)\b/i;
+
+export async function scanPII(text: string): Promise<PIISpan[]> {
+  // ponytail: try OpenAI Privacy Filter backend first if opted in
+  const opfSpans = await scanPIIWithOPF(text);
+  if (opfSpans) return opfSpans;
+
   const spans: PIISpan[] = [];
+
+  // ponytail: single-pass entropy scan for unknown high-entropy secrets
+  const tokens = text.split(/[\s,;|"'=:]+/);
+  for (const token of tokens) {
+    if (token.length < 8 || token.length > 128) continue;
+    if (/^\d+$/.test(token)) continue;
+    if (entropyCache.has(token)) continue;
+    const h = shannonEntropy(token);
+    if (h > 3.6 && SUSPICIOUS_CONTEXT.test(text)) {
+      const idx = text.indexOf(token);
+      if (idx >= 0) {
+        spans.push({ label: "CREDENTIAL", value: token, start: idx, end: idx + token.length, score: Math.min(0.5 + (h - 3.6) / 3, 0.99) });
+        entropyCache.add(token);
+      }
+    }
+  }
 
   for (const pattern of patterns) {
     const matches = text.matchAll(pattern.regex);

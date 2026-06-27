@@ -23,4 +23,6 @@ export const ENV = {
   GEMINI_API_KEY: env("GEMINI_API_KEY"),
   GEMINI_BASE_URL: env("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"),
   GEMINI_MODEL: env("GEMINI_MODEL", "gemini-2.0-flash"),
+  RENDER_API_KEY: env("RENDER_API_KEY"),
+  RENDER_SERVICE_ID: env("RENDER_SERVICE_ID"),
 };

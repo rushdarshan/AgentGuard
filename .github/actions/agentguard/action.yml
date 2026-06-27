@@ -1,0 +1,83 @@
+name: AgentGuard
+description: Test AI agent reliability and gate deploys on agent readiness score
+
+inputs:
+  url:
+    description: Agent endpoint URL to test
+    required: true
+  threshold:
+    description: Minimum agent readiness score to pass (0-100)
+    required: false
+    default: "80"
+  skip-post-comment:
+    description: Skip posting a PR comment with results
+    required: false
+    default: "false"
+
+outputs:
+  score:
+    description: Agent Readiness Score (0-100)
+    value: ${{ steps.run-tests.outputs.score }}
+  passed:
+    description: Whether score meets threshold
+    value: ${{ steps.run-tests.outputs.passed }}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+
+    - name: Install AgentGuard
+      shell: bash
+      run: |
+        npm install -g agentguard
+      # ponytail: npm global install, no extra setup
+
+    - name: Run AgentGuard tests
+      id: run-tests
+      shell: bash
+      run: |
+        agentguard test --url "${{ inputs.url }}" --output json > agentguard-report.json
+        SCORE=$(cat agentguard-report.json | node -e "const d=require('fs').readFileSync('/dev/stdin','utf8');const j=JSON.parse(d);console.log(Math.round((j.summary?.passed/j.summary?.total||0)*100))")
+        echo "score=$SCORE" >> $GITHUB_OUTPUT
+        PASSED=$([ $SCORE -ge ${{ inputs.threshold }} ] && echo "true" || echo "false")
+        echo "passed=$PASSED" >> $GITHUB_OUTPUT
+
+    - name: Generate hardening config
+      shell: bash
+      run: |
+        agentguard harden agentguard-report.json > agentguard-hardening.yaml
+        echo "## AgentGuard Hardening Config" >> $GITHUB_STEP_SUMMARY
+        cat agentguard-hardening.yaml >> $GITHUB_STEP_SUMMARY
+
+    - name: Post PR comment
+      if: ${{ github.event_name == 'pull_request' && inputs.skip-post-comment != 'true' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        SCORE=$(cat $GITHUB_OUTPUT | grep 'score=' | cut -d= -f2)
+        gh pr comment ${{ github.event.pull_request.number }} --body "## AgentGuard Report
+
+**Agent Readiness Score: ${SCORE}%**
+
+Threshold: ${{ inputs.threshold }}%
+
+$( [ $SCORE -ge ${{ inputs.threshold }} ] && echo '✅ **Passed** - your agent meets the reliability threshold.' || echo '❌ **Failed** - your agent needs improvement.' )
+
+<details>
+<summary>Click to expand hardening config</summary>
+
+\`\`\`yaml
+$(cat agentguard-hardening.yaml)
+\`\`\`
+
+</details>
+
+---
+
+_Run \`agentguard proxy\` locally to test agent→API traffic in real time._"
+        echo "Posted PR comment"

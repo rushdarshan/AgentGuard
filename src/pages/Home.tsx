@@ -25,41 +25,19 @@ export default function Home() {
   const featuresRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    // 1. Hero text scramble and slide up
+    // 1. Hero text slide reveal
     const spans = heroTextRef.current?.children;
     if (spans) {
-      const chars = "!<>-_\\/[]{}—=+*^?#________";
       Array.from(spans).forEach((span: Element, index: number) => {
-        const targetText = span.getAttribute("data-text") || (span as HTMLElement).innerText;
-        span.setAttribute("data-text", targetText); // Store original text
-        
-        gsap.from(span, {
-          yPercent: 100,
-          opacity: 0,
-          duration: 1.2,
-          delay: index * 0.15,
-          ease: "power4.out",
-          onUpdate: function() {
-            // Scramble effect
-            const progress = this.progress();
-            if (progress >= 1) {
-              (span as HTMLElement).innerText = targetText;
-              return;
-            }
-            
-            let scrambled = "";
-            for (let i = 0; i < targetText.length; i++) {
-              if (targetText[i] === " ") {
-                scrambled += " ";
-              } else if (Math.random() > progress) {
-                scrambled += chars[Math.floor(Math.random() * chars.length)];
-              } else {
-                scrambled += targetText[i];
-              }
-            }
-            (span as HTMLElement).innerText = scrambled;
+        gsap.fromTo(span,
+          { clipPath: "inset(0 100% 0 0)" },
+          {
+            clipPath: "inset(0 0% 0 0)",
+            duration: 1.0,
+            delay: index * 0.25,
+            ease: "power3.out",
           }
-        });
+        );
       });
     }
 

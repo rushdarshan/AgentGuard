@@ -3,6 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "bin": {
+    "agentguard": "src/cli/index.ts"
+  },
   "scripts": {
     "dev": "concurrently \"tsx watch server/index.ts\" \"vite\"",
     "dev:server": "tsx watch server/index.ts",
@@ -20,6 +23,7 @@
     "@trpc/client": "^10.45.0",
     "@trpc/react-query": "^10.45.0",
     "@trpc/server": "^10.45.0",
+    "commander": "^15.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.36.0",
@@ -28,6 +32,7 @@
     "headroom-ai": "^0.22.4",
     "lucide-react": "^0.460.0",
     "mysql2": "^3.11.0",
+    "neo4j-driver": "^6.1.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "sonner": "^1.7.0",

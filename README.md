@@ -1,54 +1,71 @@
-# AgentGuard — Adversarial Testing Harness for AI Agents
+# AgentGuard — CI for Your AI Agents
 
-Systematically red-teams AI agents against 7 attack categories: Prompt Injection, Context Overflow, Logic Collapse, Jailbreak, Hallucination, Schema Drift, and Multi-tenant Context Leak.
+**Test. Protect. Ship.**
+
+AgentGuard is a CI toolchain for AI agent reliability. It runs adversarial attack tests against your agent endpoints, intercepts malicious outbound API traffic in real time, and gates deploys on an **Agent Readiness Score** (0–100).
 
 ## Quick Start
 
 ```bash
-cp .env.example .env    # add your LLM API key
-npm install
-npm run dev             # server (:4000) + client (:3000) via concurrently
+npm install -g agentguard
+agentguard test --url https://my-agent.example.com
 ```
 
-## Architecture
+## Commands
 
+| Command | Description |
+|---------|-------------|
+| `agentguard test --url <url>` | Run 7-category adversarial attack suite |
+| `agentguard proxy --port 9090` | Real-time forward proxy with LLM judge on every request |
+| `agentguard pre-push` | Gate git pushes on minimum readiness score |
+| `agentguard harden <report.json>` | Generate guardrail config from test results |
+| `agentguard validate <report.json>` | Check report against JSON Schema |
+
+## Attack Categories
+
+- **Prompt Injection** — instruction override, context hijacking
+- **Context Overflow** — behavior under extreme input/memory pressure
+- **Logic Collapse** — reasoning failures, contradictions
+- **Jailbreak** — safety guardrail bypass
+- **Hallucination** — fabricated responses, data leakage
+- **Schema Drift** — tool calling with unexpected input shapes
+- **Multi-tenant Context Leak** — cross-user data extraction
+
+## Proxy Mode
+
+Set `HTTP_PROXY=http://127.0.0.1:9090` in your agent's environment:
+
+```bash
+agentguard proxy --allowlist api.openai.com,api.stripe.com
 ```
-┌─────────────────┐     ┌──────────────────────┐     ┌──────────────┐
-│  Vite (port 3000)│────▶│  Express (port 4000) │────▶│  LLM Judge   │
-│  React + tRPC    │     │  tRPC + Auth + SSR   │     │  OpenAI v1   │
-│  shadcn-style UI │     │  Drizzle ORM → MySQL │     └──────────────┘
-└─────────────────┘     │  Neo4j AuraDB (opt)  │
-                         │  Render Workflows    │
-                         └──────────────────────┘
+
+Every outbound request is judged with swap-position double-judging. Unknown domains are blocked. HTTPS domains are tunneled and logged.
+
+## GitHub Action
+
+```yaml
+- name: AgentGuard
+  uses: agentguard/agentguard@v1
+  with:
+    url: ${{ secrets.AGENT_URL }}
+    threshold: 80
 ```
 
-## 7 Attack Categories
+Posts PR comments with score and hardening config.
 
-| Category | Description |
-|----------|------------|
-| Prompt Injection | Instruction override and context hijacking |
-| Context Overflow | Behavior under extreme input/memory pressure |
-| Logic Collapse | Reasoning failures and contradictions |
-| Jailbreak | Safety guardrail bypass |
-| Hallucination | Fabricated responses |
-| Schema Drift | Tool calling with unexpected input shapes |
-| Multi-tenant Leak | Cross-user data extraction |
+## Pre-Push Gate
 
-## Test Flow
+```bash
+agentguard pre-push --install   # one-time setup
+agentguard pre-push --url <url> # block push if score < 80
+```
 
-1. Register agent endpoint → encrypts auth headers at rest
-2. Configure categories, intensity (low/med/high), count (1-100)
-3. LLM generates novel attacks per category tailored to agent description
-4. 20 concurrent workers attack the agent endpoint (10s timeout)
-5. LLM judge evaluates each response → per-category scores
-6. Composite reliability score (0-100) with severity ratings
+## How It Works
 
-## Partner Track Integrations
+Every attack is double-judged (swap-position to eliminate framing bias) across multiple LLM providers. Consensus voting with Cohen's κ detects unreliable judges. A "Disprove" phase runs an adversarial agent against every finding to eliminate false positives.
 
-- **Neo4j AuraDB** — failure cascade graphs (Cypher queries)
-- **Render Workflows** — multi-step test orchestration
-- **Sarvam AI** — multilingual attack prompts (22+ Indian languages)
+## HACKHAZARDS '26
 
-## Built for HACKHAZARDS '26
+Built for [HACKHAZARDS '26](https://hackhazards.geekybase.com/). 7 prize tracks: Neo4j ($1000), Expo, Sarvam AI, Render.
 
-Stack: TypeScript · tRPC v10 · Express 5 · React 18 · Vite · Tailwind CSS · Drizzle ORM · MySQL · Neo4j (optional)
+License: MIT
