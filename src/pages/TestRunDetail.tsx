@@ -6,7 +6,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import CascadeGraph from "@/components/CascadeGraph";
 import { useRef, useState } from "react";
 import { ReloadIcon, DownloadIcon, ArrowLeftIcon, ColorWheelIcon } from "@radix-ui/react-icons";
-import { wilsonCI, formatCI } from "@/_core/stats";
+import { wilsonCI, formatCI, computeCompositeScore, getLetterGrade } from "@/_core/stats";
 import { type PIISpan } from "@/_core/pii";
 import { classifyConfidence, getConfidenceBadge, getConfidenceLabel } from "@/_core/trust";
 import gsap from "gsap";
@@ -133,7 +133,8 @@ export default function TestRunDetail() {
     if (!w) return;
     w.document.write(data);
     w.document.close();
-    w.focus();
+    w.addEventListener("afterprint", () => w.close(), { once: true });
+    setTimeout(() => { w.print(); w.focus(); }, 100);
   };
 
   const handleExportJson = async () => {
@@ -582,6 +583,12 @@ export default function TestRunDetail() {
                       )}
                     </div>
                     <div>
+                      <span className="text-[#6B6B6B] block">COMPOSITE</span>
+                      <span className="text-[#4AF626] font-semibold mt-0.5 block text-right">
+                        {(() => { const c = computeCompositeScore({ passRate: catTotal > 0 ? activeResult.passed / catTotal : 0, severity: activeResult.severity }); return `${(c * 100).toFixed(0)}% ${getLetterGrade(c)}`; })()}
+                      </span>
+                    </div>
+                    <div>
                       <span className="text-[#6B6B6B] block" title="Average response length in characters">AVG BLOAT</span>
                       <span className="text-[#E61919] font-semibold mt-0.5 block text-right">
                         {testCases.length > 0 ? Math.round(totalTokens / testCases.length) : 0} CHRS
@@ -590,12 +597,24 @@ export default function TestRunDetail() {
                   </div>
 
                   {catCI && (
-                    <div className="bg-[#0A0A0A] border border-[#2A2A2A]/50 px-4 py-2 font-mono text-[10px] text-[#6B6B6B]">
-                      <span className="text-[#4A4A4A]">Wilson 95% CI:</span>{" "}
-                      <span className="text-[#EAEAEA]">{(catCI.lower * 100).toFixed(1)}%</span>
-                      <span className="text-[#4A4A4A]"> – </span>
-                      <span className="text-[#EAEAEA]">{(catCI.upper * 100).toFixed(1)}%</span>
-                      <span className="text-[#4A4A4A] ml-2">({catTotal} samples)</span>
+                    <div className="bg-[#0A0A0A] border border-[#2A2A2A]/50 p-3 font-mono text-[10px]">
+                      <div className="flex items-center gap-3">
+                        <span className="text-[#6B6B6B] shrink-0">95% CI</span>
+                        <div className="flex-1 h-2.5 bg-[#1A1A1A] relative rounded-full overflow-hidden">
+                          <div className="absolute inset-y-0 bg-[#4AF626]/20 rounded-full" style={{ left: `${catCI.lower * 100}%`, width: `${(catCI.upper - catCI.lower) * 100}%` }} />
+                          <div className="absolute inset-y-0 w-0.5 bg-[#EAEAEA] -translate-x-1/2" style={{ left: `${catCI.point * 100}%` }} />
+                        </div>
+                        <span className="text-[#EAEAEA] shrink-0">{formatCI(catCI)}</span>
+                        <span className="text-[#4A4A4A] shrink-0">({catTotal})</span>
+                      </div>
+                      <div className="flex gap-3 mt-1.5">
+                        <span className={`text-[9px] ${judgeKappa != null ? judgeKappa >= 0.6 ? "text-[#4AF626]" : "text-[#F59E0B]" : "text-[#6B6B6B]"}`}>
+                          κ={judgeKappa?.toFixed(2) ?? "—"}
+                        </span>
+                        <span className={`text-[9px] ${(judgeKappa != null && judgeKappa >= 0.6) ? "text-[#4AF626]" : "text-[#6B6B6B]"}`}>
+                          {judgeUnstable ? "UNSTABLE" : judgeKappa != null && judgeKappa >= 0.6 ? "STABLE" : "—"}
+                        </span>
+                      </div>
                     </div>
                   )}
 

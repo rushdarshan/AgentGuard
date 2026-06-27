@@ -1,18 +1,28 @@
 export const COOKIE_NAME = "agentguard_session";
 
-export const ATTACK_CATEGORIES = [
-  "Prompt Injection",
-  "Context Overflow",
-  "Logic Collapse",
-  "Jailbreak",
-  "Hallucination",
-  "Schema Drift",
-  "Multi-tenant Context Leak",
-  "Indirect Prompt Injection",
-  "Multi-turn Crescendo",
-  "Memory Poisoning",
+export interface DetectorDef {
+  name: string;
+  severity: "critical" | "high" | "medium" | "low";
+  owasp: string;
+  agentic: string;
+  atlas: string;
+  tags: string[];
+}
+
+export const DETECTOR_REGISTRY: DetectorDef[] = [
+  { name: "Prompt Injection",          severity: "critical", owasp: "LLM01", agentic: "ASI01", atlas: "ML-0017", tags: ["injection","input"] },
+  { name: "Context Overflow",          severity: "high",     owasp: "LLM04", agentic: "—",     atlas: "ML-0025", tags: ["token","memory"] },
+  { name: "Logic Collapse",            severity: "medium",   owasp: "LLM09", agentic: "—",     atlas: "—",       tags: ["reasoning","logic"] },
+  { name: "Jailbreak",                 severity: "critical", owasp: "LLM01", agentic: "ASI01", atlas: "ML-0017", tags: ["bypass","role"] },
+  { name: "Hallucination",             severity: "medium",   owasp: "LLM09", agentic: "—",     atlas: "ML-0020", tags: ["factuality","grounding"] },
+  { name: "Schema Drift",              severity: "high",     owasp: "LLM02", agentic: "ASI06", atlas: "ML-0027", tags: ["format","structure"] },
+  { name: "Multi-tenant Context Leak",  severity: "critical", owasp: "LLM06", agentic: "ASI03", atlas: "ML-0026", tags: ["isolation","tenant"] },
+  { name: "Indirect Prompt Injection",  severity: "critical", owasp: "LLM02", agentic: "ASI02", atlas: "ML-0017", tags: ["injection","external"] },
+  { name: "Multi-turn Crescendo",      severity: "high",     owasp: "LLM01", agentic: "ASI01", atlas: "ML-0017", tags: ["multi-turn","escalation"] },
+  { name: "Memory Poisoning",          severity: "critical", owasp: "LLM02", agentic: "ASI04", atlas: "ML-0017", tags: ["memory","persistence"] },
 ] as const;
 
+export const ATTACK_CATEGORIES = DETECTOR_REGISTRY.map(d => d.name) as readonly string[];
 export type AttackCategory = (typeof ATTACK_CATEGORIES)[number];
 
 export function getLoginUrl(): string {

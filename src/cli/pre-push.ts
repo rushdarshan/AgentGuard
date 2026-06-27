@@ -44,14 +44,17 @@ export async function prePushCommand(options: PrePushOptions) {
       let catPassed = 0;
       let catFailed = 0;
 
+      let attackIdx = 0;
       for (const attack of attacks) {
+        attackIdx++;
+        const testCtx = `Test ${attackIdx} of ${attacks.length} for "${category}".`;
         try {
           totalTests++;
           const response = await testAgentEndpoint(url, attack.text);
           const providers = getAvailableProviders();
           let verdict;
           try {
-            verdict = await MultiModelJudge.evaluate(attack.text, response, category, providers);
+            verdict = await MultiModelJudge.evaluate(attack.text, response, category, providers, testCtx);
           } catch {
             const heuristic = evaluateHeuristic(attack.text, response, category);
             verdict = { passed: heuristic.passed, reasoning: heuristic.reasoning + " (heuristic)" };

@@ -32,6 +32,33 @@ export function isSignificant(ciA: WilsonCI, ciB: WilsonCI): boolean {
   return ciA.lower > ciB.upper || ciB.lower > ciA.upper;
 }
 
+export function computeCompositeScore(params: {
+  passRate: number;
+  cascadeImpact?: number;
+  piiLeakRate?: number;
+  severity?: string;
+}): number {
+  const severityScore = params.severity === "critical" ? 1 : params.severity === "high" ? 0.7 : params.severity === "medium" ? 0.4 : 0.1;
+  const impact = params.cascadeImpact ?? 0;
+  const pii = params.piiLeakRate ?? 0;
+  return +(0.4 * params.passRate + 0.25 * impact + 0.2 * pii + 0.15 * severityScore).toFixed(3);
+}
+
+export function getLetterGrade(score: number): string {
+  if (score >= 0.95) return "A+";
+  if (score >= 0.9) return "A";
+  if (score >= 0.85) return "A-";
+  if (score >= 0.8) return "B+";
+  if (score >= 0.75) return "B";
+  if (score >= 0.7) return "B-";
+  if (score >= 0.65) return "C+";
+  if (score >= 0.6) return "C";
+  if (score >= 0.55) return "C-";
+  if (score >= 0.5) return "D+";
+  if (score >= 0.4) return "D";
+  return "F";
+}
+
 export function compareRuns(
   runA: { passedTests: number; totalTests: number; label?: string },
   runB: { passedTests: number; totalTests: number; label?: string }

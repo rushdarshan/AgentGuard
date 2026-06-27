@@ -256,6 +256,52 @@ function jsPageRank(nodeIds: number[], edges: JsEdge[]): Map<number, number> {
   return rank;
 }
 
+// Community attack rate: per-community failure density
+export function computeCommunityStats(
+  communities: Map<number, number>,
+  results: Array<{ id: number; category: string; passed: number; failed: number }>
+): Map<number, { totalTests: number; failedTests: number; attackRate: number }> {
+  const stats = new Map<number, { total: number; failed: number }>();
+  for (const [id, commId] of communities) {
+    const r = results.find(x => x.id === id);
+    if (!r) continue;
+    const s = stats.get(commId) ?? { total: 0, failed: 0 };
+    s.total += r.passed + r.failed;
+    s.failed += r.failed;
+    stats.set(commId, s);
+  }
+  const out = new Map<number, { totalTests: number; failedTests: number; attackRate: number }>();
+  for (const [id, s] of stats) {
+    out.set(id, { totalTests: s.total, failedTests: s.failed, attackRate: s.total > 0 ? +(s.failed / s.total).toFixed(2) : 0 });
+  }
+  return out;
+}
+
+// Risk propagation: each node's final score = 90% own + 10% neighbor average, 2 passes
+export function propagateRisk(
+  scores: Map<number, number>,
+  edges: Array<{ source: number; target: number; weight: number }>
+): Map<number, number> {
+  const result = new Map(scores);
+  const adj = new Map<number, Set<number>>();
+  for (const [k] of scores) adj.set(k, new Set());
+  for (const e of edges) {
+    adj.get(e.source)?.add(e.target);
+    adj.get(e.target)?.add(e.source);
+  }
+  for (let pass = 0; pass < 2; pass++) {
+    for (const [id, val] of result) {
+      const neighbors = adj.get(id);
+      if (!neighbors || neighbors.size === 0) continue;
+      let neighborSum = 0;
+      for (const nid of neighbors) neighborSum += result.get(nid) ?? 0;
+      const neighborAvg = neighborSum / neighbors.size;
+      result.set(id, val * 0.9 + neighborAvg * 0.1);
+    }
+  }
+  return result;
+}
+
 // Causal lift: P(target fails | source fails) / P(target fails unconditionally)
 
 // Beta-Binomial conjugate: sample from Beta(1+successes, 1+failures)

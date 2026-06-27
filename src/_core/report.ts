@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from "fs";
 import { join } from "path";
-import { wilsonCI, formatCI } from "./stats";
+import { wilsonCI, formatCI, computeCompositeScore, getLetterGrade } from "./stats";
 import type { PIISpan } from "./pii";
 
 interface TestResult {
@@ -154,7 +154,7 @@ export function generateReport(run: TestRun, results: TestResult[]): string {
 
   lines.push("## Methodology");
   lines.push("");
-  lines.push("1. **Attack Generation**: Adversarial prompts generated via built-in corpus (optionally enhanced by LLM) across 9 attack categories mapped to OWASP LLM Top 10 and MITRE ATLAS.");
+  lines.push("  1. **Attack Generation**: Adversarial prompts generated via built-in corpus (optionally enhanced by LLM) across 10 attack categories mapped to OWASP LLM Top 10 and MITRE ATLAS.");
   lines.push("2. **Execution**: Prompts submitted to the target agent endpoint. Responses collected for evaluation.");
   lines.push("3. **Evaluation**: Responses judged via LLM-as-judge (with heuristic fallback) for signs of compromise. Swap-position double-judging mitigates position bias.");
   lines.push("4. **PII Detection**: Agent responses scanned against regex patterns for email, phone, SSN, API keys, tokens, and internal identifiers.");
@@ -173,7 +173,19 @@ export function generateReportHtml(run: TestRun, results: TestResult[]): string 
     const catCI = wilsonCI(r.passed, total);
     const m = OWASP_MAP[r.category];
     const rem = r.failed > 0 ? REMEDIATIONS[r.category] || "" : "";
-    return { ...r, total, catCI, m, rem };
+    let swapDisagreements = 0, totalJudgments = 0;
+    if (r.details) try {
+      const d = JSON.parse(r.details);
+      for (const t of (d.tests || [])) {
+        for (const mv of (t.modelVerdicts || [])) {
+          if (mv.swapDisagreement) swapDisagreements++;
+          totalJudgments++;
+        }
+      }
+    } catch { /* skip */ }
+    const stability = totalJudgments > 0 ? +(1 - swapDisagreements / totalJudgments).toFixed(2) : null;
+    const composite = computeCompositeScore({ passRate: r.passed / Math.max(total, 1), severity: r.severity });
+    return { ...r, total, catCI, m, rem, stability, composite };
   });
 
   const hasFailures = results.some(r => r.failed > 0);
@@ -200,6 +212,9 @@ export function generateReportHtml(run: TestRun, results: TestResult[]): string 
   .severity-low { color: #15803d; }
   .badge { display: inline-block; padding: 1pt 6pt; border-radius: 3pt; font-size: 8pt; font-weight: 700; }
   .badge-fail { background: #fef2f2; color: #b91c1c; }
+  .stable { color: #15803d; font-weight: 600; }
+  .unstable { color: #b91c1c; font-weight: 600; }
+  .no-data { color: #999; }
   .remediation { font-size: 9.5pt; color: #444; margin: 2pt 0 6pt 12pt; padding: 4pt 8pt; border-left: 3px solid #b91c1c; background: #fafafa; }
   .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8pt; margin: 8pt 0; }
   .summary-item { padding: 6pt 10pt; background: #f9f9f9; border-radius: 4pt; }
@@ -239,17 +254,24 @@ export function generateReportHtml(run: TestRun, results: TestResult[]): string 
 
 <h2>Category Breakdown</h2>
 <table>
-  <thead><tr><th>Category</th><th>Passed</th><th>Failed</th><th>Pass Rate</th><th>95% CI</th><th>Severity</th><th>OWASP</th></tr></thead>
+  <thead><tr><th>Category</th><th>Passed</th><th>Failed</th><th>Pass Rate</th><th>95% CI</th><th>κ</th><th>Composite</th><th>Grade</th><th>Severity</th><th>OWASP</th></tr></thead>
   <tbody>
-    ${catRows.map(r => `<tr>
+    ${catRows.map(r => {
+      const stab = r.stability !== null
+        ? `<span class="${r.stability >= 0.9 ? 'stable' : r.stability >= 0.7 ? 'severity-medium' : 'unstable'}">${r.stability >= 0.9 ? '✓' : '⚡'} ${(r.stability * 100).toFixed(0)}%</span>`
+        : '<span class="no-data">—</span>';
+      return `<tr>
       <td>${r.category}</td>
       <td>${r.passed}</td>
       <td>${r.failed}</td>
       <td>${r.total > 0 ? (r.passed / r.total * 100).toFixed(1) : "0"}%</td>
       <td>${formatCI(r.catCI)}</td>
+      <td>${stab}</td>
+      <td>${(r.composite * 100).toFixed(0)}% <small>${getLetterGrade(r.composite)}</small></td>
       <td class="severity-${r.severity}">${r.severity.toUpperCase()}</td>
       <td>${r.m?.llm || "—"}</td>
-    </tr>`).join("\n    ")}
+    </tr>`;
+    }).join("\n    ")}
   </tbody>
 </table>
 
@@ -262,7 +284,7 @@ ${catRows.filter(r => r.failed > 0).map(r => `
 
 <h2>Methodology</h2>
 <p style="font-size:9.5pt;color:#444;margin-top:4pt;">
-  1. <strong>Attack Generation</strong>: Adversarial prompts generated via built-in corpus across 9 attack categories mapped to OWASP LLM Top 10 and MITRE ATLAS.<br>
+   1. <strong>Attack Generation</strong>: Adversarial prompts generated via built-in corpus across 10 attack categories mapped to OWASP LLM Top 10 and MITRE ATLAS.<br>
   2. <strong>Execution</strong>: Prompts submitted to the target agent endpoint. Responses collected for evaluation.<br>
   3. <strong>Evaluation</strong>: Responses judged via LLM-as-judge (with heuristic fallback). Swap-position double-judging mitigates position bias. Cohen's &kappa; reported per judgment.<br>
   4. <strong>PII Detection</strong>: Agent responses scanned against regex patterns for email, phone, SSN, API keys, and tokens.<br>

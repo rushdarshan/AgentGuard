@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { testCommand } from "./test";
+import { analyzeCommand } from "./analyze";
 import { publishCommand } from "./publish";
 import { validateCommand } from "./validate";
 import { hardenCommand } from "./harden";
@@ -40,6 +41,16 @@ program
   .action(prePushCommand);
 
 program
+  .command("analyze")
+  .description("Run full analysis pipeline: test → cascade → report (one step)")
+  .requiredOption("--url <url>", "Agent endpoint URL")
+  .option("--description <desc>", "Agent description")
+  .option("--intensity <level>", "Attack intensity (low, medium, high)", "medium")
+  .option("--count <n>", "Tests per category", parseInt, "5")
+  .option("--output <path>", "Output HTML report path")
+  .action(analyzeCommand);
+
+program
   .command("harden")
   .description("Generate a hardening config from a test run JSON file")
   .argument("<file>", "Path to test run JSON file")
@@ -52,6 +63,14 @@ program
   .argument("<file>", "Path to HTML report file")
   .option("--json", "Output as JSON")
   .action(publishCommand);
+
+program
+  .command("mcp")
+  .description("Start an MCP (Model Context Protocol) server over stdio — exposes agentguard tools for MCP-aware agents")
+  .action(async () => {
+    const { connect } = await import("./mcp");
+    await connect();
+  });
 
 program
   .command("validate")

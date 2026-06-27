@@ -11,6 +11,7 @@
     "dev:server": "tsx watch server/index.ts",
     "dev:client": "vite",
     "build": "vite build",
+    "demo": "npm run dev",
     "start": "tsx server/index.ts",
     "preview": "vite preview",
     "db:generate": "drizzle-kit generate",

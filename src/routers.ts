@@ -633,13 +633,14 @@ async function executeTestRunAsync(
         for (let i = 0; i < attacks.length; i += CONCURRENCY) {
           const batch = attacks.slice(i, i + CONCURRENCY);
           const batchResults = await Promise.allSettled(
-            batch.map(async (attack) => {
+            batch.map(async (attack, batchIdx) => {
+              const testCtx = `Test ${i + batchIdx + 1} of ${attacks.length} for "${category}".`;
               try {
                 const response = await testAgentEndpoint(agent.url, attack.text, agent.authHeaders);
                 let verdict: FusedVerdict;
                 try {
                   const providers = getAvailableProviders();
-                  verdict = await MultiModelJudge.evaluate(attack.text, response, category, providers);
+                  verdict = await MultiModelJudge.evaluate(attack.text, response, category, providers, testCtx);
                 } catch {
                   const heuristic = evaluateHeuristic(attack.text, response, category);
                   verdict = {

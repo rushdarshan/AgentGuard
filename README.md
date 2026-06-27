@@ -117,7 +117,7 @@ Writes `.git/hooks/pre-push` that runs 3 quick adversarial tests before every pu
 
 ## Attack Categories
 
-AgentGuard tests across **9 attack categories**, each mapped to 3 industry taxonomies.
+AgentGuard tests across **10 attack categories**, each mapped to 3 industry taxonomies.
 
 | # | Category | OWASP LLM | OWASP Agentic | MITRE ATLAS |
 |---|----------|-----------|---------------|-------------|
@@ -130,6 +130,7 @@ AgentGuard tests across **9 attack categories**, each mapped to 3 industry taxon
 | 7 | Schema Drift | LLM02 | ASI06 | ML-0027 |
 | 8 | Logic Collapse | LLM09 | — | — |
 | 9 | Multi-tenant Context Leak | LLM06 | ASI03 | ML-0026 |
+| 10 | Memory Poisoning | LLM02 | ASI04 | ML-0017 |
 
 Each test produces: prompt, response, pass/fail, PII detected (with character-level spans), token usage, and model verdicts from all judging providers.
 
@@ -236,9 +237,18 @@ RETURN r1.category, r1.community AS oldCommunity,
 
 AgentGuard generates adversarial attack prompts in **Indic languages** via Sarvam AI's `sarvam-30b` model (64K context, OpenAI-compatible schema).
 
+### Sarvam API Coverage
+
+| API | Where Used | Endpoint |
+|-----|-----------|----------|
+| **sarvam-30b** (chat) | `src/_core/sarvam.ts` — native Hinglish/Hindi attack generation | `/v1/chat/completions` |
+| **Saaras v3** (STT) | `demo/call-session.ts` — voice demo speech-to-text | `/speech-to-text` |
+| **Bulbul v3** (TTS) | `demo/call-session.ts` — voice demo text-to-speech | `/text-to-speech` |
+| **Translate** | `src/_core/sarvam.ts` — English→Hindi fallback with code-mixed mode | `/translate` |
+
 ### Text Generation
 
-- Native Hindi/Hinglish prompt injection, jailbreak, and context leak attacks
+- Native Hindi/Hinglish prompt injection, jailbreak, and context leak attacks via `sarvam-30b`
 - Code-mixed (Hinglish) mode for realistic adversarial scenarios
 - Falls back to translation-based generation when LLM API unavailable
 
@@ -383,15 +393,37 @@ Outputs: `score` (number 0–100), `passed` (boolean).
 
 **AgentGuard wins on:** multi-judge rigor, graph-based analysis, CI/CD integration, runtime protection, and Indic language support.
 
+### Aura Agent — Ask Your Graph
+
+AgentGuard ships a ready-to-deploy **Aura Agent** (`aura_agent/`) with Cypher Template + Text2Cypher tools.
+Ask it plain-language questions that ground every answer in the graph's own cascade data:
+
+> **"Is this agent safe to deploy? Why or why not?"**
+> → fires cascade_summary, returns per-category pass rates + grades
+
+> **"Show me the failure cascade summary."**
+> → aggregate view with severity breakdown
+
+> **"Which categories have the most cascading influence?"**
+> → fires top_cascades, identifies causal chains by confidence
+
+> **"How many tests passed in the last run?"**
+> → fires ask_the_graph (Text2Cypher), ad-hoc query against live data
+
+The agent definition is also version-controlled as code (`agents/agentguard.json`) —
+reconcile it with Aura via `python scripts/create_aura_agent.py --push`.
+
 ---
 
 ## Sponsor Tracks Used
 
+Detailed compliance docs for each track in [`docs/Tracks/`](docs/Tracks/).
+
 | Track | How AgentGuard Uses It |
 |---|---|
-| **Neo4j** | Failure cascade graphs with Louvain community detection, PageRank, lift ratios, and cross-run graph delta. GDS procedures with JS fallback. Community assignments and PageRank scores stored in `details` JSON, no schema migrations. |
-| **Sarvam AI** | Indic-language attack generation via `sarvam-30b` (Hindi/Hinglish code-mixed). Voice demo pipeline: Bulbul TTS → Saaras STT → judge. Fallback to translation-based generation when LLM API unavailable. |
-| **Render** | Deploy Hook API integration in `agentguard publish`. `render.yaml` with 3 service definitions. Zero-setup demo mode — MySQL optional, in-memory fallback works out of the box. |
+| **Neo4j** | Failure cascade graphs with Louvain community detection, PageRank, lift ratios, cross-run graph delta, and Aura Agent (Cypher Template + Text2Cypher). GDS procedures with JS fallback. Agent-as-code via `agents/agentguard.json`. [`docs/Tracks/NEO4J_TRACK.md`](docs/Tracks/NEO4J_TRACK.md) |
+| **Sarvam AI** | Indic-language attack generation via `sarvam-30b` (Hindi/Hinglish code-mixed). Voice demo pipeline: Saaras STT + Bulbul TTS. Translation fallback. [`docs/Tracks/SARVAM_TRACK.md`](docs/Tracks/SARVAM_TRACK.md) |
+| **Render** | Deploy Hook API integration in `agentguard publish`. `render.yaml` with service definitions. Zero-setup demo mode — in-memory fallback works without MySQL. [`docs/Tracks/RENDER_TRACK.md`](docs/Tracks/RENDER_TRACK.md) |
 
 ---
 

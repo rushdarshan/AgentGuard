@@ -163,15 +163,20 @@ export default function DemoCascadeGraph() {
           const t = positioned.find((n) => n.id === e.targetId);
           if (!s || !t) return null;
           const sw = 1 + (e.confidence / 100) * 2.5;
+          const opacity = 0.25 + (e.confidence / 100) * 0.45;
+          const stroke = `rgb(148 163 184 / ${opacity})`;
+          const pathD = `M${s.x},${s.y}L${t.x},${t.y}`;
+          const particleColor = e.confidence > 80 ? "#ef4444" : e.confidence > 60 ? "#f59e0b" : "#94a3b8";
+          const dur = 2 - (e.confidence / 100) * 1.2;
           return (
-            <line
-              key={i}
-              data-edge
-              x1={s.x} y1={s.y} x2={t.x} y2={t.y}
-              stroke={`rgb(148 163 184 / ${0.25 + (e.confidence / 100) * 0.45})`}
-              strokeWidth={sw}
-              markerEnd={`url(#da-${i})`}
-            />
+            <g key={i}>
+              <line data-edge x1={s.x} y1={s.y} x2={t.x} y2={t.y} stroke={stroke} strokeWidth={sw} markerEnd={`url(#da-${i})`} />
+              {[0, 1, 2].map((p) => (
+                <circle key={`p-${p}`} r={2 + (e.confidence / 100) * 1.5} fill={particleColor} opacity={0.85}>
+                  <animateMotion dur={`${dur}s`} repeatCount="indefinite" begin={`${p * dur / 3}s`} path={pathD} />
+                </circle>
+              ))}
+            </g>
           );
         })}
         {positioned.map((n) => {
