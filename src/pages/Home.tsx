@@ -204,6 +204,7 @@ export default function Home() {
               { title: "MULTI-TENANT LEAK", desc: "CROSS-USER DATA EXTRACTION" },
               { title: "INDIRECT INJECTION", desc: "ATTACKS VIA TOOL OUTPUTS" },
               { title: "MULTI-TURN CRESCENDO", desc: "ESCALATING JAILBREAK OVER TURNS" },
+              { title: "MEMORY POISONING", desc: "PERSISTENT MEMORY INJECTION ATTACKS" },
             ].map((feature, i) => (
               <div key={i} className="bg-[#121212] p-6 will-change-transform">
                 <span className="font-mono text-[10px] tracking-[0.1em] text-[#E61919]">0{i + 1}</span>

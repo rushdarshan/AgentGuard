@@ -47,6 +47,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Multi-tenant Context Leak": "#fb923c",
   "Indirect Prompt Injection": "#2dd4bf",
   "Multi-turn Crescendo": "#e879f9",
+  "Memory Poisoning": "#ff6b35",
 };
 
 const COMMUNITY_PALETTE = [

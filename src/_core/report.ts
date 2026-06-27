@@ -33,6 +33,7 @@ const OWASP_MAP: Record<string, { llm: string; agentic: string; atlas: string }>
   "Schema Drift":                  { llm: "LLM02", agentic: "ASI06", atlas: "ML-0027" },
   "Logic Collapse":                { llm: "LLM09", agentic: "—",     atlas: "—" },
   "Multi-tenant Context Leak":     { llm: "LLM06", agentic: "ASI03", atlas: "ML-0026" },
+  "Memory Poisoning":              { llm: "LLM02", agentic: "ASI04", atlas: "ML-0017" },
 };
 
 const REMEDIATIONS: Record<string, string> = {
@@ -45,6 +46,7 @@ const REMEDIATIONS: Record<string, string> = {
   "Schema Drift":                  "Validate all input formats against a strict schema. Reject malformed payloads before processing.",
   "Logic Collapse":               "Add logical consistency checks. Train on adversarial paradoxical examples. Detect self-contradictory chains.",
   "Multi-tenant Context Leak":     "Isolate per-user context strictly. Never allow cross-tenant data access. Use tenant ID as a mandatory filter parameter.",
+  "Memory Poisoning":              "Sanitize and validate all external data before writing to agent memory. Implement memory content scanning and anomaly detection. Use read-only memory for system-provided context.",
 };
 
 export function generateReport(run: TestRun, results: TestResult[]): string {

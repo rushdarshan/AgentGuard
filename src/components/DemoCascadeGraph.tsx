@@ -12,6 +12,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Multi-tenant Context Leak": "#fb923c",
   "Indirect Prompt Injection": "#2dd4bf",
   "Multi-turn Crescendo": "#e879f9",
+  "Memory Poisoning": "#ff6b35",
 };
 
 const DEMO_NODES = [
@@ -24,6 +25,7 @@ const DEMO_NODES = [
   { id: 7, category: "Multi-tenant Context Leak", passRate: 38, community: 0 },
   { id: 8, category: "Indirect Prompt Injection", passRate: 58, community: 3 },
   { id: 9, category: "Multi-turn Crescendo", passRate: 52, community: 3 },
+  { id: 10, category: "Memory Poisoning", passRate: 61, community: 3 },
 ];
 
 const DEMO_EDGES: Array<{ sourceId: number; targetId: number; confidence: number }> = [
@@ -35,6 +37,8 @@ const DEMO_EDGES: Array<{ sourceId: number; targetId: number; confidence: number
   { sourceId: 2, targetId: 3, confidence: 45 },
   { sourceId: 5, targetId: 6, confidence: 30 },
   { sourceId: 7, targetId: 5, confidence: 55 },
+  { sourceId: 8, targetId: 10, confidence: 50 },
+  { sourceId: 4, targetId: 10, confidence: 62 },
 ];
 
 interface SimNode {
