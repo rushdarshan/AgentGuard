@@ -66,8 +66,9 @@ export default function VoiceTestButton() {
       const res = await voiceTest.mutateAsync({ audioBase64 });
       setResult(res);
       setState("done");
-      if (res.audioBase64) {
-        const binary = atob(res.audioBase64);
+      const b64 = (res as { audioBase64?: string }).audioBase64;
+      if (b64) {
+        const binary = atob(b64);
         const bytes = new Uint8Array(binary.length);
         for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
         const blob = new Blob([bytes], { type: "audio/wav" });

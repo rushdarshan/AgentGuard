@@ -11,7 +11,6 @@ export async function sarvamChat(messages: SarvamMessage[], model = "sarvam-30b"
     model: sarvam.chat(model),
     messages,
     temperature: 0.7,
-    maxTokens: 2048,
   });
   return text;
 }
