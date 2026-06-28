@@ -17,6 +17,8 @@ import { validateFindings, type ValidationStatus, type ValidatedFinding } from "
 import { analyzeRunGraph, computeLiftRatios, findCascadePaths, compareRuns as compareRunGraphs } from "./_core/neo4j";
 import { generateIndicAttacks, getIndicAttackCategories } from "./_core/sarvam";
 import { queryAuraAgent, AuraNotConfiguredError } from "./_core/aura";
+import { extractText, chunkText } from "./_core/document";
+import { buildDocumentGraph, searchDocumentGraph, listDocuments as listDocGraphs, getDocumentGraph } from "./_core/docgraph";
 
 // ============ AGENT ROUTER ============
 
@@ -1122,6 +1124,37 @@ export const appRouter = router({
       }
 
       return { transcript, verdict, audioBase64 };
+    }),
+
+  uploadDocument: publicProcedure
+    .input(z.object({ name: z.string(), content: z.string() }))
+    .mutation(async ({ input }) => {
+      const buffer = Buffer.from(input.content, 'base64');
+      const { text } = await extractText({ name: input.name, buffer });
+      const chunks = chunkText(text);
+      const graph = buildDocumentGraph(input.name, chunks);
+      return { docId: graph.docId, docName: graph.docName, chunkCount: chunks.length };
+    }),
+
+  queryDocument: publicProcedure
+    .input(z.object({ docId: z.string(), query: z.string() }))
+    .query(async ({ input }) => {
+      const results = searchDocumentGraph(input.docId, input.query);
+      if (results.length === 0) return { results: [], message: "No matching content found" };
+      return { results };
+    }),
+
+  listDocuments: publicProcedure
+    .query(async () => {
+      return listDocGraphs();
+    }),
+
+  getDocumentGraph: publicProcedure
+    .input(z.object({ docId: z.string() }))
+    .query(async ({ input }) => {
+      const graph = getDocumentGraph(input.docId);
+      if (!graph) return null;
+      return { nodes: graph.nodes, edges: graph.edges };
     }),
 });
 
