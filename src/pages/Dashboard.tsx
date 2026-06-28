@@ -15,8 +15,8 @@ gsap.registerPlugin(useGSAP);
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { data: agents = [] } = trpc.agents.list.useQuery();
-  const { data: testRuns = [] } = trpc.testRuns.list.useQuery({});
+  const { data: agents = [], isLoading: agentsLoading } = trpc.agents.list.useQuery();
+  const { data: testRuns = [], isLoading: runsLoading } = trpc.testRuns.list.useQuery({});
 
   const totalAgents = agents.length;
   const recentRuns = testRuns.slice(0, 5);
@@ -97,6 +97,26 @@ export default function Dashboard() {
           </Link>
         </div>
 
+        {agentsLoading || runsLoading ? (
+          <div className="space-y-6">
+            <div className="grid gap-[1px] bg-[#2A2A2A] md:grid-cols-4">
+              {[1,2,3,4].map(i => (
+                <div key={i} className="bg-[#121212] p-6 animate-pulse">
+                  <div className="h-3 w-16 bg-[#2A2A2A] mb-3"></div>
+                  <div className="h-8 w-20 bg-[#2A2A2A]"></div>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-[1px] bg-[#2A2A2A]">
+              {[1,2,3].map(i => (
+                <div key={i} className="bg-[#121212] p-4 animate-pulse">
+                  <div className="h-4 w-24 bg-[#2A2A2A] mb-2"></div>
+                  <div className="h-3 w-48 bg-[#2A2A2A]"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (<>
         <div ref={statsRef} className="grid gap-[1px] bg-[#2A2A2A] md:grid-cols-4">
           {[
             { label: "AGENTS", value: totalAgents, suffix: "", color: "#EAEAEA" },
@@ -204,6 +224,7 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+        </>)}
       </div>
     </DashboardLayout>
   );

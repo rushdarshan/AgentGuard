@@ -15,7 +15,7 @@ import { useGSAP } from "@gsap/react";
 gsap.registerPlugin(useGSAP);
 
 export default function TestRunHistory() {
-  const { data: testRuns = [] } = trpc.testRuns.list.useQuery({});
+  const { data: testRuns = [], isLoading } = trpc.testRuns.list.useQuery({});
 
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterScoreMin, setFilterScoreMin] = useState<number>(0);
@@ -197,7 +197,16 @@ export default function TestRunHistory() {
           </div>
         )}
 
-        {sortedRuns.length > 0 ? (
+        {isLoading ? (
+          <div className="space-y-[1px] bg-[#2A2A2A]">
+            {[1,2,3,4,5].map(i => (
+              <div key={i} className="bg-[#121212] p-6 animate-pulse">
+                <div className="h-4 w-32 bg-[#2A2A2A] mb-2"></div>
+                <div className="h-3 w-64 bg-[#2A2A2A]"></div>
+              </div>
+            ))}
+          </div>
+        ) : sortedRuns.length > 0 ? (
           <div ref={runsRef} className="space-y-[1px] bg-[#2A2A2A]">
             {sortedRuns.map((run, idx) => {
               const ci = run.totalTests > 0 ? wilsonCI(run.passedTests, run.totalTests) : null;

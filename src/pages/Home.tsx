@@ -141,6 +141,39 @@ export default function Home() {
               &gt; LAUNCH A DEMO. WE&rsquo;LL BRUTALIZE YOUR AGENT IN 60 SECONDS.
             </p>
 
+            <div className="mt-10 border border-[#2A2A2A] p-2 md:p-6">
+              <p className="mb-4 font-mono text-[10px] tracking-[0.15em] text-[#6B6B6B] text-center">&lt; LIVE CASCADE ANALYSIS /&gt;</p>
+              <DemoCascadeGraph />
+              <div ref={numbersRef} className="mt-4 grid grid-cols-3 gap-2 text-center border-t border-[#2A2A2A] pt-4">
+                <div className="border-r border-[#2A2A2A] pr-2">
+                  <div className="font-display text-3xl font-black text-[#E61919]"><span data-number="100">0</span>+</div>
+                  <div className="mt-1 font-mono text-[9px] tracking-[0.1em] text-[#6B6B6B]">ATTACK VECTORS</div>
+                </div>
+                <div className="border-r border-[#2A2A2A] pr-2">
+                  <div className="font-display text-3xl font-black text-[#E61919]" data-number="9">0</div>
+                  <div className="mt-1 font-mono text-[9px] tracking-[0.1em] text-[#6B6B6B]">ATTACK CATEGORIES</div>
+                </div>
+                <div>
+                  <div className="font-display text-3xl font-black text-[#E61919]">0-<span data-number="100">0</span></div>
+                  <div className="mt-1 font-mono text-[9px] tracking-[0.1em] text-[#6B6B6B]">RELIABILITY SCORE</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 border border-[#4AF626]/30 bg-[#4AF626]/5 p-4">
+              <p className="font-mono text-[10px] tracking-[0.15em] text-[#4AF626]">&lt; SARVAM HINGLISH DEMO /&gt;</p>
+              <p className="mt-2 font-mono text-sm text-[#8A8A8A]">
+                &gt; Try AgentGuard&apos;s unique Indic-language adversarial testing. Attack in Hindi, English, or Hinglish —
+                the proxy detects code-switched jailbreaks other tools miss.
+              </p>
+              <div className="mt-3 flex gap-2">
+                <span className="badge badge-critical text-[10px]">hi-IN</span>
+                <span className="badge badge-high text-[10px]">bn-IN</span>
+                <span className="badge badge-medium text-[10px]">ta-IN</span>
+                <span className="badge badge-low text-[10px]">te-IN</span>
+              </div>
+            </div>
+
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button size="lg" className="gap-2" onClick={handleLaunchDemo} disabled={demoLoading}>
                 {demoLoading ? (
@@ -158,25 +191,6 @@ export default function Home() {
                   <Button variant="outline" size="lg">[ GET STARTED ]</Button>
                 </a>
               )}
-            </div>
-
-            <div className="mt-16 border border-[#2A2A2A] p-2 md:p-6">
-              <p className="mb-4 font-mono text-[10px] tracking-[0.15em] text-[#6B6B6B] text-center">&lt; LIVE CASCADE ANALYSIS /&gt;</p>
-              <DemoCascadeGraph />
-              <div ref={numbersRef} className="mt-4 grid grid-cols-3 gap-2 text-center border-t border-[#2A2A2A] pt-4">
-                <div className="border-r border-[#2A2A2A] pr-2">
-                  <div className="font-display text-3xl font-black text-[#E61919]"><span data-number="100">0</span>+</div>
-                  <div className="mt-1 font-mono text-[9px] tracking-[0.1em] text-[#6B6B6B]">ATTACK VECTORS</div>
-                </div>
-                <div className="border-r border-[#2A2A2A] pr-2">
-                  <div className="font-display text-3xl font-black text-[#E61919]" data-number="9">0</div>
-                  <div className="mt-1 font-mono text-[9px] tracking-[0.1em] text-[#6B6B6B]">ATTACK CATEGORIES</div>
-                </div>
-                <div>
-                  <div className="font-display text-3xl font-black text-[#E61919]">0-<span data-number="100">0</span></div>
-                  <div className="mt-1 font-mono text-[9px] tracking-[0.1em] text-[#6B6B6B]">RELIABILITY SCORE</div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
