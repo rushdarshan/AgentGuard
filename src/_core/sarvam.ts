@@ -1,41 +1,19 @@
-import { ENV } from "./env";
-
-const BASE = "https://api.sarvam.ai";
+import { generateText } from 'ai';
+import { sarvam } from 'sarvam-ai-sdk';
 
 interface SarvamMessage {
   role: "system" | "user" | "assistant";
   content: string;
 }
 
-async function sarvamFetch(path: string, body: Record<string, unknown>): Promise<any> {
-  const key = ENV.SARVAM_API_KEY;
-  if (!key) throw new Error("SARVAM_API_KEY not set");
-
-  const res = await fetch(`${BASE}${path}`, {
-    method: "POST",
-    headers: {
-      "api-subscription-key": key,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const err = await res.text().catch(() => "unknown error");
-    throw new Error(`Sarvam ${path} failed (${res.status}): ${err}`);
-  }
-
-  return res.json();
-}
-
 export async function sarvamChat(messages: SarvamMessage[], model = "sarvam-30b"): Promise<string> {
-  const data = await sarvamFetch("/v1/chat/completions", {
-    model,
+  const { text } = await generateText({
+    model: sarvam.chat(model),
     messages,
     temperature: 0.7,
-    max_tokens: 2048,
+    maxTokens: 2048,
   });
-  return data.choices?.[0]?.message?.content || "";
+  return text;
 }
 
 export async function sarvamTranslate(
@@ -44,13 +22,15 @@ export async function sarvamTranslate(
   targetLanguageCode = "hi-IN",
   mode: "formal" | "modern-colloquial" | "classic-colloquial" | "code-mixed" = "code-mixed"
 ): Promise<string> {
-  const data = await sarvamFetch("/translate", {
-    input,
-    source_language_code: sourceLanguageCode,
-    target_language_code: targetLanguageCode,
-    mode,
+  const { text } = await generateText({
+    model: sarvam.translation("mayura:v1", {
+      from: sourceLanguageCode as any,
+      to: targetLanguageCode as any,
+      mode: mode as any,
+    }),
+    prompt: input,
   });
-  return data.translated_text || input;
+  return text || input;
 }
 
 // Generate Indic adversarial attacks natively using Sarvam-30B

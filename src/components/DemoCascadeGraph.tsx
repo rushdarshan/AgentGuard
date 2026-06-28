@@ -2,7 +2,20 @@ import { useMemo, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
-const CATEGORY_COLORS: Record<string, string> = {
+export interface Node {
+  id: number;
+  category: string;
+  passRate: number;
+  community: number;
+}
+
+export interface Edge {
+  source: number;
+  target: number;
+  confidence: number;
+}
+
+export const CATEGORY_COLORS: Record<string, string> = {
   "Prompt Injection": "#a78bfa",
   "Context Overflow": "#f59e0b",
   "Logic Collapse": "#34d399",
@@ -52,8 +65,8 @@ interface SimNode {
   vy: number;
 }
 
-function simulate(): SimNode[] {
-  const nodes: SimNode[] = DEMO_NODES.map((n) => ({
+function simulate(nodesIn: Node[], edgesIn: Array<{ sourceId: number; targetId: number; confidence: number }>): SimNode[] {
+  const nodes: SimNode[] = nodesIn.map((n) => ({
     ...n,
     x: Math.random() * 500,
     y: Math.random() * 300,
@@ -76,7 +89,7 @@ function simulate(): SimNode[] {
         b.vx += dx; b.vy += dy;
       }
     }
-    for (const e of DEMO_EDGES) {
+    for (const e of edgesIn) {
       const a = nodes.find((n) => n.id === e.sourceId);
       const b = nodes.find((n) => n.id === e.targetId);
       if (!a || !b) continue;
@@ -112,9 +125,11 @@ function simulate(): SimNode[] {
   }));
 }
 
-export default function DemoCascadeGraph() {
+export default function DemoCascadeGraph({ data }: { data?: { nodes: Node[]; edges: Edge[] } }) {
   const ref = useRef<HTMLDivElement>(null);
-  const positioned = useMemo(() => simulate(), []);
+  const nodes = data?.nodes ?? DEMO_NODES;
+  const edges = data?.edges.map((e) => ({ sourceId: e.source, targetId: e.target, confidence: e.confidence })) ?? DEMO_EDGES;
+  const positioned = useMemo(() => simulate(nodes, edges), [nodes, edges]);
   const cw = 600, ch = 400;
 
   useGSAP(() => {
@@ -152,13 +167,13 @@ export default function DemoCascadeGraph() {
     <div ref={ref} className="w-full flex justify-center">
       <svg width={cw} height={ch} viewBox={`0 0 ${cw} ${ch}`} className="overflow-visible">
         <defs>
-          {DEMO_EDGES.map((_, i) => (
+          {edges.map((_, i) => (
             <marker key={i} id={`da-${i}`} viewBox="0 0 8 8" refX="8" refY="4" markerWidth="5" markerHeight="5" orient="auto">
               <path d="M0,0 L8,4 L0,8 z" fill="rgb(148 163 184 / 0.6)" />
             </marker>
           ))}
         </defs>
-        {DEMO_EDGES.map((e, i) => {
+        {edges.map((e, i) => {
           const s = positioned.find((n) => n.id === e.sourceId);
           const t = positioned.find((n) => n.id === e.targetId);
           if (!s || !t) return null;

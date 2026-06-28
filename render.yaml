@@ -23,3 +23,32 @@ services:
         sync: false
       - key: SARVAM_API_KEY
         sync: false
+      - key: AGENT_URL
+        sync: false
+
+  - type: cron
+    name: agentguard-nightly-scan
+    schedule: "0 2 * * *"
+    buildCommand: npm install && npm run build
+    startCommand: agentguard test --url $AGENT_URL --count 3 --output json > /tmp/results.json && agentguard analyze /tmp/results.json --output /tmp/report.html && agentguard publish /tmp/report.html
+    envVars:
+      - key: LLM_BASE_URL
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: gpt-4o-mini
+      - key: DATABASE_URL
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: NEO4J_URI
+        sync: false
+      - key: NEO4J_USER
+        sync: false
+      - key: NEO4J_PASSWORD
+        sync: false
+      - key: SARVAM_API_KEY
+        sync: false
+      - key: AGENT_URL
+        sync: false
