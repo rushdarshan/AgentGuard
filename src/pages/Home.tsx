@@ -11,6 +11,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import DemoCascadeGraph from "@/components/DemoCascadeGraph";
+import VoiceTestButton from "@/components/VoiceTestButton";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -147,6 +148,7 @@ export default function Home() {
                   <>&gt; LAUNCH DEMO <LightningBoltIcon className="h-5 w-5" /></>
                 )}
               </Button>
+              <VoiceTestButton />
               {isAuthenticated ? (
                 <Link href="/dashboard">
                   <Button variant="outline" size="lg">[ DASHBOARD ]</Button>
