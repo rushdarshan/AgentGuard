@@ -16,6 +16,30 @@
 
 > Built for [HACKHAZARDS '26](https://hackhazards.geekybase.com/)
 
+<p align="center">
+  <a href="#demo-video">📺 Watch Demo</a> · <a href="https://agentguard.onrender.com">🚀 Live App</a>
+</p>
+
+## Why AgentGuard
+
+**Problem:** AI agents are deployed without security testing. Prompt injection, data leaks, and jailbreaks ship to production because existing red-teaming tools are too slow, too English-only, or too manual to fit into a CI pipeline.
+
+**Solution:** AgentGuard is an adversarial testing harness that runs 10 attack categories against your agent endpoint, visualizes failure propagation as a force-directed Neo4j cascade graph, and gates deploys with a statistically-rigorous readiness score.
+
+**Why us:**
+
+- **Hinglish attacks** — The only red-teaming tool with Sarvam-powered Indic-language adversarial generation (hi-IN, bn-IN, ta-IN, te-IN). Catches code-switched jailbreaks other tools miss.
+- **Runtime proxy** — Forward proxy that intercepts and judges live traffic in real time. No code changes needed.
+- **Cascade graphs** — Neo4j-powered failure propagation visualization reveals which attack categories trigger each other, not just pass/fail rates.
+
+**Try it in 10 seconds:**
+
+```bash
+npx agentguard test --url https://agentguard.onrender.com/api/demo-agent
+```
+
+Or launch the [live demo](https://agentguard.onrender.com) and click "LAUNCH DEMO".
+
 ```
 agentguard test --url https://my-agent.com
 agentguard proxy                        # real-time traffic interception

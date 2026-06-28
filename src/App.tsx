@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ThemeProvider } from "@/_core/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
 import { trpc } from "@/lib/trpc";
@@ -75,10 +76,12 @@ function App() {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          <Toaster />
-          <Router />
-        </ErrorBoundary>
+        <ThemeProvider>
+          <ErrorBoundary>
+            <Toaster />
+            <Router />
+          </ErrorBoundary>
+        </ThemeProvider>
       </QueryClientProvider>
     </trpc.Provider>
   );

@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { DashboardIcon, GlobeIcon, ClockIcon, ExitIcon, LightningBoltIcon, MixIcon, StarFilledIcon, SpeakerLoudIcon } from "@radix-ui/react-icons";
+import { DashboardIcon, GlobeIcon, ClockIcon, ExitIcon, LightningBoltIcon, MixIcon, StarFilledIcon, SpeakerLoudIcon, SunIcon, MoonIcon } from "@radix-ui/react-icons";
+import { useTheme } from "@/_core/ThemeProvider";
 
 interface Props {
   children: ReactNode;
@@ -17,6 +18,7 @@ const navItems = [
 
 export default function DashboardLayout({ children }: Props) {
   const [location] = useLocation();
+  const { theme, toggle } = useTheme();
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#EAEAEA]">
@@ -49,6 +51,9 @@ export default function DashboardLayout({ children }: Props) {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={toggle} className="px-2 py-1.5 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B] border border-transparent hover:border-[#2A2A2A] hover:text-[#EAEAEA]" title="Toggle theme">
+              {theme === "cyberpunk" ? <SunIcon className="h-3.5 w-3.5" /> : <MoonIcon className="h-3.5 w-3.5" />}
+            </button>
             <span className="font-mono text-[10px] text-[#8A8A8A] tracking-[0.15em] border border-[#2A2A2A] px-1.5 py-0.5">REV 2.6</span>
             <Link href="/">
               <button className="px-3 py-1.5 font-mono text-sm tracking-[0.08em] text-[#6B6B6B] border border-transparent hover:text-[#E61919] hover:border-[#2A2A2A]">
