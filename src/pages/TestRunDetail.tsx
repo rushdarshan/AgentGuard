@@ -483,6 +483,48 @@ export default function TestRunDetail() {
           </div>
         </Card>
 
+        {neoCascades && neoCascades.nodes.length > 0 && (() => {
+          const langs = new Map<string, { total: number; passed: number; failed: number }>();
+          for (const n of neoCascades.nodes) {
+            const lang = n.language || "en";
+            if (!langs.has(lang)) langs.set(lang, { total: 0, passed: 0, failed: 0 });
+            const entry = langs.get(lang)!;
+            const nodeTotal = results.find(r => r.category === n.category)?.passed ?? 0 +
+              results.find(r => r.category === n.category)?.failed ?? 0;
+            const pass = results.find(r => r.category === n.category)?.passed ?? 0;
+            const fail = results.find(r => r.category === n.category)?.failed ?? 0;
+            entry.total += nodeTotal;
+            entry.passed += pass;
+            entry.failed += fail;
+          }
+          const langColors: Record<string, string> = { en: "#60a5fa", "hi-IN": "#f59e0b", "bn-IN": "#34d399", "ta-IN": "#f472b6" };
+          if (langs.size <= 1) return null;
+          return (
+            <div data-languages>
+              <p className="font-mono mb-4 text-xs tracking-[0.15em] text-[#6B6B6B]">[ PER-LANGUAGE PASS RATE ]</p>
+              <Card className="p-6">
+                <div className="space-y-3">
+                  {Array.from(langs.entries()).map(([lang, data]) => {
+                    const rate = data.total > 0 ? Math.round((data.passed / data.total) * 100) : 0;
+                    return (
+                      <div key={lang}>
+                        <div className="flex items-center justify-between mb-1 font-mono text-xs">
+                          <span className="text-[#EAEAEA]">{lang}</span>
+                          <span className="text-[#6B6B6B]">{data.passed}/{data.total} ({rate}%)</span>
+                        </div>
+                        <div className="h-3 border border-[#2A2A2A] bg-[#0A0A0A]">
+                          <div className="h-full transition-all" style={{ width: `${rate}%`, backgroundColor: langColors[lang] || "#818CF8" }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="mt-4 font-mono text-[9px] text-[#6B6B6B] italic">Pass rate varies by language — testing in Indic languages surfaces agent failures invisible in English-only tests (Sarvam AI)</p>
+              </Card>
+            </div>
+          );
+        })()}
+
         {prevRunId && graphComparisonQuery.data && (
           <Card className="p-6">
             <p className="font-mono mb-4 text-xs tracking-[0.15em] text-[#6B6B6B]">[ RUN #{prevRunId} DELTA ]</p>

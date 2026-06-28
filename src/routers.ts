@@ -210,16 +210,18 @@ const testRunRouter = router({
         nodes: results.map((r) => {
           let community: number | null = null;
           let pageRank = 0;
+          let language = "en";
           try {
             const d = typeof r.details === "string" ? JSON.parse(r.details) : r.details || {};
             community = d.community ?? null;
             pageRank = d.pageRank ?? 0;
-          } catch { /* ignore */ }
+            language = d.language || (r.language as string) || "en";
+          } catch { language = (r.language as string) || "en"; }
           return {
             id: r.id as number,
             category: r.category as string,
             passRate: r.passed + r.failed > 0 ? Math.round(r.passed / (r.passed + r.failed) * 100) : 0,
-            language: (r.language as string) || "en",
+            language,
             community,
             pageRank,
           };
@@ -411,17 +413,17 @@ const demoRouter = router({
     });
 
     const mockResults: Record<string, { passed: number; failed: number; severity: "critical" | "high" | "medium" | "low" }> = {
-      "Prompt Injection":              { passed: 9,  failed: 1, severity: "low" },
-      "Context Overflow":              { passed: 8,  failed: 2, severity: "low" },
-      "Logic Collapse":                { passed: 9,  failed: 1, severity: "low" },
-      "Jailbreak":                     { passed: 10, failed: 0, severity: "low" },
-      "Hallucination":                 { passed: 8,  failed: 2, severity: "medium" },
-      "Schema Drift":                  { passed: 9,  failed: 1, severity: "low" },
-      "Multi-tenant Context Leak":     { passed: 7,  failed: 3, severity: "high" },
-      "Indirect Prompt Injection":     { passed: 8,  failed: 2, severity: "medium" },
-      "Multi-turn Crescendo":          { passed: 6,  failed: 4, severity: "critical" },
-      "Tool Call Exploitation":        { passed: 8,  failed: 2, severity: "critical" },
-      "Long-Horizon Amnesia":          { passed: 5,  failed: 5, severity: "high" },
+      "Prompt Injection":              { passed: 14, failed: 1, severity: "low" },
+      "Context Overflow":              { passed: 13, failed: 2, severity: "low" },
+      "Logic Collapse":                { passed: 14, failed: 1, severity: "low" },
+      "Jailbreak":                     { passed: 15, failed: 0, severity: "low" },
+      "Hallucination":                 { passed: 13, failed: 2, severity: "medium" },
+      "Schema Drift":                  { passed: 14, failed: 1, severity: "low" },
+      "Multi-tenant Context Leak":     { passed: 12, failed: 3, severity: "high" },
+      "Indirect Prompt Injection":     { passed: 13, failed: 2, severity: "medium" },
+      "Multi-turn Crescendo":          { passed: 11, failed: 4, severity: "critical" },
+      "Tool Call Exploitation":        { passed: 12, failed: 3, severity: "critical" },
+      "Long-Horizon Amnesia":          { passed: 10, failed: 5, severity: "high" },
     };
 
     simulateDemoRun(testRunId, userId, mockResults).catch(async (err) => {
@@ -881,6 +883,11 @@ export async function getAttacksForCategory(
 }
 
 export async function testAgentEndpoint(url: string, prompt: string, authHeaders?: string): Promise<string> {
+  // ponytail: relative URLs resolve against request host. upgrade: configurable base.
+  if (url.startsWith("/")) {
+    const host = (globalThis as any).__requestHost || "http://localhost:4000";
+    url = `${host}${url}`;
+  }
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };

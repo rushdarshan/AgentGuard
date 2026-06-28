@@ -239,18 +239,16 @@ export default function CascadeGraph({ nodes, edges, colorBy = "category", onNod
       </div>
       <div
         ref={graphRef}
-        className="grid overflow-auto"
-        style={{ placeItems: "center", cursor: dragNode ? "grabbing" : "grab" }}
+        className="flex justify-center overflow-auto"
+        style={{ cursor: dragNode ? "grabbing" : "grab" }}
       >
-        <div style={{ width: canvasW * zoom, height: canvasH * zoom, overflow: "hidden" }}>
-          <svg
-            width={canvasW * zoom}
-            height={canvasH * zoom}
-            viewBox={`0 0 ${canvasW} ${canvasH}`}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerLeave={handlePointerUp}
-          >
+        <svg
+          style={{ width: canvasW * zoom, height: canvasH * zoom, maxWidth: "none", willChange: "transform" }}
+          viewBox={`0 0 ${canvasW} ${canvasH}`}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+        >
           <defs>
             {edges.map((e, i) => {
               const s = edgeMap.get(e.sourceId);
@@ -314,6 +312,5 @@ export default function CascadeGraph({ nodes, edges, colorBy = "category", onNod
           </svg>
         </div>
       </div>
-    </div>
-  );
+    );
 }

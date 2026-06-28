@@ -2,7 +2,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link, useLocation } from "wouter";
-import { PlusIcon, TrashIcon, Pencil1Icon, PlayIcon } from "@radix-ui/react-icons";
+import { PlusIcon, TrashIcon, Pencil1Icon, PlayIcon, ClockIcon } from "@radix-ui/react-icons";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useEffect } from "react";
 
@@ -10,6 +10,7 @@ export default function AgentsList() {
   const { data: agents = [] } = trpc.agents.list.useQuery();
   const deleteAgent = trpc.agents.delete.useMutation();
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [scheduled, setScheduled] = useState<Record<number, boolean>>({});
   const [, setLocation] = useLocation();
 
   useEffect(() => {
@@ -47,8 +48,20 @@ export default function AgentsList() {
                     {agent.description && (
                       <p className="mt-2 font-mono text-[11px] text-[#6B6B6B]">{agent.description}</p>
                     )}
+                    <div className="mt-3">
+                      <Link href={`/agents/${agent.id}/test`}>
+                        <Button size="sm" className="gap-2 bg-[#E61919] hover:bg-[#CC0000] text-white border-0">
+                          <PlayIcon className="h-4 w-4" /> [ RUN FULL ADVERSARIAL SUITE ]
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
+                    <Button size="sm" variant="outline" className="gap-2"
+                      onClick={() => setScheduled(s => ({ ...s, [agent.id]: !s[agent.id] }))}>
+                      <ClockIcon className="h-4 w-4" />
+                      {scheduled[agent.id] ? "[ SCHEDULED ✓ ]" : "[ SCHEDULE ]"}
+                    </Button>
                     <Link href={`/agents/${agent.id}/test`}>
                       <Button size="sm" variant="outline" className="gap-2">
                         <PlayIcon className="h-4 w-4" /> [ TEST ]

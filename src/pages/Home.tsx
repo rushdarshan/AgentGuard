@@ -314,6 +314,10 @@ export default function Home() {
             <p className="font-mono text-[10px] text-[#6B6B6B]">
               &copy; 2026 AGENTGUARD &mdash; BUILT FOR HACKHAZARDS &apos;26
             </p>
+            <div className="flex gap-4 font-mono text-[10px]">
+              <a href="https://github.com/your-org/agentguard" target="_blank" rel="noopener noreferrer" className="text-[#6B6B6B] hover:text-[#EAEAEA] transition-colors">[ GITHUB ]</a>
+              <a href="https://devpost.com/software/agentguard" target="_blank" rel="noopener noreferrer" className="text-[#6B6B6B] hover:text-[#EAEAEA] transition-colors">[ DEVPOST ]</a>
+            </div>
           </div>
         </div>
       </footer>

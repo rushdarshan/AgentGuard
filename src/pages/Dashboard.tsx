@@ -107,7 +107,7 @@ export default function Dashboard() {
             <div key={stat.label} className="bg-[#121212] p-6 will-change-transform">
               <p className="font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">{stat.label}</p>
               <p className="mt-1 font-display text-4xl font-black" style={{ color: stat.color }}>
-                <span data-target={stat.value} data-suffix={stat.suffix}>0{stat.suffix}</span>
+                <span data-target={stat.value} data-suffix={stat.suffix}>{stat.value}{stat.suffix}</span>
               </p>
             </div>
           ))}
