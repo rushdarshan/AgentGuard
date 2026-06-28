@@ -12,12 +12,12 @@
 > Built for HACKHAZARDS '26
 
 <p align="center">
-  <a href="#demo">📺 Watch Overview
+  <a href="https://github.com/user-attachments/assets/d0e59702-cf6f-4c2e-9454-4e548073238c">📺 Watch Overview    </a> ·                     <a href="https://agentguard-j5ny.onrender.com">🚀 Live App</a>
+</p>
 
 https://github.com/user-attachments/assets/d0e59702-cf6f-4c2e-9454-4e548073238c
 
-</a> · <a href="https://agentguard-j5ny.onrender.com">🚀 Live App</a>
-</p>
+ 
 
 
 ## Why AgentGuard
