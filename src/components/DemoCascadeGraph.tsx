@@ -54,6 +54,19 @@ const DEMO_EDGES: Array<{ sourceId: number; targetId: number; confidence: number
   { sourceId: 4, targetId: 10, confidence: 62 },
 ];
 
+const LABEL_SHORT: Record<string, string> = {
+  "Multi-tenant Context Leak": "Context Leak",
+  "Multi-turn Crescendo": "Crescendo",
+  "Indirect Prompt Injection": "Indirect Injection",
+  "Memory Poisoning": "Memory Poison",
+  "Prompt Injection": "Prompt Inject",
+  "Context Overflow": "Overflow",
+  "Logic Collapse": "Collapse",
+  "Schema Drift": "Schema Drift",
+  "Tool Call Exploitation": "Tool Exploit",
+  "Long-Horizon Amnesia": "Amnesia",
+};
+
 interface SimNode {
   id: number;
   category: string;
@@ -95,7 +108,7 @@ function simulate(nodesIn: Node[], edgesIn: Array<{ sourceId: number; targetId: 
       if (!a || !b) continue;
       const dx = b.x - a.x, dy = b.y - a.y;
       const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-      const force = (dist - 130) * 0.004 * cool;
+      const force = (dist - 180) * 0.004 * cool;
       a.vx += (dx / dist) * force;
       b.vx -= (dx / dist) * force;
       a.vy += (dy / dist) * force;
@@ -209,7 +222,7 @@ export default function DemoCascadeGraph({ data }: { data?: { nodes: Node[]; edg
                 {n.passRate}%
               </text>
               <text data-label x={n.x} y={n.y + 32} textAnchor="middle" fill="rgb(148 163 184)" fontSize={8}>
-                {n.category}
+                {LABEL_SHORT[n.category] || n.category}
               </text>
             </g>
           );

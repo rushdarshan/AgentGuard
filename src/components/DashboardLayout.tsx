@@ -39,7 +39,7 @@ export default function DashboardLayout({ children }: Props) {
                       className={`px-3 py-1.5 font-mono text-sm tracking-[0.08em] border ${
                         active
                           ? "bg-[#EAEAEA] text-[#0A0A0A] border-[#EAEAEA]"
-                          : "bg-transparent text-[#6B6B6B] border-transparent hover:text-[#EAEAEA] hover:border-[#2A2A2A]"
+                          : "bg-transparent text-[#8A8A8A] border-transparent hover:text-[#EAEAEA] hover:border-[#2A2A2A]"
                       }`}
                     >
                       <item.icon className="h-3.5 w-3.5 inline-block mr-1.5" />
@@ -51,12 +51,12 @@ export default function DashboardLayout({ children }: Props) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={toggle} className="px-2 py-1.5 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B] border border-transparent hover:border-[#2A2A2A] hover:text-[#EAEAEA]" title="Toggle theme">
+            <button onClick={toggle} className="px-2 py-1.5 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A] border border-transparent hover:border-[#2A2A2A] hover:text-[#EAEAEA]" title="Toggle theme">
               {theme === "cyberpunk" ? <SunIcon className="h-3.5 w-3.5" /> : <MoonIcon className="h-3.5 w-3.5" />}
             </button>
             <span className="font-mono text-[10px] text-[#8A8A8A] tracking-[0.15em] border border-[#2A2A2A] px-1.5 py-0.5">REV 2.6</span>
             <Link href="/">
-              <button className="px-3 py-1.5 font-mono text-sm tracking-[0.08em] text-[#6B6B6B] border border-transparent hover:text-[#E61919] hover:border-[#2A2A2A]">
+              <button className="px-3 py-1.5 font-mono text-sm tracking-[0.08em] text-[#8A8A8A] border border-transparent hover:text-[#E61919] hover:border-[#2A2A2A]">
                 <ExitIcon className="h-3.5 w-3.5 inline-block mr-1.5" />
                 HOME
               </button>

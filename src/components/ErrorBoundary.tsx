@@ -22,7 +22,7 @@ export default class ErrorBoundary extends Component<Props, State> {
           <div className="text-center">
             <h1 className="font-display text-2xl font-black tracking-[-0.03em] mb-4">&lt; CRITICAL FAILURE /&gt;</h1>
             <p className="font-mono text-sm text-[#E61919]">SYSTEM ENCOUNTERED AN UNRECOVERABLE ERROR.</p>
-            <p className="font-mono text-[11px] text-[#6B6B6B] mt-2">REFRESH THE PAGE TO RE-INITIALIZE.</p>
+            <p className="font-mono text-[11px] text-[#8A8A8A] mt-2">REFRESH THE PAGE TO RE-INITIALIZE.</p>
           </div>
         </div>
       );

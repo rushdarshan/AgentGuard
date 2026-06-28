@@ -26,13 +26,12 @@ const mem = {
   agents: [
     { id: 1, userId: 1, name: "Demo ChatBot", url: "/api/demo-agent", description: "Customer support assistant for Acme Corp (demo), intentionally vulnerable — built into the AgentGuard server", isActive: 1, createdAt: new Date("2026-06-20"), updatedAt: new Date("2026-06-20") },
     { id: 2, userId: 1, name: "Llama 3.1 8B", url: "/api/real-agent", description: "Meta Llama-3.1-8B with system prompt guardrails (requires server-side GROQ_API_KEY)", isActive: 1, createdAt: new Date("2026-06-22"), updatedAt: new Date("2026-06-22") },
-    { id: 3, userId: 1, name: "Demo Target API", url: "/api/demo-agent", description: "Lightweight vulnerable agent for quick smoke tests — same endpoint as Demo ChatBot", isActive: 1, createdAt: new Date("2026-06-25"), updatedAt: new Date("2026-06-25") },
   ],
   testSuites: [] as any[],
   testRuns: [
-    { id: 1, userId: 1, agentId: 1, testSuiteId: null, status: "completed", totalTests: 45, passedTests: 32, failedTests: 13, reliabilityScore: 71, startedAt: new Date("2026-06-20T10:00:00"), completedAt: new Date("2026-06-20T10:05:00"), createdAt: new Date("2026-06-20T10:00:00") },
-    { id: 2, userId: 1, agentId: 1, testSuiteId: null, status: "completed", totalTests: 45, passedTests: 38, failedTests: 7, reliabilityScore: 84, startedAt: new Date("2026-06-25T14:00:00"), completedAt: new Date("2026-06-25T14:04:00"), createdAt: new Date("2026-06-25T14:00:00") },
-    { id: 3, userId: 1, agentId: 2, testSuiteId: null, status: "completed", totalTests: 45, passedTests: 41, failedTests: 4, reliabilityScore: 91, startedAt: new Date("2026-06-26T09:00:00"), completedAt: new Date("2026-06-26T09:03:00"), createdAt: new Date("2026-06-26T09:00:00") },
+    { id: 1, userId: 1, agentId: 1, testSuiteId: null, status: "completed", totalTests: 135, passedTests: 110, failedTests: 25, reliabilityScore: 81, startedAt: new Date("2026-06-20T10:00:00"), completedAt: new Date("2026-06-20T10:05:00"), createdAt: new Date("2026-06-20T10:00:00") },
+    { id: 2, userId: 1, agentId: 1, testSuiteId: null, status: "completed", totalTests: 135, passedTests: 122, failedTests: 13, reliabilityScore: 90, startedAt: new Date("2026-06-25T14:00:00"), completedAt: new Date("2026-06-25T14:04:00"), createdAt: new Date("2026-06-25T14:00:00") },
+    { id: 3, userId: 1, agentId: 2, testSuiteId: null, status: "completed", totalTests: 150, passedTests: 134, failedTests: 16, reliabilityScore: 89, startedAt: new Date("2026-06-26T09:00:00"), completedAt: new Date("2026-06-26T09:03:00"), createdAt: new Date("2026-06-26T09:00:00") },
   ],
   testResults: [
     { id: 1,  testRunId: 1, category: "Prompt Injection",             passed: 12, failed: 3, severity: "high",    language: "hi-IN", details: "{}", createdAt: new Date("2026-06-20") },
@@ -62,6 +61,7 @@ const mem = {
     { id: 25, testRunId: 3, category: "Schema Drift",                 passed: 15, failed: 0, severity: "low",    language: "ta-IN",details: "{}", createdAt: new Date("2026-06-26") },
     { id: 26, testRunId: 3, category: "Logic Collapse",               passed: 13, failed: 2, severity: "medium",  language: "en",   details: "{}", createdAt: new Date("2026-06-26") },
     { id: 27, testRunId: 3, category: "Multi-tenant Context Leak",    passed: 12, failed: 3, severity: "high",    language: "hi-IN", details: "{}", createdAt: new Date("2026-06-26") },
+    { id: 28, testRunId: 3, category: "Memory Poisoning",             passed: 10, failed: 5, severity: "critical",language: "en",   details: "{}", createdAt: new Date("2026-06-26") },
   ],
   failureCascades: [
     { id: 1,  testRunId: 1, sourceResultId: 1,  targetResultId: 4,  confidence: 80, createdAt: new Date() },
@@ -75,7 +75,7 @@ const mem = {
     { id: 9,  testRunId: 3, sourceResultId: 20, targetResultId: 27, confidence: 40, createdAt: new Date() },
     { id: 10, testRunId: 3, sourceResultId: 23, targetResultId: 26, confidence: 35, createdAt: new Date() },
   ],
-  nextId: { agents: 4, testSuites: 1, testRuns: 4, testResults: 28, failureCascades: 11 },
+  nextId: { agents: 4, testSuites: 1, testRuns: 4, testResults: 29, failureCascades: 11 },
 };
 
 export async function upsertUser(user: InsertUser): Promise<void> {

@@ -84,9 +84,9 @@ export default function Dashboard() {
       <div ref={containerRef} className="space-y-10">
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">&lt; OPERATIONS /&gt;</p>
+            <p className="font-mono text-sm tracking-[0.15em] text-[#8A8A8A]">&lt; OPERATIONS /&gt;</p>
             <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">DASHBOARD</h1>
-            <p className="mt-1 font-mono text-sm tracking-[0.08em] text-[#6B6B6B]">
+            <p className="mt-1 font-mono text-sm tracking-[0.08em] text-[#8A8A8A]">
               WELCOME BACK, {user?.name}
             </p>
           </div>
@@ -125,7 +125,7 @@ export default function Dashboard() {
             { label: "CRITICAL", value: criticalIssues, suffix: "", color: "#E61919" },
           ].map((stat) => (
             <div key={stat.label} className="bg-[#121212] p-6 will-change-transform">
-              <p className="font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">{stat.label}</p>
+              <p className="font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]">{stat.label}</p>
               <p className="mt-1 font-display text-4xl font-black" style={{ color: stat.color }}>
                 <span data-target={stat.value} data-suffix={stat.suffix}>{stat.value}{stat.suffix}</span>
               </p>
@@ -135,7 +135,7 @@ export default function Dashboard() {
 
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">[ RECENT RUNS ]</p>
+            <p className="font-mono text-sm tracking-[0.15em] text-[#8A8A8A]">[ RECENT RUNS ]</p>
             <Link href="/runs">
               <Button variant="outline">[ VIEW ALL ]</Button>
             </Link>
@@ -149,32 +149,35 @@ export default function Dashboard() {
                     <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                       <div className="flex-1">
                         <p className="font-mono text-base font-semibold tracking-[0.05em]">RUN #{run.id}</p>
-                        <p className="font-mono text-[11px] text-[#6B6B6B]">
+                        <p className="font-mono text-[11px] text-[#8A8A8A]">
                           {run.totalTests} TESTS &mdash; {run.passedTests} PASSED &mdash; {run.failedTests} FAILED
                         </p>
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="text-right">
                           <p className="font-display text-2xl font-black">{run.totalTests > 0 ? (run.passedTests / run.totalTests * 100).toFixed(1) : "0"}%</p>
-                          <p className="font-mono text-[10px] text-[#6B6B6B]">
+                          <p className="font-mono text-[10px] text-[#8A8A8A]">
                             {run.status === "running" ? "RUNNING..." : "COMPLETED"}
                           </p>
                         </div>
-                        <span className={`badge ${reliabilityBadge(run.reliabilityScore || 0)}`}>
+                        <span className={`badge ${reliabilityBadge(run.reliabilityScore || 0)} text-xs font-bold`}>
                           {reliabilityLabel(run.reliabilityScore || 0)}
                         </span>
-                        {(() => {
-                          const total = (run as any).totalTests || 0;
-                          const passed = (run as any).passedTests || 0;
-                          const tier = total > 0 ? classifyConfidence(passed, total) : null;
-                          if (!tier) return null;
-                          const { label, color } = getConfidenceBadge(tier);
-                          return (
-                            <span className="font-mono text-[9px] font-bold px-1.5 py-0.5 ml-1 border" style={{ borderColor: color + "40", backgroundColor: color + "10", color }}>
-                              {label}
-                            </span>
-                          );
-                        })()}
+                          {(() => {
+                            const total = (run as any).totalTests || 0;
+                            const passed = (run as any).passedTests || 0;
+                            const tier = total > 0 ? classifyConfidence(passed, total) : null;
+                            if (!tier) return null;
+                            const { label, color } = getConfidenceBadge(tier);
+                            return (
+                              <>
+                                <span className="font-mono text-[9px] text-[#8A8A8A] mr-1">CALIPER</span>
+                                <span className="font-mono text-[9px] px-1.5 py-0.5 border" style={{ borderColor: color + "40", backgroundColor: color + "10", color }}>
+                                  {label}
+                                </span>
+                              </>
+                            );
+                          })()}
                       </div>
                     </div>
                   </div>
@@ -183,7 +186,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <Card className="p-8 text-center">
-              <p className="font-mono text-base text-[#6B6B6B]">NO RUNS YET. CREATE AN AGENT AND START TESTING.</p>
+              <p className="font-mono text-base text-[#8A8A8A]">NO RUNS YET. CREATE AN AGENT AND START TESTING.</p>
               <Link href="/agents/new">
                 <Button className="mt-4">[ CREATE AGENT ]</Button>
               </Link>
@@ -193,7 +196,7 @@ export default function Dashboard() {
 
         <div className="grid gap-[1px] bg-[#2A2A2A] md:grid-cols-2">
           <div className="bg-[#121212] p-6">
-            <p className="mb-6 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">[ QUICK START ]</p>
+            <p className="mb-6 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]">[ QUICK START ]</p>
             <ol className="space-y-4 font-mono text-sm">
               {[
                 "REGISTER YOUR AGENT ENDPOINT",
@@ -203,7 +206,7 @@ export default function Dashboard() {
                 "ANALYZE FAILURE CASCADES",
               ].map((step, i) => (
                 <li key={i} className="flex items-center gap-3">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center border border-[#2A2A2A] text-[10px] font-bold text-[#6B6B6B]">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center border border-[#2A2A2A] text-[10px] font-bold text-[#8A8A8A]">
                     {i + 1}
                   </span>
                   <span className="tracking-[0.05em] text-[#EAEAEA]">{step}</span>
@@ -213,7 +216,7 @@ export default function Dashboard() {
           </div>
 
           <div className="bg-[#121212] p-6">
-            <p className="mb-6 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">[ ATTACK SURFACE ]</p>
+            <p className="mb-6 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]">[ ATTACK SURFACE ]</p>
             <div className="space-y-2">
               {["PROMPT INJECTION", "CONTEXT OVERFLOW", "LOGIC COLLAPSE", "JAILBREAK", "HALLUCINATION", "SCHEMA DRIFT", "MULTI-TENANT LEAK", "INDIRECT INJECTION", "MULTI-TURN CRESCENDO"].map(cat => (
                 <div key={cat} className="flex items-center gap-2 font-mono text-sm text-[#EAEAEA]">

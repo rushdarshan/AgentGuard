@@ -119,9 +119,9 @@ export default function VoiceDemo() {
     <DashboardLayout>
       <div className="space-y-8">
         <div>
-          <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">&lt; VOICE DEMO /&gt;</p>
+          <p className="font-mono text-sm tracking-[0.15em] text-[#8A8A8A]">&lt; VOICE DEMO /&gt;</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">VOICE ATTACK</h1>
-          <p className="mt-2 font-mono text-sm tracking-[0.08em] text-[#6B6B6B]">
+          <p className="mt-2 font-mono text-sm tracking-[0.08em] text-[#8A8A8A]">
             SARVAM STT → AGENT → JUDGE PIPELINE, SPEAK A MULTILINGUAL ATTACK
           </p>
         </div>
@@ -161,34 +161,34 @@ export default function VoiceDemo() {
                   [STOP]
                 </Button>
               ) : (
-                <Button disabled className="bg-[#2A2A2A] text-[#6B6B6B] font-mono text-sm tracking-[0.08em] px-6">
+                <Button disabled className="bg-[#2A2A2A] text-[#8A8A8A] font-mono text-sm tracking-[0.08em] px-6">
                   [WAIT]
                 </Button>
               )}
             </div>
 
             <div data-divider className="bg-[#121212] p-3">
-              <p className="telemetry-label text-[#6B6B6B]">STATUS</p>
+              <p className="telemetry-label text-[#8A8A8A]">STATUS</p>
               <p className="mt-1 font-mono text-sm text-[#EAEAEA]">{stageLabel(stage)}</p>
             </div>
 
             <div data-divider className="bg-[#121212] p-3 min-h-[60px]">
-              <p className="telemetry-label text-[#6B6B6B]">TRANSCRIPT</p>
+              <p className="telemetry-label text-[#8A8A8A]">TRANSCRIPT</p>
               <p className="mt-1 font-mono text-base text-[#EAEAEA] whitespace-pre-wrap">
-                {transcript || <span className="text-[#6B6B6B] italic">Waiting for speech…</span>}
+                {transcript || <span className="text-[#8A8A8A] italic">Waiting for speech…</span>}
               </p>
             </div>
 
             <div data-divider className="bg-[#121212] p-3 min-h-[60px]">
-              <p className="telemetry-label text-[#6B6B6B]">AGENT RESPONSE</p>
+              <p className="telemetry-label text-[#8A8A8A]">AGENT RESPONSE</p>
               <p className="mt-1 font-mono text-base text-[#EAEAEA] whitespace-pre-wrap leading-relaxed">
-                {agentResponse || <span className="text-[#6B6B6B] italic">Waiting for response…</span>}
+                {agentResponse || <span className="text-[#8A8A8A] italic">Waiting for response…</span>}
               </p>
             </div>
 
             {judgeVerdict && (
               <div data-divider className={`p-3 ${judgeVerdict.passed ? "border-[#4AF626]" : "border-[#E61919]"}`}>
-                <p className="telemetry-label text-[#6B6B6B]">JUDGE VERDICT</p>
+                <p className="telemetry-label text-[#8A8A8A]">JUDGE VERDICT</p>
                 <p className={`mt-1 font-display text-2xl font-black ${judgeVerdict.passed ? "text-[#4AF626]" : "text-[#E61919]"}`}>
                   {judgeVerdict.passed ? "PASSED" : "FAILED"}
                 </p>
@@ -205,7 +205,7 @@ export default function VoiceDemo() {
           </Card>
 
           <Card className="p-6 space-y-4 border-2 border-[#2A2A2A]">
-            <p className="telemetry-label text-[#6B6B6B]">ACTIONS</p>
+            <p className="telemetry-label text-[#8A8A8A]">ACTIONS</p>
 
             <Button
               onClick={doPlayTTS}
@@ -217,14 +217,14 @@ export default function VoiceDemo() {
 
             <Button
               onClick={doReset}
-              className="w-full border border-[#2A2A2A] bg-transparent text-[#6B6B6B] hover:bg-[#1A1A1A] font-mono text-sm tracking-[0.08em]"
+              className="w-full border border-[#2A2A2A] bg-transparent text-[#8A8A8A] hover:bg-[#1A1A1A] font-mono text-sm tracking-[0.08em]"
             >
               ⟲ RESET
             </Button>
 
             <hr className="border-[#2A2A2A]" />
 
-            <div className="font-mono text-sm text-[#6B6B6B] leading-relaxed">
+            <div className="font-mono text-sm text-[#8A8A8A] leading-relaxed">
               <p className="font-bold text-[#EAEAEA] mb-1">HOW THIS WORKS</p>
               <p>1. Speak a Hinglish attack prompt in your mic</p>
               <p>2. Audio is transcribed via Sarvam Saaras (STT)</p>

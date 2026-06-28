@@ -130,12 +130,12 @@ export default function VoiceTestButton() {
       </div>
       {state === "done" && result && (
         <div className="w-72 border border-[#2A2A2A] bg-[#121212] p-4 text-left">
-          <p className="font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">TRANSCRIPT</p>
+          <p className="font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]">TRANSCRIPT</p>
           <p className="mt-1 font-mono text-base text-[#EAEAEA]">{result.transcript || "[No speech detected]"}</p>
           {result.language && (
-            <p className="mt-2 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">LANGUAGE <span className="text-[#EAEAEA]">{result.language}</span></p>
+            <p className="mt-2 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]">LANGUAGE <span className="text-[#EAEAEA]">{result.language}</span></p>
           )}
-          <p className="mt-3 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">VERDICT</p>
+          <p className="mt-3 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]">VERDICT</p>
           <p
             className={`mt-1 font-display text-lg font-black uppercase ${result.verdict === "PASS" ? "text-[#4AF626]" : "text-[#E61919]"}`}
           >

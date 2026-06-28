@@ -1,0 +1,53 @@
+patterns:
+  - id: daily-triage
+    name: Daily Triage
+    goal: Prioritized scan of CI, issues, commits, and PR status
+    cadence: 1d
+    risk: low
+    tools: [claude-code, github-actions]
+    skills: [loop-triage]
+    state: STATE.md
+    phases: [report, escalate]
+    human_gates: [design-decisions, multi-file-refactors]
+    week_one_mode: L1
+    token_cost: low
+    cost:
+      tokens_noop: 5000
+      tokens_report: 50000
+      tokens_action: 200000
+      suggested_daily_cap: 150000
+      early_exit_required: false
+
+  - id: pr-babysitter
+    name: PR Babysitter
+    goal: Watch open PRs for CI status, review feedback, and merge readiness
+    cadence: 5m-15m
+    risk: medium
+    tools: [claude-code, github-actions]
+    skills: [pr-review-triage, minimal-fix]
+    human_gates: [security, auth, max-fix-attempts]
+    week_one_mode: L1
+    token_cost: high
+    cost:
+      tokens_noop: 3000
+      tokens_report: 80000
+      tokens_action: 250000
+      suggested_daily_cap: 200000
+      early_exit_required: true
+
+  - id: changelog-drafter
+    name: Changelog Drafter
+    goal: Scan merged PRs and commits, draft categorized release notes
+    cadence: 1d
+    risk: low
+    tools: [claude-code, github-actions]
+    phases: [scan-merges, draft]
+    human_gates: [breaking-changes, security]
+    week_one_mode: L1
+    token_cost: low
+    cost:
+      tokens_noop: 5000
+      tokens_report: 35000
+      tokens_action: 80000
+      suggested_daily_cap: 100000
+      early_exit_required: false

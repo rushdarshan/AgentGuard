@@ -19,16 +19,16 @@ export default function Leaderboard() {
     <DashboardLayout>
       <div className="space-y-8">
         <div>
-          <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">&lt; PUBLIC RANKINGS /&gt;</p>
+          <p className="font-mono text-sm tracking-[0.15em] text-[#8A8A8A]">&lt; PUBLIC RANKINGS /&gt;</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">LEADERBOARD</h1>
-          <p className="mt-2 font-mono text-sm tracking-[0.08em] text-[#6B6B6B]">
-            AGENTGUARD ADVERSARIAL RELIABILITY SCORES — LAST UPDATED 2026-06-28
+          <p className="mt-2 font-mono text-sm tracking-[0.08em] text-[#8A8A8A]">
+            ILLUSTRATIVE SCORES — SET UP BENCHMARK INTEGRATION FOR LIVE DATA
           </p>
         </div>
 
         <Card className="p-0 border-0">
           <div className="space-y-[1px] bg-[#2A2A2A]">
-            <div className="bg-[#0A0A0A] px-6 py-3 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B] grid grid-cols-12 gap-4">
+            <div className="bg-[#0A0A0A] px-6 py-3 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A] grid grid-cols-12 gap-4">
               <span className="col-span-1">#</span>
               <span className="col-span-4">AGENT</span>
               <span className="col-span-2 text-right">SCORE</span>
@@ -40,7 +40,7 @@ export default function Leaderboard() {
               <div key={agent.rank} className={`bg-[#121212] px-6 py-4 grid grid-cols-12 gap-4 items-center ${agent.rank <= 3 ? "border-l-2" : ""}`}
                 style={{ borderLeftColor: agent.rank === 1 ? "#FFD700" : agent.rank === 2 ? "#C0C0C0" : agent.rank === 3 ? "#CD7F32" : "transparent" }}>
                 <span className="col-span-1 font-mono text-base font-black" style={{
-                  color: agent.rank === 1 ? "#FFD700" : agent.rank === 2 ? "#C0C0C0" : agent.rank === 3 ? "#CD7F32" : "#6B6B6B"
+                  color: agent.rank === 1 ? "#FFD700" : agent.rank === 2 ? "#C0C0C0" : agent.rank === 3 ? "#CD7F32" : "#8A8A8A"
                 }}>0{agent.rank}</span>
                 <div className="col-span-4">
                   <p className="font-mono text-base font-semibold tracking-[0.05em] text-[#EAEAEA]">{agent.name}</p>
@@ -49,10 +49,10 @@ export default function Leaderboard() {
                   <span className={`font-display text-2xl font-black ${
                     agent.score >= 90 ? "text-[#4AF626]" : agent.score >= 75 ? "text-[#EAEAEA]" : "text-[#E61919]"
                   }`}>{agent.score}</span>
-                  <span className="font-mono text-[9px] text-[#6B6B6B] ml-1">/100</span>
+                  <span className="font-mono text-[9px] text-[#8A8A8A] ml-1">/100</span>
                 </div>
-                <span className="col-span-2 text-right font-mono text-sm text-[#6B6B6B]">{agent.runs}</span>
-                <span className="col-span-2 text-right font-mono text-sm text-[#6B6B6B]">{agent.best}</span>
+                <span className="col-span-2 text-right font-mono text-sm text-[#8A8A8A]">{agent.runs}</span>
+                <span className="col-span-2 text-right font-mono text-sm text-[#8A8A8A]">{agent.best}</span>
                 <span className={`col-span-1 text-right font-mono text-sm font-bold ${
                   agent.trend === "up" ? "text-[#4AF626]" : "text-[#E61919]"
                 }`}>{agent.trend === "up" ? "↑" : "↓"}</span>
@@ -62,7 +62,7 @@ export default function Leaderboard() {
         </Card>
 
         <div className="border border-[#2A2A2A] p-4">
-          <p className="font-mono text-[10px] text-[#6B6B6B] italic">
+          <p className="font-mono text-[10px] text-[#8A8A8A] italic">
             Scores represent the AgentGuard Composite Score (0–100) — weighted average of pass rate (40%),
             cascade impact (25%), PII leak detection (20%), and severity penalty (15%).
             Higher score = more resistant to adversarial attacks.
@@ -72,19 +72,19 @@ export default function Leaderboard() {
 
         <div className="grid gap-[1px] bg-[#2A2A2A] md:grid-cols-3">
           <div className="bg-[#121212] p-6 text-center">
-            <p className="font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">TOP SCORE</p>
+            <p className="font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]">TOP SCORE</p>
             <p className="mt-1 font-display text-4xl font-black text-[#FFD700]">94</p>
-            <p className="font-mono text-sm text-[#6B6B6B]">CLAUDE 3.5 SONNET</p>
+            <p className="font-mono text-sm text-[#8A8A8A]">CLAUDE 3.5 SONNET</p>
           </div>
           <div className="bg-[#121212] p-6 text-center">
-            <p className="font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">AVERAGE</p>
+            <p className="font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]">AVERAGE</p>
             <p className="mt-1 font-display text-4xl font-black text-[#EAEAEA]">80.4</p>
-            <p className="font-mono text-sm text-[#6B6B6B]">ACROSS 10 AGENTS</p>
+            <p className="font-mono text-sm text-[#8A8A8A]">ACROSS 10 AGENTS</p>
           </div>
           <div className="bg-[#121212] p-6 text-center">
-            <p className="font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">LOWEST</p>
+            <p className="font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]">LOWEST</p>
             <p className="mt-1 font-display text-4xl font-black text-[#E61919]">68</p>
-            <p className="font-mono text-sm text-[#6B6B6B]">DEEPSEEK V3</p>
+            <p className="font-mono text-sm text-[#8A8A8A]">DEEPSEEK V3</p>
           </div>
         </div>
       </div>

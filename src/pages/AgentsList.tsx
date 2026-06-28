@@ -27,7 +27,7 @@ export default function AgentsList() {
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">&lt; ENDPOINTS /&gt;</p>
+            <p className="font-mono text-sm tracking-[0.15em] text-[#8A8A8A]">&lt; ENDPOINTS /&gt;</p>
             <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">AGENTS</h1>
           </div>
           <Link href="/agents/new">
@@ -44,9 +44,9 @@ export default function AgentsList() {
                 <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                   <div className="flex-1">
                     <h3 className="font-mono text-base font-semibold tracking-[0.05em]">{agent.name}</h3>
-                    <p className="font-mono text-[11px] text-[#6B6B6B]">{agent.url}</p>
+                    <p className="font-mono text-[11px] text-[#8A8A8A]">{agent.url}</p>
                     {agent.description && (
-                      <p className="mt-2 font-mono text-[11px] text-[#6B6B6B]">{agent.description}</p>
+                      <p className="mt-2 font-mono text-[11px] text-[#8A8A8A]">{agent.description}</p>
                     )}
                     <div className="mt-3">
                       <Link href={`/agents/${agent.id}/test`}>
@@ -87,7 +87,7 @@ export default function AgentsList() {
           </div>
         ) : (
           <Card className="p-12 text-center">
-            <p className="font-mono text-base text-[#6B6B6B]">NO AGENTS REGISTERED</p>
+            <p className="font-mono text-base text-[#8A8A8A]">NO AGENTS REGISTERED</p>
             <Link href="/agents/new">
               <Button className="mt-4 gap-2">
                 <PlusIcon className="h-4 w-4" /> [ CREATE FIRST AGENT ]

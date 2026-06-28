@@ -1,8 +1,3 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" src="./.github/assets/agentguard-banner-dark.png">
-  <img alt="AgentGuard — CI for Your AI Agents" src="./.github/assets/agentguard-banner-light.png">
-</picture>
-
 # AgentGuard — CI for Your AI Agents
 
 **Adversarial testing harness · Runtime proxy · Pre-push gate**
@@ -20,6 +15,10 @@
   <a href="#demo-video">📺 Watch Demo</a> · <a href="https://agentguard.onrender.com">🚀 Live App</a>
 </p>
 
+<video src="./brag-output/brag.mp4" controls width="100%">
+  <a href="./brag-output/brag.mp4">Download demo video</a>
+</video>
+
 ## Why AgentGuard
 
 **Problem:** AI agents are deployed without security testing. Prompt injection, data leaks, and jailbreaks ship to production because existing red-teaming tools are too slow, too English-only, or too manual to fit into a CI pipeline.
@@ -35,15 +34,15 @@
 **Try it in 10 seconds:**
 
 ```bash
-npx agentguard test --url https://agentguard.onrender.com/api/demo-agent
+npx tsx src/cli/index.ts test --url https://agentguard.onrender.com/api/demo-agent
 ```
 
 Or launch the [live demo](https://agentguard.onrender.com) and click "LAUNCH DEMO".
 
 ```
-agentguard test --url https://my-agent.com
-agentguard proxy                        # real-time traffic interception
-agentguard pre-push --threshold 80      # block pushes below score
+npx tsx src/cli/index.ts test --url https://my-agent.com
+npx tsx src/cli/index.ts proxy                        # real-time traffic interception
+npx tsx src/cli/index.ts pre-push --threshold 80      # block pushes below score
 ```
 
 ---
@@ -64,14 +63,6 @@ AgentGuard runs a complete adversarial test suite against your agent endpoint, v
 | ⚡ CI Integration | GitHub Action + pre-push hook + Render cron job |
 
 [![Deploy on Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
-
----
-
-## Screenshots
-
-![Cascade Graph](.github/assets/cascade-graph.png)
-![Graph Explorer](.github/assets/graph-explorer.png)
-![Voice Test](.github/assets/voice-test.png)
 
 ---
 
@@ -117,16 +108,16 @@ Most AI agent testing tools are manual, single-model, and English-only. AgentGua
 
 ```bash
 # Run a test against any agent endpoint
-npx agentguard test --url https://your-agent.com/chat
+npx tsx src/cli/index.ts test --url https://your-agent.com/chat
 
 # Interactive dashboard (pre-seeded demo data)
 npm run demo
 
 # Install pre-push hook
-agentguard pre-push --url https://your-agent.com/chat --install
+npx tsx src/cli/index.ts pre-push --url https://your-agent.com/chat --install
 
 # Proxy mode — intercept and judge live traffic
-agentguard proxy --port 9090
+npx tsx src/cli/index.ts proxy --port 9090
 
 # Nightly CI scan (via Render cron)
 # Already configured in render.yaml — deploys automatically
@@ -138,19 +129,21 @@ agentguard proxy --port 9090
 
 | Command | Description |
 |---------|-------------|
-| `agentguard test --url <url>` | Run 9-category adversarial attack suite against an agent endpoint |
-| `agentguard proxy --port 9090` | Start HTTP forward proxy that judges agent→API traffic in real time |
-| `agentguard pre-push --threshold 80` | Gate a git push on minimum readiness score (set `--install` to install hook) |
-| `agentguard harden <report.json>` | Generate guardrail configuration from a test run's failed findings |
-| `agentguard publish <report.html>` | Deploy an HTML report via Render Deploy Hook or print instructions |
-| `agentguard validate <report.json>` | Validate a report JSON file against the JSON Schema |
+| `test --url <url>` | Run 9-category adversarial attack suite against an agent endpoint |
+| `proxy --port 9090` | Start HTTP forward proxy that judges agent→API traffic in real time |
+| `pre-push --threshold 80` | Gate a git push on minimum readiness score (set `--install` to install hook) |
+| `harden <report.json>` | Generate guardrail configuration from a test run's failed findings |
+| `publish <report.html>` | Deploy an HTML report via Render Deploy Hook or print instructions |
+| `validate <report.json>` | Validate a report JSON file against the JSON Schema |
+
+All commands prefixed with `npx tsx src/cli/index.ts` (not yet published to npm — `private: true` in package.json).
 
 ### Proxy Mode
 
 Set `HTTP_PROXY=http://127.0.0.1:9090` in your agent's environment:
 
 ```bash
-agentguard proxy --allowlist api.openai.com,api.stripe.com
+npx tsx src/cli/index.ts proxy --allowlist api.openai.com,api.stripe.com
 ```
 
 Every outbound request is judged with swap-position double-judging in real time. Unknown domains are blocked. HTTPS connections are tunneled and domain-logged (no MITM). Summary with session score printed on `^C`.
@@ -158,8 +151,8 @@ Every outbound request is judged with swap-position double-judging in real time.
 ### Pre-Push Gate
 
 ```bash
-agentguard pre-push --install                        # one-time setup
-agentguard pre-push --url https://my-agent.com        # blocks push if score < 80
+npx tsx src/cli/index.ts pre-push --install                        # one-time setup
+npx tsx src/cli/index.ts pre-push --url https://my-agent.com        # blocks push if score < 80
 ```
 
 Writes `.git/hooks/pre-push` that runs 3 quick adversarial tests before every push.
@@ -334,39 +327,6 @@ agentguard test --url "$TARGET_AGENT_URL" --count 1
 ```
 
 Supported categories: Prompt Injection, Jailbreak, Indirect Prompt Injection, Multi-tenant Context Leak.
-
----
-
-## GitHub Action
-
-Add AgentGuard to your CI pipeline:
-
-```yaml
-# .github/workflows/agentguard-ci.yml
-name: AgentGuard CI
-on:
-  pull_request:
-    branches: [main]
-
-jobs:
-  agentguard:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run AgentGuard
-        uses: agentguard/agentguard@v1
-        with:
-          url: ${{ secrets.AGENT_URL }}
-          threshold: 80
-```
-
-The action:
-
-1. Runs a full adversarial test suite against your agent endpoint
-2. Generates a hardening configuration from failed findings
-3. Posts a **PR comment** with the Agent Readiness Score and hardening config
-
-Outputs: `score` (number 0–100), `passed` (boolean).
 
 ---
 

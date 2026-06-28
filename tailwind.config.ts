@@ -19,7 +19,7 @@ const config: Config = {
         accent: '#E61919',
         'terminal-green': '#4AF626',
         border: '#2A2A2A',
-        muted: '#6B6B6B',
+        muted: '#8A8A8A',
       },
       letterSpacing: {
         'display-tight': '-0.06em',

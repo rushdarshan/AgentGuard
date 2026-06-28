@@ -172,21 +172,21 @@ export default function Graph() {
     <DashboardLayout>
       <div className="space-y-8">
         <div>
-          <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">&lt; VISUALIZATION /&gt;</p>
+          <p className="font-mono text-sm tracking-[0.15em] text-[#8A8A8A]">&lt; VISUALIZATION /&gt;</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">GRAPH EXPLORER</h1>
-          <p className="mt-2 font-mono text-[11px] text-[#6B6B6B]">UPLOAD TEST RESULTS TO VISUALIZE ATTACK CASCADE GRAPHS</p>
+          <p className="mt-2 font-mono text-[11px] text-[#8A8A8A]">UPLOAD TEST RESULTS TO VISUALIZE ATTACK CASCADE GRAPHS</p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-12">
           <div className="lg:col-span-3 space-y-4">
             <div className="border border-[#2A2A2A] bg-[#121212] p-5 space-y-4">
-              <p className="font-mono text-[11px] text-[#6B6B6B] tracking-[0.05em]">DATA SOURCE</p>
+              <p className="font-mono text-[11px] text-[#8A8A8A] tracking-[0.05em]">DATA SOURCE</p>
               <label
                 htmlFor="json-upload"
                 className="flex flex-col items-center justify-center gap-3 border border-dashed border-[#2A2A2A] bg-[#0A0A0A] p-8 cursor-pointer hover:border-[#E61919]/40 transition-colors"
               >
                 <UploadIcon className="h-8 w-8 text-[#2A2A2A]" />
-                <span className="font-mono text-[10px] text-[#6B6B6B] text-center">
+                <span className="font-mono text-[10px] text-[#8A8A8A] text-center">
                   {fileName ? fileName.toUpperCase() : "CLICK TO UPLOAD .JSON"}
                 </span>
               </label>
@@ -211,7 +211,7 @@ export default function Graph() {
             </div>
 
             <div className="border border-[#2A2A2A] bg-[#121212] p-5 space-y-2">
-              <p className="font-mono text-[11px] text-[#6B6B6B] tracking-[0.05em]">EXPECTED FORMAT</p>
+              <p className="font-mono text-[11px] text-[#8A8A8A] tracking-[0.05em]">EXPECTED FORMAT</p>
               <pre className="font-mono text-[10px] text-[#3A3A3A] leading-relaxed whitespace-pre-wrap">
 {`[
   {
@@ -234,13 +234,13 @@ export default function Graph() {
             </div>
 
             <div className="border border-[#2A2A2A] bg-[#121212] p-5 space-y-4">
-              <p className="font-mono text-[11px] text-[#6B6B6B] tracking-[0.05em]">DOCUMENT UPLOAD</p>
+              <p className="font-mono text-[11px] text-[#8A8A8A] tracking-[0.05em]">DOCUMENT UPLOAD</p>
               <label
                 htmlFor="doc-upload"
                 className="flex flex-col items-center justify-center gap-3 border border-dashed border-[#2A2A2A] bg-[#0A0A0A] p-8 cursor-pointer hover:border-[#E61919]/40 transition-colors"
               >
                 <FileIcon className="h-8 w-8 text-[#2A2A2A]" />
-                <span className="font-mono text-[10px] text-[#6B6B6B] text-center">
+                <span className="font-mono text-[10px] text-[#8A8A8A] text-center">
                   {uploading ? "UPLOADING..." : "CLICK TO UPLOAD .PDF / .TXT"}
                 </span>
               </label>
@@ -280,7 +280,7 @@ export default function Graph() {
                   ) : selectedDocId ? (
                     <p className="font-mono text-[10px] text-[#4AF626]">DOCUMENT SELECTED — SEARCH BELOW</p>
                   ) : docInfo && (
-                    <p className="font-mono text-[10px] text-[#6B6B6B]">DOCUMENT LOADED — TYPE A SEARCH QUERY BELOW</p>
+                    <p className="font-mono text-[10px] text-[#8A8A8A]">DOCUMENT LOADED — TYPE A SEARCH QUERY BELOW</p>
                   )}
                 </div>
               )}
@@ -304,7 +304,7 @@ export default function Graph() {
                     <line x1="45" y1="40" x2="30" y2="50" stroke="#60a5fa" strokeWidth="1" opacity="0.4" />
                   </svg>
                 </div>
-                <p className="font-mono text-sm text-[#6B6B6B] tracking-[0.05em]">NO DATA LOADED</p>
+                <p className="font-mono text-sm text-[#8A8A8A] tracking-[0.05em]">NO DATA LOADED</p>
                 <p className="font-mono text-[10px] text-[#3A3A3A] mt-1">Upload a JSON file of test results to generate the graph</p>
               </div>
             )}
@@ -312,7 +312,7 @@ export default function Graph() {
         </div>
 
         <div className="border border-[#2A2A2A] bg-[#121212] p-5 space-y-4">
-          <p className="font-mono text-[11px] text-[#6B6B6B] tracking-[0.05em]">ASK THE GRAPH</p>
+          <p className="font-mono text-[11px] text-[#8A8A8A] tracking-[0.05em]">ASK THE GRAPH</p>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -365,7 +365,7 @@ export default function Graph() {
 
           {queryResult.data && !queryResult.isLoading && (
             <div className="border border-[#2A2A2A] bg-[#0A0A0A] p-4">
-              <p className="font-mono text-[10px] text-[#6B6B6B] tracking-[0.05em] mb-2">[ RESPONSE ]</p>
+              <p className="font-mono text-[10px] text-[#8A8A8A] tracking-[0.05em] mb-2">[ RESPONSE ]</p>
               <pre className="font-mono text-[12px] text-[#EAEAEA] leading-relaxed whitespace-pre-wrap">
                 {queryResult.data.response}
               </pre>
@@ -375,7 +375,7 @@ export default function Graph() {
 
         {selectedDocId && (
           <div className="border border-[#2A2A2A] bg-[#121212] p-5 space-y-4">
-            <p className="font-mono text-[11px] text-[#6B6B6B] tracking-[0.05em]">SEARCH DOCUMENT</p>
+            <p className="font-mono text-[11px] text-[#8A8A8A] tracking-[0.05em]">SEARCH DOCUMENT</p>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -426,13 +426,13 @@ export default function Graph() {
               <div className="space-y-3">
                 {(docQueryResult.data as any).message ? (
                   <div className="border border-[#2A2A2A] bg-[#0A0A0A] p-4">
-                    <p className="font-mono text-[11px] text-[#6B6B6B]">{(docQueryResult.data as any).message}</p>
+                    <p className="font-mono text-[11px] text-[#8A8A8A]">{(docQueryResult.data as any).message}</p>
                   </div>
                 ) : (
                   (docQueryResult.data.results as Array<{ chunkIndex: number; text: string; score: number }>).map((r, i) => (
                     <div key={i} className="border border-[#2A2A2A] bg-[#0A0A0A] p-4 space-y-1">
                       <div className="flex justify-between items-center">
-                        <p className="font-mono text-[10px] text-[#6B6B6B]">CHUNK #{r.chunkIndex + 1}</p>
+                        <p className="font-mono text-[10px] text-[#8A8A8A]">CHUNK #{r.chunkIndex + 1}</p>
                         <p className="font-mono text-[10px] text-[#f59e0b]">{(r.score * 100).toFixed(0)}% MATCH</p>
                       </div>
                       <p className="font-mono text-[11px] text-[#EAEAEA] leading-relaxed line-clamp-4">

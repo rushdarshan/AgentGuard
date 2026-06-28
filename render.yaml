@@ -30,7 +30,7 @@ services:
     name: agentguard-nightly-scan
     schedule: "0 2 * * *"
     buildCommand: npm install && npm run build
-    startCommand: agentguard test --url $AGENT_URL --count 3 --output json > /tmp/results.json && agentguard analyze /tmp/results.json --output /tmp/report.html && agentguard publish /tmp/report.html
+    startCommand: npx tsx src/cli/index.ts test --url $AGENT_URL --count 3 --output json > /tmp/results.json && npx tsx src/cli/index.ts analyze /tmp/results.json --output /tmp/report.html && npx tsx src/cli/index.ts publish /tmp/report.html
     envVars:
       - key: LLM_BASE_URL
         sync: false

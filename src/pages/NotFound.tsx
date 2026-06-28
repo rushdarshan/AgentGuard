@@ -8,7 +8,7 @@ export default function NotFound() {
       <div className="text-center">
         <LightningBoltIcon className="h-16 w-16 mx-auto mb-6 text-[#E61919]" />
         <h1 className="font-display text-7xl font-black tracking-[-0.04em] mb-4">404</h1>
-        <p className="font-mono text-base text-[#6B6B6B] mb-8">&lt; PAGE NOT FOUND /&gt;</p>
+        <p className="font-mono text-base text-[#8A8A8A] mb-8">&lt; PAGE NOT FOUND /&gt;</p>
         <Link href="/">
           <Button>[ GO HOME ]</Button>
         </Link>

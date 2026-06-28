@@ -119,22 +119,22 @@ export default function Playground() {
     <DashboardLayout>
       <div className="space-y-8">
         <div>
-          <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">&lt; SANDBOX /&gt;</p>
+          <p className="font-mono text-sm tracking-[0.15em] text-[#8A8A8A]">&lt; SANDBOX /&gt;</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">SECURITY PLAYGROUND</h1>
-          <p className="mt-2 font-mono text-[11px] text-[#6B6B6B]">MANUALLY TEST ADVERSARIAL VECTORS AGAINST REGISTERED ENDPOINTS</p>
+          <p className="mt-2 font-mono text-[11px] text-[#8A8A8A]">MANUALLY TEST ADVERSARIAL VECTORS AGAINST REGISTERED ENDPOINTS</p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-12">
           {/* Configuration Panel */}
           <Card className="p-6 border border-[#2A2A2A] bg-[#121212] lg:col-span-5 space-y-6">
             <div className="space-y-2">
-              <Label className="font-mono text-[11px] text-[#6B6B6B]">1. SELECT AGENT FOR TESTING</Label>
+              <Label className="font-mono text-[11px] text-[#8A8A8A]">1. SELECT AGENT FOR TESTING</Label>
               {isLoadingAgents ? (
-                <div className="h-10 border border-[#2A2A2A] flex items-center justify-center font-mono text-sm text-[#6B6B6B]">
+                <div className="h-10 border border-[#2A2A2A] flex items-center justify-center font-mono text-sm text-[#8A8A8A]">
                   LOADING AGENTS...
                 </div>
               ) : agents.length === 0 ? (
-                <div className="h-10 border border-dashed border-[#2A2A2A] flex items-center justify-center font-mono text-sm text-[#6B6B6B]">
+                <div className="h-10 border border-dashed border-[#2A2A2A] flex items-center justify-center font-mono text-sm text-[#8A8A8A]">
                   NO AGENTS REGISTERED. GO TO AGENTS PAGE FIRST.
                 </div>
               ) : (
@@ -153,7 +153,7 @@ export default function Playground() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="font-mono text-[11px] text-[#6B6B6B]">2. ATTACK VECTOR TEMPLATES</Label>
+                <Label className="font-mono text-[11px] text-[#8A8A8A]">2. ATTACK VECTOR TEMPLATES</Label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => applyTemplate(e.target.value)}
@@ -166,7 +166,7 @@ export default function Playground() {
               </div>
 
               <div className="space-y-2">
-                <Label className="font-mono text-[11px] text-[#6B6B6B]">3. TARGET LANGUAGE</Label>
+                <Label className="font-mono text-[11px] text-[#8A8A8A]">3. TARGET LANGUAGE</Label>
                 <select
                   value={selectedLanguage}
                   onChange={(e) => setSelectedLanguage(e.target.value)}
@@ -181,7 +181,7 @@ export default function Playground() {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label className="font-mono text-[11px] text-[#6B6B6B]">4. ATTACK PAYLOAD PROMPT</Label>
+                <Label className="font-mono text-[11px] text-[#8A8A8A]">4. ATTACK PAYLOAD PROMPT</Label>
                 <button
                   onClick={() => applyTemplate(selectedCategory)}
                   className="font-mono text-[10px] text-[#E61919] hover:underline"
@@ -219,7 +219,7 @@ export default function Playground() {
           {/* Telemetry Output Panel */}
           <div className="lg:col-span-7 flex flex-col gap-6">
             {/* Live Logs Console */}
-            <Card className="p-4 border border-[#2A2A2A] bg-[#0A0A0A] font-mono text-[11px] text-[#6B6B6B] flex-1 flex flex-col min-h-[180px]">
+            <Card className="p-4 border border-[#2A2A2A] bg-[#0A0A0A] font-mono text-[11px] text-[#8A8A8A] flex-1 flex flex-col min-h-[180px]">
               <div className="border-b border-[#2A2A2A] pb-2 mb-2 flex items-center justify-between">
                 <span>SYSTEM TELEMETRY CONSOLE</span>
                 <span className="animate-pulse text-[#4AF626]">&bull; READY</span>
@@ -243,7 +243,7 @@ export default function Playground() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-[#2A2A2A] pb-4">
                     <div>
-                      <h3 className="font-mono text-sm text-[#6B6B6B] tracking-[0.08em]">[ VERDICT ]</h3>
+                      <h3 className="font-mono text-sm text-[#8A8A8A] tracking-[0.08em]">[ VERDICT ]</h3>
                       <p className="font-mono text-base font-semibold tracking-[0.05em] mt-1">{selectedCategory.toUpperCase()}</p>
                     </div>
                     {result.passed ? (
@@ -261,14 +261,14 @@ export default function Playground() {
 
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-1.5">
-                      <h4 className="font-mono text-[10px] text-[#6B6B6B] tracking-[0.05em]">[ ORIGIN PROMPT ]</h4>
+                      <h4 className="font-mono text-[10px] text-[#8A8A8A] tracking-[0.05em]">[ ORIGIN PROMPT ]</h4>
                       <div className="bg-[#0A0A0A] border border-[#2A2A2A] p-3 font-mono text-[11px] text-[#EAEAEA] max-h-[100px] overflow-y-auto whitespace-pre-wrap">
                         {result.originalPrompt}
                       </div>
                     </div>
 
                     <div className="space-y-1.5">
-                      <h4 className="font-mono text-[10px] text-[#6B6B6B] tracking-[0.05em]">[ TARGET PAYLOAD PROMPT ]</h4>
+                      <h4 className="font-mono text-[10px] text-[#8A8A8A] tracking-[0.05em]">[ TARGET PAYLOAD PROMPT ]</h4>
                       <div className="bg-[#0A0A0A] border border-[#2A2A2A] p-3 font-mono text-[11px] text-[#EAEAEA] max-h-[100px] overflow-y-auto whitespace-pre-wrap">
                         {result.translatedPrompt}
                       </div>
@@ -276,7 +276,7 @@ export default function Playground() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <h4 className="font-mono text-[10px] text-[#6B6B6B] tracking-[0.05em]">[ AGENT ENDPOINT RESPONSE ]</h4>
+                    <h4 className="font-mono text-[10px] text-[#8A8A8A] tracking-[0.05em]">[ AGENT ENDPOINT RESPONSE ]</h4>
                     <div className="bg-[#0A0A0A] border border-[#2A2A2A] p-4 font-mono text-[11px] text-[#EAEAEA] max-h-[140px] overflow-y-auto whitespace-pre-wrap">
                       {result.response || <span className="text-[#3A3A3A] italic">Empty response.</span>}
                     </div>
@@ -284,11 +284,11 @@ export default function Playground() {
 
                   <div className="border-t border-[#2A2A2A] pt-4 flex gap-4 text-[11px] font-mono">
                     <div className="flex-1">
-                      <span className="text-[#6B6B6B] block">[ JUDGMENT REASON ]</span>
+                      <span className="text-[#8A8A8A] block">[ JUDGMENT REASON ]</span>
                       <span className="text-[#EAEAEA] mt-1 block leading-relaxed">{result.reasoning || "No evaluation details provided."}</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[#6B6B6B] block">[ METHOD ]</span>
+                      <span className="text-[#8A8A8A] block">[ METHOD ]</span>
                       <span className="text-[#EAEAEA] mt-1 block">{result.usedHeuristics ? "HEURISTIC REGEX" : "ADVERSARIAL LLM"}</span>
                     </div>
                   </div>
@@ -296,7 +296,7 @@ export default function Playground() {
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border border-dashed border-[#2A2A2A] bg-[#0A0A0A] min-h-[300px]">
                   <LightningBoltIcon className="h-10 w-10 text-[#2A2A2A] mb-3 animate-pulse" />
-                  <p className="font-mono text-sm text-[#6B6B6B] tracking-[0.05em]">AWAITING TEST EXECUTION</p>
+                  <p className="font-mono text-sm text-[#8A8A8A] tracking-[0.05em]">AWAITING TEST EXECUTION</p>
                   <p className="font-mono text-[10px] text-[#3A3A3A] mt-1">Configure inputs in left panel and press Dispatch</p>
                 </div>
               )}
