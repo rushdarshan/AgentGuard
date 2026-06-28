@@ -2,7 +2,8 @@ import { useState, useRef } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import DemoCascadeGraph, { CATEGORY_COLORS } from "@/components/DemoCascadeGraph";
 import type { Node, Edge } from "@/components/DemoCascadeGraph";
-import { UploadIcon, ReloadIcon } from "@radix-ui/react-icons";
+import { UploadIcon, ReloadIcon, ReaderIcon } from "@radix-ui/react-icons";
+import { trpc } from "@/lib/trpc";
 
 function hashColor(s: string): string {
   let hash = 0;
@@ -77,7 +78,14 @@ export default function Graph() {
   const [graphData, setGraphData] = useState<{ nodes: Node[]; edges: Edge[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [question, setQuestion] = useState("");
+  const [submittedQuestion, setSubmittedQuestion] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const queryResult = trpc.queryGraph.useQuery(
+    { question: submittedQuestion ?? "" },
+    { enabled: !!submittedQuestion }
+  );
 
   const handleFile = (file: File | undefined) => {
     setError(null);
@@ -195,6 +203,68 @@ export default function Graph() {
               </div>
             )}
           </div>
+        </div>
+
+        <div className="border border-[#2A2A2A] bg-[#121212] p-5 space-y-4">
+          <p className="font-mono text-[11px] text-[#6B6B6B] tracking-[0.05em]">ASK THE GRAPH</p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!question.trim()) return;
+              setSubmittedQuestion(question);
+            }}
+            className="flex gap-3"
+          >
+            <input
+              type="text"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="e.g., Show me the failure cascade summary"
+              className="flex-1 bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-sm p-2.5 outline-none focus:border-[#E61919] transition-colors"
+            />
+            <button
+              type="submit"
+              disabled={!question.trim() || queryResult.isLoading}
+              className="border border-[#2A2A2A] bg-[#0A0A0A] px-5 font-mono text-[11px] tracking-[0.1em] text-[#EAEAEA] hover:border-[#E61919] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              {queryResult.isLoading ? (
+                <span className="flex items-center gap-2">
+                  <ReloadIcon className="h-3 w-3 animate-spin" />
+                  QUERYING
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <ReaderIcon className="h-3 w-3" />
+                  ASK
+                </span>
+              )}
+            </button>
+          </form>
+
+          {queryResult.isLoading && (
+            <div className="border border-[#2A2A2A] bg-[#0A0A0A] p-4">
+              <p className="font-mono text-[11px] text-[#4AF626] animate-pulse">QUERYING THE GRAPH...</p>
+            </div>
+          )}
+
+          {queryResult.error && (
+            <div className="border border-[#E61919]/20 bg-[#0A0A0A] p-4">
+              <p className="font-mono text-[11px] text-[#E61919]">
+                ERROR: {queryResult.error.message.includes("AuraNotConfiguredError")
+                  ? "Graph querying requires AuraDB — configure in Settings"
+                  : queryResult.error.message}
+              </p>
+            </div>
+          )}
+
+          {queryResult.data && !queryResult.isLoading && (
+            <div className="border border-[#2A2A2A] bg-[#0A0A0A] p-4">
+              <p className="font-mono text-[10px] text-[#6B6B6B] tracking-[0.05em] mb-2">[ RESPONSE ]</p>
+              <pre className="font-mono text-[12px] text-[#EAEAEA] leading-relaxed whitespace-pre-wrap">
+                {queryResult.data.response}
+              </pre>
+            </div>
+          )}
         </div>
       </div>
     </DashboardLayout>

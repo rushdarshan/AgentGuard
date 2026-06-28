@@ -16,6 +16,7 @@ import { generateReport, generateReportHtml } from "./_core/report";
 import { validateFindings, type ValidationStatus, type ValidatedFinding } from "./_core/validate";
 import { analyzeRunGraph, computeLiftRatios, findCascadePaths, compareRuns as compareRunGraphs } from "./_core/neo4j";
 import { generateIndicAttacks, getIndicAttackCategories } from "./_core/sarvam";
+import { queryAuraAgent, AuraNotConfiguredError } from "./_core/aura";
 
 // ============ AGENT ROUTER ============
 
@@ -1018,6 +1019,13 @@ export const appRouter = router({
   testRuns: testRunRouter,
   demo: demoRouter,
   playground: playgroundRouter,
+
+  queryGraph: publicProcedure
+    .input(z.object({ question: z.string().min(1) }))
+    .query(async ({ input }) => {
+      const response = await queryAuraAgent(input.question);
+      return { response };
+    }),
 });
 
 export type AppRouter = typeof appRouter;
