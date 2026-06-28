@@ -19,10 +19,6 @@ https://github.com/user-attachments/assets/d0e59702-cf6f-4c2e-9454-4e548073238c
 </a> · <a href="https://agentguard-j5ny.onrender.com">🚀 Live App</a>
 </p>
 
-> **Demo video:** GitHub doesn't render `<video>` tags, so embed a thumbnail instead —
-> upload `brag-output/agentguard-brag.mp4` as a GitHub Release asset or to YouTube/Streamable,
-> then replace this line with `[![Watch the demo](thumbnail.png)](https://your-video-link)`.
-> (The file path previously referenced here, `./brag-output/brag.mp4`, doesn't exist in the repo.)
 
 ## Why AgentGuard
 
