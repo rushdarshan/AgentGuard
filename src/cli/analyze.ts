@@ -1,5 +1,5 @@
 import { ATTACK_CATEGORIES } from "../const";
-import { getAttacksForCategory, testAgentEndpoint } from "../routers";
+import { getAttacksForCategory, testAgentEndpoint } from "../routers/shared";
 import { MultiModelJudge } from "../_core/judge";
 import { evaluateHeuristic, getAvailableProviders } from "../_core/llm";
 import { generateReport } from "../_core/report";

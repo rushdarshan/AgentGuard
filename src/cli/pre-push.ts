@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { ATTACK_CATEGORIES } from "../const";
-import { getAttacksForCategory, testAgentEndpoint } from "../routers";
+import { getAttacksForCategory, testAgentEndpoint } from "../routers/shared";
 import { MultiModelJudge } from "../_core/judge";
 import { evaluateHeuristic, getAvailableProviders } from "../_core/llm";
 import { generateHardeningConfig } from "../_core/harden";
