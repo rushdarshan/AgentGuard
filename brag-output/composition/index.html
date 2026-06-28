@@ -4,55 +4,534 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1920, height=1080" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/TextPlugin.min.js"></script>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        margin: 0;
-        width: 1920px;
-        height: 1080px;
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1920px; height: 1080px;
         overflow: hidden;
-        background: #000;
+        background: #0c0c0c;
+        font-family: "Inter", "Helvetica Neue", sans-serif;
       }
-      body {
-        font-family: "Inter", sans-serif;
+
+      /* ─── CLIP SHELL ─── */
+      .clip { position: absolute; inset: 0; width: 1920px; height: 1080px; display: block; }
+      .scene-inner {
+        position: absolute; inset: 0;
+        width: 1920px; height: 1080px;
+        opacity: 0; overflow: hidden;
       }
-      code,
-      pre,
-      .monospace {
-        font-family: "JetBrains Mono", monospace;
+
+      /* ══════════════════════════════════════
+         SHARED: Browser Mockup Frame
+      ══════════════════════════════════════ */
+      .browser-frame {
+        position: absolute;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 60px 120px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+        overflow: hidden;
+      }
+      .browser-chrome {
+        height: 48px; background: #F5F5F5;
+        border-bottom: 1px solid #E8E8E8;
+        display: flex; align-items: center; padding: 0 20px; gap: 8px;
+      }
+      .bc-dot { width: 12px; height: 12px; border-radius: 50%; }
+      .bc-r { background: #FF5F57; }
+      .bc-y { background: #FEBC2E; }
+      .bc-g { background: #28C840; }
+      .bc-bar {
+        flex: 1; height: 24px; background: #E8E8E8;
+        border-radius: 4px; margin: 0 16px;
+        display: flex; align-items: center; padding: 0 12px;
+        font-size: 12px; color: #999; font-family: monospace;
+      }
+
+      /* ══════════════════════════════════════
+         SCENE 0 — Ambient Intro (0–4s)
+         City skyline bg + GSAP Showcase title
+      ══════════════════════════════════════ */
+      #inner0 {
+        background: linear-gradient(180deg, #080808 0%, #111 60%, #0a0a0a 100%);
+        display: flex; align-items: center; justify-content: center;
+        flex-direction: column;
+      }
+      /* animated dot grid */
+      #grid-dots {
+        position: absolute; inset: 0;
+        background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px);
+        background-size: 60px 60px;
+        mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
+      }
+      #s0-eyebrow {
+        font-size: 22px; letter-spacing: 8px; text-transform: uppercase;
+        color: rgba(255,255,255,0.35); margin-bottom: 28px;
+      }
+      #s0-headline {
+        font-size: 128px; font-weight: 800; color: #fff;
+        letter-spacing: -5px; line-height: 1;
+        text-align: center;
+      }
+      #s0-headline span { color: #B9FF4D; }
+      #s0-sub {
+        font-size: 32px; color: rgba(255,255,255,0.4);
+        margin-top: 32px; font-weight: 400; letter-spacing: 1px;
+      }
+      /* floating orbs */
+      .orb {
+        position: absolute; border-radius: 50%;
+        filter: blur(80px); pointer-events: none;
+      }
+      #orb1 { width: 600px; height: 600px; background: rgba(185,255,77,0.08); top: -100px; left: -100px; }
+      #orb2 { width: 400px; height: 400px; background: rgba(230,25,25,0.06); bottom: 0; right: 200px; }
+
+      /* ══════════════════════════════════════
+         SCENE 1 — Website Mockup: Scroll Reveal (4–9s)
+         Light website, cards fly in staggered
+      ══════════════════════════════════════ */
+      #inner1 { background: #1a1a2e; }
+      /* ambient bg photo-like gradient */
+      #s1-ambient {
+        position: absolute; inset: 0;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 40%, #16213e 100%);
+      }
+      #s1-frame {
+        top: 60px; left: 180px;
+        width: 1560px; height: 940px;
+      }
+      #s1-content {
+        padding: 60px 80px; height: calc(100% - 48px);
+        background: #fafafa; display: flex; flex-direction: column;
+      }
+      #s1-nav {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 80px;
+      }
+      #s1-logo { font-size: 22px; font-weight: 700; color: #000; letter-spacing: -0.5px; }
+      #s1-navlinks { display: flex; gap: 40px; font-size: 15px; color: #666; }
+      #s1-hero-label { font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #999; margin-bottom: 20px; }
+      #s1-hero-title { font-size: 88px; font-weight: 800; color: #000; line-height: 1; letter-spacing: -3px; }
+      #s1-hero-title span { color: #E61919; }
+      #s1-hero-sub { font-size: 22px; color: #666; margin-top: 24px; max-width: 600px; line-height: 1.5; }
+      #s1-cta {
+        display: inline-block; margin-top: 48px;
+        background: #000; color: #fff;
+        padding: 18px 48px; border-radius: 100px;
+        font-size: 16px; font-weight: 600; letter-spacing: 0.5px;
+      }
+      /* floating cards */
+      .s1-card {
+        position: absolute;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        overflow: hidden;
+        display: flex; flex-direction: column; align-items: flex-start;
+        padding: 24px;
+      }
+      .card-tag {
+        font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+        color: #999; margin-bottom: 10px;
+      }
+      .card-title { font-size: 20px; font-weight: 700; color: #000; }
+      .card-val { font-size: 48px; font-weight: 800; line-height: 1; margin-top: 8px; }
+      .card-red { color: #E61919; }
+      .card-green { color: #00C853; }
+      #card-a { width: 280px; height: 160px; top: 200px; right: 200px; }
+      #card-b { width: 280px; height: 160px; top: 380px; right: 120px; }
+      #card-c { width: 320px; height: 160px; top: 300px; right: 440px; }
+
+      /* ══════════════════════════════════════
+         SCENE 2 — Website Mockup: Product Grid (9–14s)
+         Lime burst color, Flip-style transition
+      ══════════════════════════════════════ */
+      #inner2 { background: #B9FF4D; }
+      #s2-frame {
+        top: 60px; left: 280px;
+        width: 1360px; height: 940px;
+      }
+      #s2-content {
+        padding: 40px 60px; height: calc(100% - 48px);
+        background: #fff; display: grid;
+        grid-template-rows: auto 1fr;
+        gap: 0;
+      }
+      #s2-header-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding-bottom: 40px; border-bottom: 1px solid #eee;
+        margin-bottom: 40px;
+      }
+      #s2-brand { font-size: 28px; font-weight: 800; color: #000; letter-spacing: -1px; }
+      #s2-tag { font-size: 12px; letter-spacing: 4px; color: #999; text-transform: uppercase; }
+      #s2-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 24px; height: 100%;
+      }
+      .s2-cell {
+        border-radius: 16px;
+        display: flex; flex-direction: column;
+        justify-content: flex-end;
+        padding: 28px;
+        min-height: 0;
+        font-weight: 700; font-size: 20px;
+        color: #fff;
+      }
+      .cell-a { background: #0a0a0a; }
+      .cell-b { background: #E61919; }
+      .cell-c { background: #1a1a1a; }
+      .cell-d { background: #B9FF4D; color: #000; }
+      .cell-e { background: #333; }
+      .cell-f { background: #E61919; }
+      .cell-label { font-size: 13px; font-weight: 400; opacity: 0.6; margin-bottom: 4px; letter-spacing: 1px; text-transform: uppercase; }
+
+      /* ══════════════════════════════════════
+         SCENE 3 — Website Mockup: Fan Cards (14–18s)
+         White bg, staggered rotated cards fan in
+      ══════════════════════════════════════ */
+      #inner3 {
+        background: linear-gradient(160deg, #141414 0%, #0e0e0e 100%);
+        display: flex; align-items: center; justify-content: center;
+      }
+      #s3-frame {
+        position: relative;
+        top: 40px; left: 0;
+        width: 1360px; height: 960px;
+        margin: 0 auto;
+      }
+      #s3-content {
+        padding: 60px 80px; height: calc(100% - 48px);
+        background: #fafafa;
+        display: flex; flex-direction: column;
+        align-items: center;
+      }
+      #s3-sup { font-size: 13px; letter-spacing: 4px; color: #999; margin-bottom: 20px; text-transform: uppercase; }
+      #s3-title { font-size: 64px; font-weight: 800; color: #000; letter-spacing: -2px; text-align: center; line-height: 1.1; }
+      #s3-title span { color: #E61919; }
+      #s3-fan-area {
+        position: absolute; bottom: 40px; left: 50%;
+        transform: translateX(-50%);
+        width: 1200px; height: 460px;
+        display: flex; align-items: flex-end; justify-content: center;
+      }
+      .fan-card {
+        position: absolute;
+        width: 240px; height: 320px;
+        border-radius: 20px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+        display: flex; flex-direction: column;
+        padding: 24px; font-weight: 700;
+        transform-origin: bottom center;
+      }
+      .fan-title { font-size: 18px; font-weight: 800; }
+      .fan-sub { font-size: 13px; opacity: 0.6; margin-top: 6px; font-weight: 400; }
+      .fan-icon { font-size: 40px; margin-top: auto; }
+      .fc-1 { background: #000; color: #fff; bottom: 0; left: 100px; }
+      .fc-2 { background: #E61919; color: #fff; bottom: 0; left: 340px; }
+      .fc-3 { background: #B9FF4D; color: #000; bottom: 0; left: 580px; }
+      .fc-4 { background: #1a1a1a; color: #fff; bottom: 0; left: 820px; }
+      .fc-5 { background: #fff; color: #000; border: 2px solid #eee; bottom: 0; left: 1060px; }
+
+      /* ══════════════════════════════════════
+         SCENE 4 — Logo Slam + CTA (18–21s)
+      ══════════════════════════════════════ */
+      #inner4 {
+        background: #B9FF4D;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+      }
+      #s4-label {
+        font-size: 16px; letter-spacing: 8px; text-transform: uppercase;
+        color: rgba(0,0,0,0.4); margin-bottom: 32px;
+      }
+      #s4-logo {
+        font-size: 180px; font-weight: 900; color: #000;
+        letter-spacing: -8px; line-height: 1;
+      }
+      #s4-logo span { color: #E61919; }
+      #s4-tagline {
+        font-size: 32px; color: rgba(0,0,0,0.5);
+        margin-top: 24px; font-weight: 500;
+      }
+      #s4-btn {
+        margin-top: 60px;
+        background: #000; color: #B9FF4D;
+        font-size: 20px; font-weight: 700; letter-spacing: 2px;
+        padding: 24px 72px; border-radius: 100px;
+        text-transform: uppercase;
+      }
+      #s4-counter {
+        position: absolute; bottom: 80px; right: 120px;
+        font-size: 16px; color: rgba(0,0,0,0.3); letter-spacing: 2px;
       }
     </style>
   </head>
   <body>
-    <div
-      id="root"
-      data-composition-id="main"
-      data-start="0"
-      data-duration="10"
-      data-width="1920"
-      data-height="1080"
-    >
-      
-      
+    <div id="root" data-composition-id="main" data-start="0" data-duration="21" data-width="1920" data-height="1080">
 
-      <!--
-        Add your clips here. Example:
-        <div id="title" class="clip" data-start="0" data-duration="5" data-track-index="1"
-             style="font-size: 64px; color: #fff; padding: 40px">
-          Hello World
+      <!-- SCENE 0: Ambient Intro 0–4s -->
+      <div id="scene0" class="clip" data-start="0" data-duration="4" data-track-index="1">
+        <div id="inner0" class="scene-inner">
+          <div class="orb" id="orb1"></div>
+          <div class="orb" id="orb2"></div>
+          <div id="grid-dots"></div>
+          <div id="s0-eyebrow">Built with GSAP</div>
+          <div id="s0-headline">Agent<span>Guard</span></div>
+          <div id="s0-sub">Security CI/CD for AI Agents</div>
         </div>
-      -->
+      </div>
+
+      <!-- SCENE 1: Scroll-reveal product page 4–9s -->
+      <div id="scene1" class="clip" data-start="4" data-duration="5" data-track-index="2">
+        <div id="inner1" class="scene-inner">
+          <div id="s1-ambient"></div>
+          <div id="s1-frame" class="browser-frame">
+            <div class="browser-chrome">
+              <div class="bc-dot bc-r"></div>
+              <div class="bc-dot bc-y"></div>
+              <div class="bc-dot bc-g"></div>
+              <div class="bc-bar">agentguard.dev</div>
+            </div>
+            <div id="s1-content">
+              <div id="s1-nav">
+                <div id="s1-logo">AgentGuard</div>
+                <div id="s1-navlinks">
+                  <span>Docs</span><span>Pricing</span><span>Blog</span>
+                </div>
+              </div>
+              <div id="s1-hero-label">Security Layer for AI</div>
+              <div id="s1-hero-title">Zero blind<br>spots.<span>.</span></div>
+              <div id="s1-hero-sub">AgentGuard intercepts every LLM request before it reaches your users. No code changes.</div>
+              <div id="s1-cta">Start free →</div>
+            </div>
+          </div>
+          <!-- Floating stat cards -->
+          <div id="card-a" class="s1-card">
+            <div class="card-tag">Threats blocked</div>
+            <div class="card-title">This session</div>
+            <div class="card-val card-red">127</div>
+          </div>
+          <div id="card-b" class="s1-card">
+            <div class="card-tag">Latency overhead</div>
+            <div class="card-title">Avg response</div>
+            <div class="card-val card-green">4ms</div>
+          </div>
+          <div id="card-c" class="s1-card">
+            <div class="card-tag">Judge models</div>
+            <div class="card-title">In consensus</div>
+            <div class="card-val" style="color:#6B21A8;">5×</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 2: Feature grid 9–14s -->
+      <div id="scene2" class="clip" data-start="9" data-duration="5" data-track-index="3">
+        <div id="inner2" class="scene-inner">
+          <div id="s2-frame" class="browser-frame">
+            <div class="browser-chrome">
+              <div class="bc-dot bc-r"></div>
+              <div class="bc-dot bc-y"></div>
+              <div class="bc-dot bc-g"></div>
+              <div class="bc-bar">agentguard.dev/features</div>
+            </div>
+            <div id="s2-content">
+              <div id="s2-header-row">
+                <div id="s2-brand">AgentGuard</div>
+                <div id="s2-tag">What we catch</div>
+              </div>
+              <div id="s2-grid">
+                <div class="s2-cell cell-a">
+                  <div class="cell-label">01</div>Prompt Injection
+                </div>
+                <div class="s2-cell cell-b">
+                  <div class="cell-label">02</div>Data Exfiltration
+                </div>
+                <div class="s2-cell cell-c">
+                  <div class="cell-label">03</div>Jailbreak Attempts
+                </div>
+                <div class="s2-cell cell-d">
+                  <div class="cell-label">04</div>PII Extraction
+                </div>
+                <div class="s2-cell cell-e">
+                  <div class="cell-label">05</div>Harmful Intent
+                </div>
+                <div class="s2-cell cell-f">
+                  <div class="cell-label">06</div>Token Smuggling
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 3: Fan cards 14–18s -->
+      <div id="scene3" class="clip" data-start="14" data-duration="4" data-track-index="4">
+        <div id="inner3" class="scene-inner">
+          <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
+            <div id="s3-frame" class="browser-frame" style="position:relative; top:auto; left:auto;">
+              <div class="browser-chrome">
+                <div class="bc-dot bc-r"></div>
+                <div class="bc-dot bc-y"></div>
+                <div class="bc-dot bc-g"></div>
+                <div class="bc-bar">agentguard.dev/integrations</div>
+              </div>
+              <div id="s3-content">
+                <div id="s3-sup">One line of config</div>
+                <div id="s3-title">Works with<br>every <span>LLM stack.</span></div>
+                <div id="s3-fan-area">
+                  <div class="fan-card fc-1">
+                    <div class="fan-title">OpenAI</div>
+                    <div class="fan-sub">GPT-4o, GPT-4 Turbo</div>
+                    <div class="fan-icon">🤖</div>
+                  </div>
+                  <div class="fan-card fc-2">
+                    <div class="fan-title">Anthropic</div>
+                    <div class="fan-sub">Claude 3.5, Haiku</div>
+                    <div class="fan-icon">🧠</div>
+                  </div>
+                  <div class="fan-card fc-3">
+                    <div class="fan-title">Google</div>
+                    <div class="fan-sub">Gemini 1.5 Pro</div>
+                    <div class="fan-icon">✨</div>
+                  </div>
+                  <div class="fan-card fc-4">
+                    <div class="fan-title">Mistral</div>
+                    <div class="fan-sub">Mixtral, 7B</div>
+                    <div class="fan-icon">⚡</div>
+                  </div>
+                  <div class="fan-card fc-5">
+                    <div class="fan-title">Local LLMs</div>
+                    <div class="fan-sub">Ollama, LM Studio</div>
+                    <div class="fan-icon">🏠</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 4: Logo slam 18–21s -->
+      <div id="scene4" class="clip" data-start="18" data-duration="3" data-track-index="5">
+        <div id="inner4" class="scene-inner">
+          <div id="s4-label">Secure your AI. Today.</div>
+          <div id="s4-logo">Agent<span>Guard</span></div>
+          <div id="s4-tagline">agentguard.dev</div>
+          <div id="s4-btn">Get Started Free →</div>
+          <div id="s4-counter">agentguard.dev</div>
+        </div>
+      </div>
+
     </div>
 
     <script>
+      gsap.registerPlugin(TextPlugin);
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
-      // Example: tl.from("#title", { opacity: 0, y: -50, duration: 1 }, 0);
+
+      function hardKill(id, at) {
+        tl.set(id, { autoAlpha: 0, visibility: "hidden" }, at);
+      }
+
+      /* ══════════════════════════════════════
+         SCENE 0: Ambient Intro  (0–4s)
+      ══════════════════════════════════════ */
+      tl.set("#inner0", { autoAlpha: 1, visibility: "visible" }, 0);
+      // dot grid pulse
+      tl.fromTo("#grid-dots", { scale: 1.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.5, ease: "power3.out" }, 0);
+      // orb drift
+      tl.fromTo("#orb1", { x: -100, y: 50 }, { x: 0, y: 0, duration: 4, ease: "none" }, 0);
+      tl.fromTo("#orb2", { x: 100, y: -50 }, { x: 0, y: 0, duration: 4, ease: "none" }, 0);
+      // eyebrow
+      tl.fromTo("#s0-eyebrow", { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.3);
+      // headline letter by letter stagger via clip
+      tl.fromTo("#s0-headline", { autoAlpha: 0, y: 60, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "expo.out" }, 0.7);
+      tl.fromTo("#s0-sub", { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out" }, 1.2);
+      // exit: slide up, fade
+      tl.to("#inner0", { y: -80, autoAlpha: 0, duration: 0.6, ease: "power3.in" }, 3.4);
+      hardKill("#inner0", 4.0);
+
+      /* ══════════════════════════════════════
+         SCENE 1: Product Page  (4–9s)
+      ══════════════════════════════════════ */
+      tl.set("#inner1", { autoAlpha: 1, visibility: "visible" }, 4);
+      // browser frame sweeps up from below
+      tl.fromTo("#s1-frame", { y: 200, autoAlpha: 0, scale: 0.92 },
+        { y: 0, autoAlpha: 1, scale: 1, duration: 0.8, ease: "expo.out" }, 4.1);
+      // hero text reveals stagger
+      tl.fromTo("#s1-hero-label", { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power3.out" }, 4.7);
+      tl.fromTo("#s1-hero-title", { autoAlpha: 0, y: 50, rotationX: 20 }, { autoAlpha: 1, y: 0, rotationX: 0, duration: 0.6, ease: "expo.out" }, 4.95);
+      tl.fromTo("#s1-hero-sub",   { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out" }, 5.4);
+      tl.fromTo("#s1-cta",        { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 5.8);
+      // stat cards fly in from right with stagger + rotation
+      tl.fromTo("#card-a", { x: 300, autoAlpha: 0, rotation: 12 }, { x: 0, autoAlpha: 1, rotation: -3, duration: 0.6, ease: "expo.out" }, 5.6);
+      tl.fromTo("#card-b", { x: 400, autoAlpha: 0, rotation: -8 }, { x: 0, autoAlpha: 1, rotation: 4, duration: 0.6, ease: "expo.out" }, 5.9);
+      tl.fromTo("#card-c", { x: 350, autoAlpha: 0, rotation: 15 }, { x: 0, autoAlpha: 1, rotation: -6, duration: 0.6, ease: "expo.out" }, 6.2);
+      // slight float animation on cards
+      tl.to("#card-a", { y: -12, duration: 1.5, ease: "sine.inOut", yoyo: true, repeat: 1 }, 6.8);
+      tl.to("#card-b", { y: -8,  duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: 1 }, 7.0);
+      tl.to("#card-c", { y: -14, duration: 2.0, ease: "sine.inOut", yoyo: true, repeat: 1 }, 6.6);
+      tl.to("#s1-frame", { x: -100, autoAlpha: 0, duration: 0.5, ease: "power3.in" }, 8.5);
+      tl.to(["#card-a", "#card-b", "#card-c"], { x: 200, autoAlpha: 0, duration: 0.4, stagger: 0.06, ease: "power3.in" }, 8.5);
+      tl.set("#s1-frame", { autoAlpha: 0 }, 9.00);
+      hardKill("#inner1", 9.0);
+
+      /* ══════════════════════════════════════
+         SCENE 2: Feature Grid  (9–14s)
+      ══════════════════════════════════════ */
+      tl.set("#inner2", { autoAlpha: 1, visibility: "visible" }, 9);
+      // lime bg pulses in
+      tl.fromTo("#inner2", { scale: 1.04, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.4, ease: "power3.out" }, 9);
+      // browser frame drops in
+      tl.fromTo("#s2-frame", { y: -120, autoAlpha: 0, scale: 0.94 }, { y: 0, autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 9.2);
+      // grid cells animate in with stagger
+      tl.fromTo(".s2-cell", { autoAlpha: 0, y: 60, scale: 0.85 },
+        { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.5)", stagger: { each: 0.1, from: "start" } }, 9.8);
+      // cells breathe/scale on hover feel
+      tl.to(".cell-b, .cell-f", { scale: 1.03, duration: 0.6, ease: "sine.inOut", yoyo: true, repeat: 3, stagger: 0.2 }, 11.5);      // exit: whip to right
+      tl.to("#s2-frame", { x: 200, autoAlpha: 0, duration: 0.5, ease: "power3.in" }, 13.4);
+      tl.to("#inner2", { autoAlpha: 0, duration: 0.3 }, 13.7);
+      hardKill("#inner2", 14.0);
+
+      /* ══════════════════════════════════════
+         SCENE 3: Fan Cards  (14–18s)
+      ══════════════════════════════════════ */
+      tl.set("#inner3", { autoAlpha: 1, visibility: "visible" }, 14);
+      tl.fromTo("#s3-frame", { y: 80, autoAlpha: 0, scale: 0.95 }, { y: 0, autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 14.1);
+      tl.fromTo("#s3-sup",   { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.4 }, 14.6);
+      tl.fromTo("#s3-title", { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" }, 14.8);
+      // fan cards sweep up with stagger from bottom, rotated
+      tl.fromTo(".fan-card",
+        { y: 200, autoAlpha: 0, rotation: (i) => [-18, -9, 0, 9, 18][i] },
+        { y: 0,   autoAlpha: 1, rotation: (i) => [-12, -6, 0, 6, 12][i],
+          duration: 0.7, ease: "back.out(1.4)", stagger: 0.09, immediateRender: false
+        }, 15.2
+      );
+      // fan cards lift on "hover" (middle one rises)
+      tl.to(".fc-3", { y: -20, scale: 1.04, duration: 0.5, ease: "power2.out" }, 16.2);
+      // exit swipe up
+      tl.to(".fan-card", { y: -300, autoAlpha: 0, stagger: 0.06, duration: 0.4, ease: "power3.in" }, 17.3);
+      tl.to("#s3-frame", { autoAlpha: 0, scale: 0.96, duration: 0.4 }, 17.5);
+      hardKill("#inner3", 18.0);
+
+      /* ══════════════════════════════════════
+         SCENE 4: Logo Slam  (18–21s)
+      ══════════════════════════════════════ */
+      tl.set("#inner4", { autoAlpha: 1, visibility: "visible" }, 18);
+      tl.fromTo("#inner4", { scale: 1.1, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.35, ease: "expo.out" }, 18);
+      tl.fromTo("#s4-label", { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.4 }, 18.3);
+      tl.fromTo("#s4-logo",  { autoAlpha: 0, scale: 1.3, y: 30 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: "expo.out" }, 18.5);
+      tl.fromTo("#s4-tagline", { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.4 }, 19.0);
+      tl.fromTo("#s4-btn",  { autoAlpha: 0, y: 30, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(2)" }, 19.3);
+      tl.fromTo("#s4-counter", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4 }, 19.6);
+      // btn breathe
+      tl.to("#s4-btn", { scale: 1.04, duration: 0.4, ease: "sine.inOut", yoyo: true, repeat: 2 }, 19.8);
+      // fade to black
+      tl.to("#inner4", { autoAlpha: 0, duration: 0.5 }, 20.5);
+      hardKill("#inner4", 21.0);
+
       window.__timelines["main"] = tl;
     </script>
   </body>

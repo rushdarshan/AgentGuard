@@ -11,15 +11,6 @@
 
 > Built for HACKHAZARDS '26
 
-<p align="center">
-  <a href="https://github.com/user-attachments/assets/d0e59702-cf6f-4c2e-9454-4e548073238c">📺 Watch Overview    </a> ·                     <a href="https://agentguard-j5ny.onrender.com">🚀 Live App</a>
-</p>
-
-https://github.com/user-attachments/assets/d0e59702-cf6f-4c2e-9454-4e548073238c
-
- 
-
-
 ## Why AgentGuard
 
 **Problem:** AI agents are deployed without security testing. Prompt injection, data leaks, and jailbreaks ship to production because existing red-teaming tools are too slow, too English-only, or too manual to fit into a CI pipeline.
