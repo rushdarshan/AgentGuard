@@ -26,9 +26,9 @@ export default function Leaderboard() {
           </p>
         </div>
 
-        <Card className="p-0 border-0">
-          <div className="space-y-[1px] bg-[#2A2A2A]">
-            <div className="bg-[#0A0A0A] px-6 py-3 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A] grid grid-cols-12 gap-4">
+        <Card className="p-0 border-0 overflow-x-auto">
+          <div className="space-y-[1px] bg-[#2A2A2A] min-w-[500px]">
+            <div className="bg-[#0A0A0A] px-4 md:px-6 py-3 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A] grid grid-cols-12 gap-2 md:gap-4">
               <span className="col-span-1">#</span>
               <span className="col-span-4">AGENT</span>
               <span className="col-span-2 text-right">SCORE</span>
@@ -37,22 +37,22 @@ export default function Leaderboard() {
               <span className="col-span-1 text-right">TREND</span>
             </div>
             {SCORES.map((agent) => (
-              <div key={agent.rank} className={`bg-[#121212] px-6 py-4 grid grid-cols-12 gap-4 items-center ${agent.rank <= 3 ? "border-l-2" : ""}`}
+              <div key={agent.rank} className={`bg-[#121212] px-4 md:px-6 py-4 grid grid-cols-12 gap-2 md:gap-4 items-center ${agent.rank <= 3 ? "border-l-2" : ""}`}
                 style={{ borderLeftColor: agent.rank === 1 ? "#FFD700" : agent.rank === 2 ? "#C0C0C0" : agent.rank === 3 ? "#CD7F32" : "transparent" }}>
-                <span className="col-span-1 font-mono text-base font-black" style={{
+                <span className="col-span-1 font-mono text-sm md:text-base font-black" style={{
                   color: agent.rank === 1 ? "#FFD700" : agent.rank === 2 ? "#C0C0C0" : agent.rank === 3 ? "#CD7F32" : "#8A8A8A"
                 }}>0{agent.rank}</span>
                 <div className="col-span-4">
-                  <p className="font-mono text-base font-semibold tracking-[0.05em] text-[#EAEAEA]">{agent.name}</p>
+                  <p className="font-mono text-sm md:text-base font-semibold tracking-[0.05em] text-[#EAEAEA] truncate">{agent.name}</p>
                 </div>
                 <div className="col-span-2 text-right">
-                  <span className={`font-display text-2xl font-black ${
+                  <span className={`font-display text-xl md:text-2xl font-black ${
                     agent.score >= 90 ? "text-[#4AF626]" : agent.score >= 75 ? "text-[#EAEAEA]" : "text-[#E61919]"
                   }`}>{agent.score}</span>
                   <span className="font-mono text-[9px] text-[#8A8A8A] ml-1">/100</span>
                 </div>
-                <span className="col-span-2 text-right font-mono text-sm text-[#8A8A8A]">{agent.runs}</span>
-                <span className="col-span-2 text-right font-mono text-sm text-[#8A8A8A]">{agent.best}</span>
+                <span className="col-span-2 text-right font-mono text-xs md:text-sm text-[#8A8A8A]">{agent.runs}</span>
+                <span className="col-span-2 text-right font-mono text-xs md:text-sm text-[#8A8A8A]">{agent.best}</span>
                 <span className={`col-span-1 text-right font-mono text-sm font-bold ${
                   agent.trend === "up" ? "text-[#4AF626]" : "text-[#E61919]"
                 }`}>{agent.trend === "up" ? "↑" : "↓"}</span>

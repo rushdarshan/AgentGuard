@@ -96,21 +96,21 @@ export default function Home() {
     <div ref={containerRef} className="min-h-screen bg-[#0A0A0A] text-[#EAEAEA] font-sans">
       {/* Navigation */}
       <nav className="border-b-2 border-[#2A2A2A]">
-        <div className="container flex items-center justify-between py-4">
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-[10px] text-[#E61919] tracking-[0.15em]">®</span>
-            <span className="font-mono text-base font-bold tracking-[0.08em] text-[#EAEAEA]">[ AGENTGUARD ]</span>
-            <span className="ml-3 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A] border border-[#2A2A2A] px-1.5 py-0.5">REV 2.6</span>
-            <span data-barcode className="ml-3"></span>
+        <div className="container flex items-center justify-between py-3 md:py-4">
+          <div className="flex items-center gap-2 md:gap-3 min-w-0">
+            <span className="font-mono text-[10px] text-[#E61919] tracking-[0.15em] shrink-0">®</span>
+            <span className="font-mono text-sm md:text-base font-bold tracking-[0.08em] text-[#EAEAEA] whitespace-nowrap">[ AGENTGUARD ]</span>
+            <span className="hidden md:inline font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A] border border-[#2A2A2A] px-1.5 py-0.5">REV 2.6</span>
+            <span data-barcode className="hidden md:inline-block ml-3"></span>
           </div>
           <div>
             {isAuthenticated ? (
               <Link href="/dashboard">
-                <Button variant="default">[ DASHBOARD ]</Button>
+                <Button variant="default" className="text-xs md:text-sm">[ DASHBOARD ]</Button>
               </Link>
             ) : (
               <a href={getLoginUrl()}>
-                <Button variant="default">[ GET STARTED ]</Button>
+                <Button variant="default" className="text-xs md:text-sm">[ GET STARTED ]</Button>
               </a>
             )}
           </div>
@@ -144,7 +144,7 @@ export default function Home() {
             <div className="mt-10 border border-[#2A2A2A] p-2 md:p-6">
               <p className="mb-4 font-mono text-[10px] tracking-[0.15em] text-[#8A8A8A] text-center">&lt; LIVE CASCADE ANALYSIS /&gt;</p>
               <DemoCascadeGraph />
-              <div className="mt-2 flex justify-center gap-6 font-mono text-[9px] tracking-[0.08em] text-[#8A8A8A]">
+              <div className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[9px] tracking-[0.08em] text-[#8A8A8A]">
                 <span className="flex items-center gap-1">
                   <span className="inline-block w-3 h-px bg-[#818CF8]" /> COMMUNITY 0
                 </span>
