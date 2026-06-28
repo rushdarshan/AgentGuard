@@ -472,15 +472,3 @@ server/
 └── index.ts         # Express + tRPC server entry
 ```
 
----
-
-## License
-
-MIT
-
----
-
-<p align="center">
-  Built for <a href="https://hackhazards.geekybase.com/">HACKHAZARDS '26</a> —
-  <a href="https://github.com/rushdarshan/AgentGuard">GitHub</a>
-</p>
