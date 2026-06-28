@@ -62,7 +62,7 @@ export default function Leaderboard() {
         </Card>
 
         <div className="border border-[#2A2A2A] p-4">
-          <p className="font-mono text-[10px] text-[#8A8A8A] italic">
+          <p className="font-mono text-xs text-[#EAEAEA]">
             Scores represent the AgentGuard Composite Score (0–100) — weighted average of pass rate (40%),
             cascade impact (25%), PII leak detection (20%), and severity penalty (15%).
             Higher score = more resistant to adversarial attacks.

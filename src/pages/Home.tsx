@@ -64,21 +64,6 @@ export default function Home() {
       });
     }
 
-    // 3. Feature grid stagger
-    const featureCards = featuresRef.current?.children;
-    if (featureCards) {
-      gsap.from(featureCards, {
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: featuresRef.current,
-          start: "top 75%",
-        }
-      });
-    }
   }, { scope: containerRef });
 
   const handleLaunchDemo = async () => {
@@ -164,15 +149,15 @@ export default function Home() {
               <div ref={numbersRef} className="mt-4 grid grid-cols-3 gap-2 text-center border-t border-[#2A2A2A] pt-4">
                 <div className="border-r border-[#2A2A2A] pr-2">
                   <div className="font-display text-3xl font-black text-[#E61919]"><span data-number="100">0</span>+</div>
-                  <div className="mt-1 font-mono text-[9px] tracking-[0.1em] text-[#8A8A8A]">ATTACK VECTORS</div>
+                  <div className="mt-1 font-mono text-xs tracking-[0.1em] text-[#8A8A8A]">ATTACK VECTORS</div>
                 </div>
                 <div className="border-r border-[#2A2A2A] pr-2">
                   <div className="font-display text-3xl font-black text-[#E61919]" data-number="9">0</div>
-                  <div className="mt-1 font-mono text-[9px] tracking-[0.1em] text-[#8A8A8A]">ATTACK CATEGORIES</div>
+                  <div className="mt-1 font-mono text-xs tracking-[0.1em] text-[#8A8A8A]">ATTACK CATEGORIES</div>
                 </div>
                 <div>
                   <div className="font-display text-3xl font-black text-[#E61919]">0-<span data-number="100">0</span></div>
-                  <div className="mt-1 font-mono text-[9px] tracking-[0.1em] text-[#8A8A8A]">RELIABILITY SCORE</div>
+                  <div className="mt-1 font-mono text-xs tracking-[0.1em] text-[#8A8A8A]">RELIABILITY SCORE</div>
                 </div>
               </div>
             </div>
@@ -184,10 +169,10 @@ export default function Home() {
                 the proxy detects code-switched jailbreaks other tools miss.
               </p>
               <div className="mt-3 flex gap-2">
-                <span className="badge badge-critical text-[10px]">hi-IN</span>
-                <span className="badge badge-high text-[10px]">bn-IN</span>
-                <span className="badge badge-medium text-[10px]">ta-IN</span>
-                <span className="badge badge-low text-[10px]">te-IN</span>
+                <span className="badge badge-critical text-xs">hi-IN</span>
+                <span className="badge badge-high text-xs">bn-IN</span>
+                <span className="badge badge-medium text-xs">ta-IN</span>
+                <span className="badge badge-low text-xs">te-IN</span>
               </div>
             </div>
 
@@ -240,12 +225,12 @@ export default function Home() {
               { title: "MEMORY POISONING", desc: "PERSISTENT MEMORY INJECTION ATTACKS" },
             ].map((feature, i) => {
               const isLast = i === 9;
-              return <div key={i} className={`bg-[#121212] will-change-transform ${isLast ? "md:col-span-3 p-8" : "p-6"}`}>
-                <span className="font-mono text-[10px] tracking-[0.1em] text-[#E61919]">{isLast ? "[ NEW ]" : `0${i + 1}`}</span>
+              return <div key={i} className={`bg-[#121212] ${isLast ? "md:col-span-3 p-8" : "p-6"}`}>
+                <span className="font-mono text-xs tracking-[0.1em] text-[#E61919]">{isLast ? "[ NEW ]" : `0${i + 1}`}</span>
                 <h3 className={`font-display font-bold uppercase tracking-[-0.02em] text-[#EAEAEA] ${isLast ? "mt-3 text-2xl" : "mt-2 text-lg"}`}>
                   {feature.title}
                 </h3>
-                <p className={`font-mono tracking-[0.05em] text-[#8A8A8A] ${isLast ? "mt-3 text-sm" : "mt-2 text-[11px]"}`}>{feature.desc}</p>
+                <p className={`font-mono tracking-[0.05em] text-[#8A8A8A] ${isLast ? "mt-3 text-sm" : "mt-2 text-xs"}`}>{feature.desc}</p>
               </div>;
             })}
           </div>

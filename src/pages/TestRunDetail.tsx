@@ -438,19 +438,23 @@ export default function TestRunDetail() {
                       </span>
                     </div>
                   </div>
-                  {(() => {
-                    const tier = classifyConfidence(result.passed, result.passed + result.failed);
+                  {total > 0 ? (() => {
+                    const tier = classifyConfidence(result.passed, total);
                     const { label, color } = getConfidenceBadge(tier);
                     return (
                       <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#2A2A2A]/50">
-                        <span className="font-mono text-sm text-[#8A8A8A]">CALIPER TIER</span>
-                        <span className="font-mono text-sm font-bold px-2 py-0.5 border" style={{ borderColor: color + "40", backgroundColor: color + "10", color }}>
+                        <span className="font-mono text-xs text-[#8A8A8A]">CALIPER TIER</span>
+                        <span className="font-mono text-xs font-bold px-2 py-0.5 border" style={{ borderColor: color + "40", backgroundColor: color + "10", color }}>
                           {label}
                         </span>
-                        <span className="font-mono text-sm text-[#8A8A8A]">{getConfidenceLabel(tier)}</span>
+                        <span className="font-mono text-xs text-[#8A8A8A]">{getConfidenceLabel(tier)}</span>
                       </div>
                     );
-                  })()}
+                  })() : (
+                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#2A2A2A]/50">
+                      <span className="font-mono text-xs tracking-[0.1em] text-[#8A8A8A]">[ AWAITING TELEMETRY ]</span>
+                    </div>
+                  )}
                 </Card>
               );
             })}

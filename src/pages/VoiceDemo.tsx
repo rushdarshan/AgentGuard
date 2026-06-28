@@ -130,7 +130,7 @@ export default function VoiceDemo() {
           <Card className="md:col-span-2 p-6 space-y-4 border-2 border-[#2A2A2A]">
             <div className="flex items-center gap-4 mb-4">
               <select
-                className="flex-1 border border-[#2A2A2A] bg-[#0A0A0A] text-[#EAEAEA] px-3 py-2 font-mono text-sm tracking-[0.08em]"
+                className="flex-1 h-10 border border-[#2A2A2A] bg-[#0A0A0A] text-[#EAEAEA] px-3 font-mono text-sm tracking-[0.08em] outline-none focus:border-[#EAEAEA]"
                 value={agentId ?? ""}
                 onChange={e => setAgentId(e.target.value ? parseInt(e.target.value) : null)}
               >
@@ -141,7 +141,7 @@ export default function VoiceDemo() {
               </select>
               
               <select
-                className="w-[160px] border border-[#2A2A2A] bg-[#0A0A0A] text-[#EAEAEA] px-3 py-2 font-mono text-sm tracking-[0.08em]"
+                className="w-[160px] h-10 border border-[#2A2A2A] bg-[#0A0A0A] text-[#EAEAEA] px-3 font-mono text-sm tracking-[0.08em] outline-none focus:border-[#EAEAEA]"
                 value={inputLang}
                 onChange={e => setInputLang(e.target.value)}
               >

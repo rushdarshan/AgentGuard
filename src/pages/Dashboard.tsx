@@ -123,7 +123,7 @@ export default function Dashboard() {
             { label: "AGENTS", value: totalAgents, suffix: "", color: "#EAEAEA" },
             { label: "RELIABILITY", value: avgReliability, suffix: "%", color: "#EAEAEA" },
             { label: "RUNS", value: testRuns.length, suffix: "", color: "#EAEAEA" },
-            { label: "CRITICAL", value: criticalIssues, suffix: "", color: "#E61919" },
+            { label: "CRITICAL", value: criticalIssues, suffix: "", color: criticalIssues > 0 ? "#E61919" : "#8A8A8A" },
           ].map((stat) => (
             <div key={stat.label} className="bg-[#121212] p-6 will-change-transform">
               <p className="font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]">{stat.label}</p>
@@ -172,8 +172,8 @@ export default function Dashboard() {
                             const { label, color } = getConfidenceBadge(tier);
                             return (
                               <>
-                                <span className="font-mono text-[9px] text-[#8A8A8A] mr-1">CALIPER</span>
-                                <span className="font-mono text-[9px] px-1.5 py-0.5 border" style={{ borderColor: color + "40", backgroundColor: color + "10", color }}>
+                                <span className="font-mono text-[10px] text-[#8A8A8A] mr-1">CALIPER</span>
+                                <span className="font-mono text-[10px] px-1.5 py-0.5 border" style={{ borderColor: color + "40", backgroundColor: color + "10", color }}>
                                   {label}
                                 </span>
                               </>
