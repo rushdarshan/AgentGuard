@@ -12,12 +12,13 @@
 > Built for [HACKHAZARDS '26](https://hackhazards.geekybase.com/)
 
 <p align="center">
-  <a href="#demo-video">📺 Watch Demo</a> · <a href="https://agentguard.onrender.com">🚀 Live App</a>
+  <a href="#demo">📺 Watch Demo</a> · <a href="https://agentguard-j5ny.onrender.com">🚀 Live App</a>
 </p>
 
-<video src="./brag-output/brag.mp4" controls width="100%">
-  <a href="./brag-output/brag.mp4">Download demo video</a>
-</video>
+> **Demo video:** GitHub doesn't render `<video>` tags, so embed a thumbnail instead —
+> upload `brag-output/agentguard-brag.mp4` as a GitHub Release asset or to YouTube/Streamable,
+> then replace this line with `[![Watch the demo](thumbnail.png)](https://your-video-link)`.
+> (The file path previously referenced here, `./brag-output/brag.mp4`, doesn't exist in the repo.)
 
 ## Why AgentGuard
 
@@ -69,6 +70,7 @@ AgentGuard runs a complete adversarial test suite against your agent endpoint, v
 ## Table of Contents
 
 - [Why AgentGuard](#why-agentguard)
+- [What Makes AgentGuard Different](#what-makes-agentguard-different)
 - [How It Works](#how-it-works)
 - [Quick Start](#quick-start)
 - [Commands](#commands)
@@ -85,7 +87,7 @@ AgentGuard runs a complete adversarial test suite against your agent endpoint, v
 
 ---
 
-## Why AgentGuard?
+## What Makes AgentGuard Different
 
 Most AI agent testing tools are manual, single-model, and English-only. AgentGuard is the first **CI pipeline for AI agent reliability**:
 
@@ -129,7 +131,7 @@ npx tsx src/cli/index.ts proxy --port 9090
 
 | Command | Description |
 |---------|-------------|
-| `test --url <url>` | Run 9-category adversarial attack suite against an agent endpoint |
+| `test --url <url>` | Run 10-category adversarial attack suite against an agent endpoint |
 | `proxy --port 9090` | Start HTTP forward proxy that judges agent→API traffic in real time |
 | `pre-push --threshold 80` | Gate a git push on minimum readiness score (set `--install` to install hook) |
 | `harden <report.json>` | Generate guardrail configuration from a test run's failed findings |
@@ -323,7 +325,7 @@ curl -s -X POST "$TARGET_AGENT_URL" \
   | jq '.response' > /tmp/response.txt
 
 # 3. Judge the response
-agentguard test --url "$TARGET_AGENT_URL" --count 1
+npx tsx src/cli/index.ts test --url "$TARGET_AGENT_URL" --count 1
 ```
 
 Supported categories: Prompt Injection, Jailbreak, Indirect Prompt Injection, Multi-tenant Context Leak.
@@ -396,7 +398,7 @@ Supported categories: Prompt Injection, Jailbreak, Indirect Prompt Injection, Mu
 | Runtime proxy | ✓ | ✗ | ✗ | ✓ (closed) |
 | Pre-push git hook | ✓ | ✗ | ✗ | ✓ |
 | GitHub Action | ✓ | ✗ | ✗ | ✗ |
-| Inductive-language attacks | ✓ Sarvam AI | ✗ | ✗ | ✗ |
+| Indic-language attacks | ✓ Sarvam AI | ✗ | ✗ | ✗ |
 | Attack generation | ✓ Built-in + LLM | ✓ | ✓ | — |
 | OWASP/ATLAS mapping | ✓ Triple taxonomy | ✓ LLM only | ✓ LLM only | — |
 | Reproducibility filter | ✓ Adversarial disprove phase | ✗ | ✗ | — |
