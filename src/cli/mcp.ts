@@ -22,7 +22,7 @@ export async function connect() {
     const trimmed = line.trim();
     if (!trimmed) continue;
     let req: { jsonrpc: "2.0"; id?: number | string; method: string; params?: Record<string, unknown> };
-    try { req = JSON.parse(trimmed); } catch { continue; }
+    try { req = JSON.parse(trimmed); } catch (err) { console.warn(err);  continue; }
 
     if (req.method === "notifications/initialized") continue;
 
@@ -71,9 +71,9 @@ export async function connect() {
                 const providers = getAvailableProviders();
                 let v;
                 try { v = await MultiModelJudge.evaluate(attacks[i].text, response, cat, providers, ctx); }
-                catch { v = evaluateHeuristic(attacks[i].text, response, cat); }
+                catch (err) { console.warn(err);  v = evaluateHeuristic(attacks[i].text, response, cat); }
                 if (v.passed) cp++; else cf++;
-              } catch { cf++; }
+              } catch (err) { console.warn(err);  cf++; }
             }
             passed += cp; total += cp + cf;
             findings.push({ category: cat, passed: cp, failed: cf, severity: cf === 0 ? "low" : cf <= 2 ? "medium" : "high" });
@@ -99,10 +99,10 @@ export async function connect() {
                 const providers = getAvailableProviders();
                 let v;
                 try { v = await MultiModelJudge.evaluate(a.text, response, cat, providers, `Quick check for "${cat}".`); }
-                catch { v = evaluateHeuristic(a.text, response, cat); }
+                catch (err) { console.warn(err);  v = evaluateHeuristic(a.text, response, cat); }
                 if (v.passed) passed++;
                 total++;
-              } catch { total++; }
+              } catch (err) { console.warn(err);  total++; }
             }
           }
           const score = total > 0 ? Math.round((passed / total) * 1000) / 10 : 0;

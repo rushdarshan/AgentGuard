@@ -91,7 +91,7 @@ export default function TestBuilder() {
     return (
       <DashboardLayout>
         <div className="text-center">
-          <p className="font-mono text-sm text-[#6B6B6B]">AGENT NOT FOUND</p>
+          <p className="font-mono text-base text-[#6B6B6B]">AGENT NOT FOUND</p>
         </div>
       </DashboardLayout>
     );
@@ -101,7 +101,7 @@ export default function TestBuilder() {
     <DashboardLayout>
       <div className="max-w-4xl space-y-8">
         <div>
-          <p className="font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">&lt; CONFIG /&gt;</p>
+          <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">&lt; CONFIG /&gt;</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">TEST SUITE BUILDER</h1>
           <p className="mt-2 font-mono text-[11px] text-[#6B6B6B]">CONFIGURE ATTACK VECTORS FOR {agent.name.toUpperCase()}</p>
         </div>
@@ -118,7 +118,7 @@ export default function TestBuilder() {
                       checked={selectedCategories.has(category)}
                       onCheckedChange={() => toggleCategory(category)}
                     />
-                    <Label htmlFor={category} className="cursor-pointer font-mono text-sm tracking-[0.05em]">
+                    <Label htmlFor={category} className="cursor-pointer font-mono text-base tracking-[0.05em]">
                       {category.toUpperCase()}
                     </Label>
                   </div>
@@ -135,7 +135,7 @@ export default function TestBuilder() {
                   key={category}
                   className={`bg-[#121212] border-0 p-6 ${selectedCategories.has(category) ? "" : "opacity-40"}`}
                 >
-                  <h3 className="mb-4 font-mono text-sm font-semibold tracking-[0.05em]">{category.toUpperCase()}</h3>
+                  <h3 className="mb-4 font-mono text-base font-semibold tracking-[0.05em]">{category.toUpperCase()}</h3>
 
                   <div className="space-y-6">
                     <div>
@@ -181,9 +181,9 @@ export default function TestBuilder() {
           <Card className="mt-8 border border-[#2A2A2A] bg-[#121212] p-6">
             <div className="mb-4 flex items-center gap-2">
               <LightningBoltIcon className="h-5 w-5 text-[#E61919]" />
-              <p className="font-mono text-sm tracking-[0.05em]">[ TEST SUMMARY ]</p>
+              <p className="font-mono text-base tracking-[0.05em]">[ TEST SUMMARY ]</p>
             </div>
-            <div className="space-y-2 font-mono text-xs">
+            <div className="space-y-2 font-mono text-sm">
               <p>&gt; <span className="text-[#6B6B6B]">CATEGORIES:</span> <span className="font-semibold">{selectedCategories.size}</span></p>
               <p>&gt; <span className="text-[#6B6B6B]">TOTAL TESTS:</span> <span className="font-semibold">
                 {Array.from(selectedCategories).reduce(

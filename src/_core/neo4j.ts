@@ -79,14 +79,15 @@ export async function runLouvainGds(
   const session = drv.session();
   try {
     const graphName = `cascade-${testRunId}`;
-    await session.run(`CALL gds.graph.project($graphName, 'TestResult', {CAUSES: {orientation: 'UNDIRECTED'}}, {relationshipProperties: 'confidence'})`, { graphName }).catch(() => {});
+    await session.run(`CALL gds.graph.drop($graphName, false) YIELD graphName`, { graphName }).catch(() => {});
+    await session.run(`CALL gds.graph.project($graphName, 'TestResult', 'CAUSES', {relationshipProperties: ['confidence'], relationshipOrientation: 'UNDIRECTED'})`, { graphName });
     const result = await session.run(
       `CALL gds.louvain.stream($graphName, {relationshipWeightProperty: 'confidence'})
        YIELD nodeId, communityId
        RETURN gds.util.asNode(nodeId).id AS resultId, communityId`,
       { graphName }
     );
-    await session.run(`CALL gds.graph.drop($graphName)`, { graphName }).catch(() => {});
+    await session.run(`CALL gds.graph.drop($graphName, false) YIELD graphName`, { graphName }).catch(() => {});
 
     const communities = new Map<number, number>();
     for (const record of result.records) {
@@ -113,14 +114,15 @@ export async function runPageRankGds(
   const session = drv.session();
   try {
     const graphName = `pr-${testRunId}`;
-    await session.run(`CALL gds.graph.project($graphName, 'TestResult', {CAUSES: {orientation: 'NATURAL'}}, {relationshipProperties: 'confidence'})`, { graphName }).catch(() => {});
+    await session.run(`CALL gds.graph.drop($graphName, false) YIELD graphName`, { graphName }).catch(() => {});
+    await session.run(`CALL gds.graph.project($graphName, 'TestResult', 'CAUSES', {relationshipProperties: ['confidence']})`, { graphName });
     const result = await session.run(
       `CALL gds.pageRank.stream($graphName, {relationshipWeightProperty: 'confidence'})
        YIELD nodeId, score
        RETURN gds.util.asNode(nodeId).id AS resultId, score`,
       { graphName }
     );
-    await session.run(`CALL gds.graph.drop($graphName)`, { graphName }).catch(() => {});
+    await session.run(`CALL gds.graph.drop($graphName, false) YIELD graphName`, { graphName }).catch(() => {});
 
     const ranks = new Map<number, number>();
     for (const record of result.records) {
@@ -430,9 +432,7 @@ export async function findCascadePaths(
         chain: rec.get("chain"),
         pathConfidence: rec.get("pathConfidence"),
       }));
-    } catch {
-      // fall through to JS
-    }
+    } catch (err) { console.warn(err);  }
   }
 
   const resultMap = new Map(results.map(r => [r.id, r.category]));

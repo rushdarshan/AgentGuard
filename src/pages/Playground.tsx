@@ -119,7 +119,7 @@ export default function Playground() {
     <DashboardLayout>
       <div className="space-y-8">
         <div>
-          <p className="font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">&lt; SANDBOX /&gt;</p>
+          <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">&lt; SANDBOX /&gt;</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">SECURITY PLAYGROUND</h1>
           <p className="mt-2 font-mono text-[11px] text-[#6B6B6B]">MANUALLY TEST ADVERSARIAL VECTORS AGAINST REGISTERED ENDPOINTS</p>
         </div>
@@ -130,18 +130,18 @@ export default function Playground() {
             <div className="space-y-2">
               <Label className="font-mono text-[11px] text-[#6B6B6B]">1. SELECT AGENT FOR TESTING</Label>
               {isLoadingAgents ? (
-                <div className="h-10 border border-[#2A2A2A] flex items-center justify-center font-mono text-xs text-[#6B6B6B]">
+                <div className="h-10 border border-[#2A2A2A] flex items-center justify-center font-mono text-sm text-[#6B6B6B]">
                   LOADING AGENTS...
                 </div>
               ) : agents.length === 0 ? (
-                <div className="h-10 border border-dashed border-[#2A2A2A] flex items-center justify-center font-mono text-xs text-[#6B6B6B]">
+                <div className="h-10 border border-dashed border-[#2A2A2A] flex items-center justify-center font-mono text-sm text-[#6B6B6B]">
                   NO AGENTS REGISTERED. GO TO AGENTS PAGE FIRST.
                 </div>
               ) : (
                 <select
                   value={selectedAgentId}
                   onChange={(e) => handleAgentChange(e.target.value)}
-                  className="w-full bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-sm p-2.5 rounded-none outline-none focus:border-[#E61919] transition-all"
+                  className="w-full bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-base p-2.5 rounded-none outline-none focus:border-[#E61919] transition-all"
                 >
                   <option value="" disabled>-- SELECT AN AGENT --</option>
                   {agents.map((a) => (
@@ -157,7 +157,7 @@ export default function Playground() {
                 <select
                   value={selectedCategory}
                   onChange={(e) => applyTemplate(e.target.value)}
-                  className="w-full bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-xs p-2.5 rounded-none outline-none focus:border-[#E61919] transition-all"
+                  className="w-full bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-sm p-2.5 rounded-none outline-none focus:border-[#E61919] transition-all"
                 >
                   {ATTACK_CATEGORIES.map((c) => (
                     <option key={c} value={c}>{c.toUpperCase()}</option>
@@ -170,7 +170,7 @@ export default function Playground() {
                 <select
                   value={selectedLanguage}
                   onChange={(e) => setSelectedLanguage(e.target.value)}
-                  className="w-full bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-xs p-2.5 rounded-none outline-none focus:border-[#E61919] transition-all"
+                  className="w-full bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-sm p-2.5 rounded-none outline-none focus:border-[#E61919] transition-all"
                 >
                   {LANGUAGES.map((l) => (
                     <option key={l.code} value={l.code}>{l.name}</option>
@@ -193,12 +193,12 @@ export default function Playground() {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Enter adversarial prompt..."
-                className="min-h-[140px] bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-xs p-3 rounded-none outline-none resize-none focus:border-[#E61919] focus:ring-0"
+                className="min-h-[140px] bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-sm p-3 rounded-none outline-none resize-none focus:border-[#E61919] focus:ring-0"
               />
             </div>
 
             <Button
-              className="w-full gap-2 py-6 font-mono text-sm tracking-[0.05em]"
+              className="w-full gap-2 py-6 font-mono text-base tracking-[0.05em]"
               onClick={handleExecute}
               disabled={isRunning || !selectedAgentId}
             >
@@ -243,16 +243,16 @@ export default function Playground() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-[#2A2A2A] pb-4">
                     <div>
-                      <h3 className="font-mono text-xs text-[#6B6B6B] tracking-[0.08em]">[ VERDICT ]</h3>
-                      <p className="font-mono text-sm font-semibold tracking-[0.05em] mt-1">{selectedCategory.toUpperCase()}</p>
+                      <h3 className="font-mono text-sm text-[#6B6B6B] tracking-[0.08em]">[ VERDICT ]</h3>
+                      <p className="font-mono text-base font-semibold tracking-[0.05em] mt-1">{selectedCategory.toUpperCase()}</p>
                     </div>
                     {result.passed ? (
-                      <div className="flex items-center gap-2 border border-[#4AF626]/20 bg-[#4AF626]/5 text-[#4AF626] px-4 py-2 font-mono text-xs font-bold tracking-[0.1em]">
+                      <div className="flex items-center gap-2 border border-[#4AF626]/20 bg-[#4AF626]/5 text-[#4AF626] px-4 py-2 font-mono text-sm font-bold tracking-[0.1em]">
                         <CheckCircledIcon className="h-4 w-4" />
                         [ AGENT SECURED ]
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 border border-[#E61919]/20 bg-[#E61919]/5 text-[#E61919] px-4 py-2 font-mono text-xs font-bold tracking-[0.1em]">
+                      <div className="flex items-center gap-2 border border-[#E61919]/20 bg-[#E61919]/5 text-[#E61919] px-4 py-2 font-mono text-sm font-bold tracking-[0.1em]">
                         <CrossCircledIcon className="h-4 w-4" />
                         [ COMPROMISED ]
                       </div>
@@ -296,7 +296,7 @@ export default function Playground() {
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border border-dashed border-[#2A2A2A] bg-[#0A0A0A] min-h-[300px]">
                   <LightningBoltIcon className="h-10 w-10 text-[#2A2A2A] mb-3 animate-pulse" />
-                  <p className="font-mono text-xs text-[#6B6B6B] tracking-[0.05em]">AWAITING TEST EXECUTION</p>
+                  <p className="font-mono text-sm text-[#6B6B6B] tracking-[0.05em]">AWAITING TEST EXECUTION</p>
                   <p className="font-mono text-[10px] text-[#3A3A3A] mt-1">Configure inputs in left panel and press Dispatch</p>
                 </div>
               )}

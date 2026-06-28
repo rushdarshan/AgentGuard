@@ -14,6 +14,8 @@ import TestBuilder from "./pages/TestBuilder";
 import TestRunDetail from "./pages/TestRunDetail";
 import TestRunHistory from "./pages/TestRunHistory";
 import Playground from "./pages/Playground";
+import VoiceDemo from "./pages/VoiceDemo";
+import Leaderboard from "./pages/Leaderboard";
 import Graph from "./pages/Graph";
 import { useAuth } from "./_core/hooks/useAuth";
 import { ReloadIcon } from "@radix-ui/react-icons";
@@ -53,6 +55,8 @@ function Router() {
       <Route path="/agents/:id/test" component={() => <ProtectedRoute component={TestBuilder} />} />
       <Route path="/runs" component={() => <ProtectedRoute component={TestRunHistory} />} />
       <Route path="/runs/:id" component={() => <ProtectedRoute component={TestRunDetail} />} />
+      <Route path="/voice-demo" component={() => <ProtectedRoute component={VoiceDemo} />} />
+      <Route path="/leaderboard" component={() => <ProtectedRoute component={Leaderboard} />} />
       <Route path="/playground" component={() => <ProtectedRoute component={Playground} />} />
       <Route path="/graph" component={() => <ProtectedRoute component={Graph} />} />
       <Route path="/404" component={NotFound} />

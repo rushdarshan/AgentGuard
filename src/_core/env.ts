@@ -12,7 +12,7 @@ export const ENV = {
   NEO4J_PASSWORD: env("NEO4J_PASSWORD"),
   SARVAM_API_KEY: env("SARVAM_API_KEY"),
   ENCRYPTION_KEY: env("ENCRYPTION_KEY"),
-  COOKIE_SECRET: env("COOKIE_SECRET", "dev-secret-change-in-prod"),
+  COOKIE_SECRET: env("COOKIE_SECRET"),
   ownerOpenId: env("OWNER_OPEN_ID"),
   OPENAI_API_KEY: env("OPENAI_API_KEY"),
   OPENAI_BASE_URL: env("OPENAI_BASE_URL", "https://api.openai.com/v1"),

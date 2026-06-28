@@ -161,7 +161,7 @@ export default function Graph() {
           return;
         }
         setGraphData(transformToGraph(json));
-      } catch {
+      } catch (err) { console.warn(err); 
         setError("Invalid JSON file");
       }
     };
@@ -172,7 +172,7 @@ export default function Graph() {
     <DashboardLayout>
       <div className="space-y-8">
         <div>
-          <p className="font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">&lt; VISUALIZATION /&gt;</p>
+          <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">&lt; VISUALIZATION /&gt;</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">GRAPH EXPLORER</h1>
           <p className="mt-2 font-mono text-[11px] text-[#6B6B6B]">UPLOAD TEST RESULTS TO VISUALIZE ATTACK CASCADE GRAPHS</p>
         </div>
@@ -304,7 +304,7 @@ export default function Graph() {
                     <line x1="45" y1="40" x2="30" y2="50" stroke="#60a5fa" strokeWidth="1" opacity="0.4" />
                   </svg>
                 </div>
-                <p className="font-mono text-xs text-[#6B6B6B] tracking-[0.05em]">NO DATA LOADED</p>
+                <p className="font-mono text-sm text-[#6B6B6B] tracking-[0.05em]">NO DATA LOADED</p>
                 <p className="font-mono text-[10px] text-[#3A3A3A] mt-1">Upload a JSON file of test results to generate the graph</p>
               </div>
             )}
@@ -326,7 +326,7 @@ export default function Graph() {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="e.g., Show me the failure cascade summary"
-              className="flex-1 bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-sm p-2.5 outline-none focus:border-[#E61919] transition-colors"
+              className="flex-1 bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-base p-2.5 outline-none focus:border-[#E61919] transition-colors"
             />
             <button
               type="submit"
@@ -389,7 +389,7 @@ export default function Graph() {
                 value={docQuery}
                 onChange={(e) => setDocQuery(e.target.value)}
                 placeholder="Search within document..."
-                className="flex-1 bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-sm p-2.5 outline-none focus:border-[#E61919] transition-colors"
+                className="flex-1 bg-[#0A0A0A] border border-[#2A2A2A] text-[#EAEAEA] font-mono text-base p-2.5 outline-none focus:border-[#E61919] transition-colors"
               />
               <button
                 type="submit"

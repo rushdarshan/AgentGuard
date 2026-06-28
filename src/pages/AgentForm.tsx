@@ -65,7 +65,7 @@ export default function AgentForm() {
     <DashboardLayout>
       <div className="max-w-2xl space-y-8">
         <div>
-          <p className="font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">&lt; REGISTRATION /&gt;</p>
+          <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">&lt; REGISTRATION /&gt;</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">
             {isEdit ? "EDIT AGENT" : "REGISTER AGENT"}
           </h1>

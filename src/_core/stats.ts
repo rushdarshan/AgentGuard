@@ -9,7 +9,7 @@ export interface WilsonCI {
 export function wilsonCI(passed: number, total: number, z = 1.96): WilsonCI {
   if (total === 0) return { point: 0, lower: 0, upper: 0, interval: 0 };
 
-  const p = passed / total;
+  const p = Math.min(1, passed / total);
   const z2 = z * z;
   const denominator = 1 + z2 / total;
   const center = (p + z2 / (2 * total)) / denominator;

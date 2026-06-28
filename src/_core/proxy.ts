@@ -21,16 +21,17 @@ export function clearProxyFindings() {
   findings.length = 0;
 }
 
-export function startProxy(port: number, allowlist?: string[], blockUnknown?: boolean): Promise<{ close: () => void }> {
-  return new Promise(async (resolve) => {
-    // ponytail: dynamic import so vite doesn't bundle for browser
-    const http = await import("node:http");
-    const net = await import("node:net");
-    const urlMod = await import("node:url");
-    const blocked = new Set(allowlist?.map(d => d.toLowerCase()) ?? []);
-    const allowAll = !allowlist || allowlist.length === 0;
+export async function startProxy(port: number, allowlist?: string[], blockUnknown?: boolean): Promise<{ close: () => void }> {
+  // ponytail: dynamic import so vite doesn't bundle for browser
+  const http = await import("node:http");
+  const net = await import("node:net");
+  const urlMod = await import("node:url");
+  const blocked = new Set(allowlist?.map(d => d.toLowerCase()) ?? []);
+  const allowAll = !allowlist || allowlist.length === 0;
 
-    const server = http.createServer(async (req, res) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const server = http.createServer(async (req, res) => {
       const method = req.method ?? "GET";
       const targetUrl = req.url ?? "";
       const parsed = urlMod.parse(targetUrl);
@@ -83,7 +84,7 @@ export function startProxy(port: number, allowlist?: string[], blockUnknown?: bo
 
           if (body) proxyReq.write(body);
           proxyReq.end();
-        } catch {
+        } catch (err) { console.warn(err); 
           res.writeHead(502);
           res.end("AgentGuard: proxy error\n");
         }
@@ -120,6 +121,9 @@ export function startProxy(port: number, allowlist?: string[], blockUnknown?: bo
       console.log(`Set HTTP_PROXY=http://127.0.0.1:${port} in your agent's environment\n`);
       resolve({ close: () => server.close() });
     });
+    } catch (err) {
+      reject(err);
+    }
   });
 }
 
@@ -135,7 +139,7 @@ async function judgeInteraction(url: string, method: string, body: string, respo
     let verdict;
     try {
       verdict = await MultiModelJudge.evaluate(prompt, response || "(empty)", category, providers);
-    } catch {
+    } catch (err) { console.warn(err); 
       const { evaluateHeuristic } = await import("./llm");
       const h = evaluateHeuristic(prompt, response || "", category);
       verdict = { passed: h.passed, reasoning: h.reasoning + " (heuristic)" };
@@ -150,7 +154,7 @@ async function judgeInteraction(url: string, method: string, body: string, respo
       reasoning: verdict.reasoning,
       blocked: !verdict.passed,
     });
-  } catch {
+  } catch (err) { console.warn(err); 
     // ponytail: judge unavailable — log without blocking
     onFinding({
       timestamp: new Date().toISOString(),

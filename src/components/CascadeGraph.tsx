@@ -217,22 +217,22 @@ export default function CascadeGraph({ nodes, edges, colorBy = "category", onNod
   return (
     <div>
       <div className="flex items-center justify-center gap-2 pb-3">
-        <span className="text-xs text-[#787774]">{Math.round(zoom * 100)}%</span>
+        <span className="text-sm text-[#787774]">{Math.round(zoom * 100)}%</span>
         <button
           onClick={() => setZoom(z => Math.max(0.5, z - 0.2))}
-          className="flex h-7 w-7 items-center justify-center rounded border border-[#EAEAEA] text-sm text-[#787774] hover:text-[#111111]"
+          className="flex h-7 w-7 items-center justify-center rounded-none border border-[#EAEAEA] text-base text-[#787774] hover:text-[#111111]"
         >
           -
         </button>
         <button
           onClick={() => setZoom(z => Math.min(3, z + 0.2))}
-          className="flex h-7 w-7 items-center justify-center rounded border border-[#EAEAEA] text-sm text-[#787774] hover:text-[#111111]"
+          className="flex h-7 w-7 items-center justify-center rounded-none border border-[#EAEAEA] text-base text-[#787774] hover:text-[#111111]"
         >
           +
         </button>
         <button
           onClick={() => setZoom(1)}
-          className="rounded border border-[#EAEAEA] px-2 py-1 text-[11px] text-[#787774] hover:text-[#111111]"
+          className="rounded-none border border-[#EAEAEA] px-2 py-1 text-sm text-[#787774] hover:text-[#111111]"
         >
           Reset
         </button>

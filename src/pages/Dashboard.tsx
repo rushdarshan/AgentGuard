@@ -58,7 +58,7 @@ export default function Dashboard() {
             ease: "power2.out",
             snap: { innerHTML: 1 },
             onUpdate: function() {
-              el.innerHTML = Math.round(this.targets()[0].innerHTML) + suffix;
+              el.textContent = Math.round(Number(this.targets()[0].innerHTML)) + suffix;
             }
           }
         );
@@ -84,9 +84,9 @@ export default function Dashboard() {
       <div ref={containerRef} className="space-y-10">
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <p className="font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">&lt; OPERATIONS /&gt;</p>
+            <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">&lt; OPERATIONS /&gt;</p>
             <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">DASHBOARD</h1>
-            <p className="mt-1 font-mono text-xs tracking-[0.08em] text-[#6B6B6B]">
+            <p className="mt-1 font-mono text-sm tracking-[0.08em] text-[#6B6B6B]">
               WELCOME BACK, {user?.name}
             </p>
           </div>
@@ -115,7 +115,7 @@ export default function Dashboard() {
 
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <p className="font-mono text-xs tracking-[0.15em] text-[#6B6B6B]">[ RECENT RUNS ]</p>
+            <p className="font-mono text-sm tracking-[0.15em] text-[#6B6B6B]">[ RECENT RUNS ]</p>
             <Link href="/runs">
               <Button variant="outline">[ VIEW ALL ]</Button>
             </Link>
@@ -128,7 +128,7 @@ export default function Dashboard() {
                   <div className="card-hover bg-[#121212] p-4 border-0 will-change-transform">
                     <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                       <div className="flex-1">
-                        <p className="font-mono text-sm font-semibold tracking-[0.05em]">RUN #{run.id}</p>
+                        <p className="font-mono text-base font-semibold tracking-[0.05em]">RUN #{run.id}</p>
                         <p className="font-mono text-[11px] text-[#6B6B6B]">
                           {run.totalTests} TESTS &mdash; {run.passedTests} PASSED &mdash; {run.failedTests} FAILED
                         </p>
@@ -163,7 +163,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <Card className="p-8 text-center">
-              <p className="font-mono text-sm text-[#6B6B6B]">NO RUNS YET. CREATE AN AGENT AND START TESTING.</p>
+              <p className="font-mono text-base text-[#6B6B6B]">NO RUNS YET. CREATE AN AGENT AND START TESTING.</p>
               <Link href="/agents/new">
                 <Button className="mt-4">[ CREATE AGENT ]</Button>
               </Link>
@@ -174,7 +174,7 @@ export default function Dashboard() {
         <div className="grid gap-[1px] bg-[#2A2A2A] md:grid-cols-2">
           <div className="bg-[#121212] p-6">
             <p className="mb-6 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">[ QUICK START ]</p>
-            <ol className="space-y-4 font-mono text-xs">
+            <ol className="space-y-4 font-mono text-sm">
               {[
                 "REGISTER YOUR AGENT ENDPOINT",
                 "CONFIGURE ATTACK CATEGORIES",
@@ -196,7 +196,7 @@ export default function Dashboard() {
             <p className="mb-6 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">[ ATTACK SURFACE ]</p>
             <div className="space-y-2">
               {["PROMPT INJECTION", "CONTEXT OVERFLOW", "LOGIC COLLAPSE", "JAILBREAK", "HALLUCINATION", "SCHEMA DRIFT", "MULTI-TENANT LEAK", "INDIRECT INJECTION", "MULTI-TURN CRESCENDO"].map(cat => (
-                <div key={cat} className="flex items-center gap-2 font-mono text-xs text-[#EAEAEA]">
+                <div key={cat} className="flex items-center gap-2 font-mono text-sm text-[#EAEAEA]">
                   <span className="text-[#E61919] font-mono text-[10px]">&gt;</span>
                   {cat}
                 </div>

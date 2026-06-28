@@ -20,7 +20,7 @@
     background-color: #0A0A0A;
     color: #EAEAEA;
     font-family: "JetBrains Mono", monospace;
-    font-size: 13px;
+    font-size: clamp(12px, 0.6vw + 0.5rem, 14px);
     line-height: 1.4;
     position: relative;
   }
@@ -35,9 +35,21 @@
       0deg,
       transparent,
       transparent 2px,
-      rgba(0, 0, 0, 0.15) 2px,
-      rgba(0, 0, 0, 0.15) 4px
+      rgba(0, 0, 0, 0.18) 2px,
+      rgba(0, 0, 0, 0.18) 4px
     );
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 99999;
+    opacity: 0.015;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 300px 300px;
   }
 
   ::selection {
@@ -209,9 +221,57 @@
     font-size: 0.6rem;
     font-family: "JetBrains Mono", monospace;
   }
+
+  [data-barcode] {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    height: 1em;
+  }
+
+  [data-barcode]::before {
+    content: "";
+    display: inline-block;
+    width: 1px;
+    height: 100%;
+    background: #2A2A2A;
+    box-shadow:
+      2px 0 0 #2A2A2A,
+      5px 0 0 #2A2A2A,
+      7px 0 0 #2A2A2A,
+      10px 0 0 #2A2A2A,
+      13px 0 0 #2A2A2A;
+  }
+
+  [data-divider] {
+    border: none;
+    border-top: 2px solid #2A2A2A;
+    margin: 2rem 0;
+  }
+
+  [data-divider="heavy"] {
+    border-top: 3px solid #E61919;
+  }
 }
 
 @layer utilities {
+  .macro-text {
+    font-family: Inter, system-ui, sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    font-size: clamp(4rem, 10vw, 12rem);
+  }
+
+  .telemetry-label {
+    font-family: "JetBrains Mono", monospace !important;
+    font-size: 0.625rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .loading-skeleton::after {
       animation: none;

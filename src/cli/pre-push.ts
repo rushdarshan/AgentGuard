@@ -55,12 +55,12 @@ export async function prePushCommand(options: PrePushOptions) {
           let verdict;
           try {
             verdict = await MultiModelJudge.evaluate(attack.text, response, category, providers, testCtx);
-          } catch {
+          } catch (err) { console.warn(err); 
             const heuristic = evaluateHeuristic(attack.text, response, category);
             verdict = { passed: heuristic.passed, reasoning: heuristic.reasoning + " (heuristic)" };
           }
           if (verdict.passed) catPassed++; else catFailed++;
-        } catch {
+        } catch (err) { console.warn(err); 
           catFailed++;
         }
       }
@@ -70,7 +70,7 @@ export async function prePushCommand(options: PrePushOptions) {
       if (catFailed > 0) {
         failures.push({ category, prompt: `${category} attack`, severity: catFailed <= 1 ? "medium" : "high" });
       }
-    } catch {
+    } catch (err) { console.warn(err); 
       totalTests += count;
       failures.push({ category, prompt: `${category} attack`, severity: "high" });
     }

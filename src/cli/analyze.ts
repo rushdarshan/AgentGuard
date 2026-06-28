@@ -37,12 +37,12 @@ export async function analyzeCommand(options: AnalyzeOptions) {
               let verdict;
               try {
                 verdict = await MultiModelJudge.evaluate(attack.text, response, category, providers, testCtx);
-              } catch {
+              } catch (err) { console.warn(err); 
                 const heuristic = evaluateHeuristic(attack.text, response, category);
                 verdict = { passed: heuristic.passed, reasoning: heuristic.reasoning + " (heuristic)" };
               }
               return { passed: verdict.passed, reasoning: verdict.reasoning, response, latency: Date.now() - t0 };
-            } catch {
+            } catch (err) { console.warn(err); 
               return { passed: false, reasoning: "Error testing agent", response: "", latency: Date.now() - t0 };
             }
           })
@@ -56,7 +56,7 @@ export async function analyzeCommand(options: AnalyzeOptions) {
       failedTests += catFailed;
       const severity = catFailed === 0 ? "low" : catFailed <= 2 ? "medium" : "high";
       findings.push({ category, passed: catPassed, failed: catFailed, severity });
-    } catch {
+    } catch (err) { console.warn(err); 
       findings.push({ category, passed: 0, failed: options.count, severity: "high" });
       totalTests += options.count;
       failedTests += options.count;

@@ -66,15 +66,30 @@ export class SessionManager {
       return { passed: true, reason: "No turns recorded" };
     }
 
+    let finalPassed = true;
+    let failureReason = "All turns evaluated successfully.";
+    let failedPrompt = "";
+    let failedResponse = "";
+
+    for (const turn of session.turns) {
+      const verdict = await evaluateWithLLM(turn.prompt, turn.response, category);
+      if (!verdict.passed) {
+        finalPassed = false;
+        failureReason = verdict.reasoning || "Turn failed evaluation.";
+        failedPrompt = turn.prompt;
+        failedResponse = turn.response;
+        break; // Stop at the first failure
+      }
+    }
+
     const lastTurn = session.turns[session.turns.length - 1];
-    const verdict = await evaluateWithLLM(lastTurn.prompt, lastTurn.response, category);
 
     return {
-      passed: verdict.passed,
-      reason: verdict.reasoning || "Final turn evaluated",
+      passed: finalPassed,
+      reason: failureReason,
       turns: session.turns.length,
-      lastPrompt: lastTurn.prompt,
-      lastResponse: lastTurn.response,
+      lastPrompt: finalPassed ? lastTurn.prompt : failedPrompt,
+      lastResponse: finalPassed ? lastTurn.response : failedResponse,
     };
   }
 }

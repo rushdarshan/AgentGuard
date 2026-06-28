@@ -5,6 +5,6 @@ export default defineConfig({
   out: "./drizzle",
   dialect: "mysql",
   dbCredentials: {
-    url: process.env.DATABASE_URL || "mysql://root:password@localhost:3306/agentguard",
+    url: process.env.DATABASE_URL as string,
   },
 });

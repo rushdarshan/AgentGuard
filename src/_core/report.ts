@@ -23,18 +23,14 @@ interface TestRun {
   completedAt?: string | Date;
 }
 
-const OWASP_MAP: Record<string, { llm: string; agentic: string; atlas: string }> = {
-  "Prompt Injection":              { llm: "LLM01", agentic: "ASI01", atlas: "ML-0017" },
-  "Indirect Prompt Injection":     { llm: "LLM02", agentic: "ASI02", atlas: "ML-0017" },
-  "Multi-turn Crescendo":          { llm: "LLM01", agentic: "ASI01", atlas: "ML-0017" },
-  "Jailbreak":                     { llm: "LLM01", agentic: "ASI01", atlas: "ML-0017" },
-  "Context Overflow":              { llm: "LLM04", agentic: "—",     atlas: "ML-0025" },
-  "Hallucination":                 { llm: "LLM09", agentic: "—",     atlas: "ML-0020" },
-  "Schema Drift":                  { llm: "LLM02", agentic: "ASI06", atlas: "ML-0027" },
-  "Logic Collapse":                { llm: "LLM09", agentic: "—",     atlas: "—" },
-  "Multi-tenant Context Leak":     { llm: "LLM06", agentic: "ASI03", atlas: "ML-0026" },
-  "Memory Poisoning":              { llm: "LLM02", agentic: "ASI04", atlas: "ML-0017" },
-};
+import { DETECTOR_REGISTRY } from "../const";
+
+const OWASP_MAP = Object.fromEntries(
+  DETECTOR_REGISTRY.map((d) => [
+    d.name,
+    { llm: d.owasp, agentic: d.agentic, atlas: d.atlas },
+  ])
+);
 
 const REMEDIATIONS: Record<string, string> = {
   "Prompt Injection":              "Implement input sanitization, instruction hierarchy, and system prompt boundaries. Use delimiter-based separation of instructions and data.",
@@ -83,7 +79,7 @@ export function generateReport(run: TestRun, results: TestResult[]): string {
           allPII.push({ category: r.category, pii: t.pii });
         }
       }
-    } catch { /* skip */ }
+    } catch (err) { console.warn(err);  }
   }
 
   if (allPII.length > 0) {
@@ -182,7 +178,7 @@ export function generateReportHtml(run: TestRun, results: TestResult[]): string 
           totalJudgments++;
         }
       }
-    } catch { /* skip */ }
+    } catch (err) { console.warn(err);  }
     const stability = totalJudgments > 0 ? +(1 - swapDisagreements / totalJudgments).toFixed(2) : null;
     const composite = computeCompositeScore({ passRate: r.passed / Math.max(total, 1), severity: r.severity });
     return { ...r, total, catCI, m, rem, stability, composite };

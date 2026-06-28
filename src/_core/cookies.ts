@@ -8,11 +8,18 @@ export interface CookieOptions {
   maxAge?: number;
 }
 
-export function getSessionCookieOptions(req?: Request): CookieOptions {
-  const isSecure = req?.url?.startsWith("https") ?? false;
+export function getSessionCookieOptions(req?: any): CookieOptions {
+  // Check if secure via x-forwarded-proto or connection.encrypted
+  const isSecure = 
+    req?.headers?.['x-forwarded-proto'] === 'https' || 
+    req?.secure || 
+    req?.connection?.encrypted || 
+    req?.url?.startsWith("https") || 
+    false;
+
   return {
     httpOnly: true,
-    secure: isSecure,
+    secure: !!isSecure,
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,

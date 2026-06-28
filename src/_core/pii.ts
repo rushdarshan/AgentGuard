@@ -76,7 +76,7 @@ async function scanPIIWithOPF(text: string): Promise<PIISpan[] | null> {
       const { execSync } = await import("child_process");
       execSync("which opf 2>/dev/null || where opf 2>nul", { encoding: "utf8", stdio: "pipe" });
       _opfAvailable = true;
-    } catch { _opfAvailable = false; }
+    } catch (err) { console.warn(err);  _opfAvailable = false; }
   }
   if (!_opfAvailable) return null;
   try {
@@ -90,7 +90,7 @@ async function scanPIIWithOPF(text: string): Promise<PIISpan[] | null> {
       end: s.end ?? 0,
       score: s.score ?? 0.95,
     }));
-  } catch { return null; }
+  } catch (err) { console.warn(err);  return null; }
 }
 
 const OPF_LABEL_MAP: Record<string, PIILabel> = {

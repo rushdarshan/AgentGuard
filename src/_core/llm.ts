@@ -84,7 +84,7 @@ Return a JSON object: { "passed": boolean, "reasoning": "brief explanation" }`,
     const content = result.choices[0]?.message?.content || "{}";
     const cleaned = stripCodeFences(content);
     return JSON.parse(cleaned);
-  } catch {
+  } catch (err) { console.warn(err); 
     // LLM judge unavailable — fall back to heuristic instead of blindly marking as failed
     return evaluateHeuristic(prompt, response, category);
   }
