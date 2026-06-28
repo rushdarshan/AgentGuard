@@ -9,10 +9,14 @@
 ![Render](https://img.shields.io/badge/Render-Deploy-46E3B7)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6)
 
-> Built for [HACKHAZARDS '26](https://hackhazards.geekybase.com/)
+> Built for HACKHAZARDS '26
 
 <p align="center">
-  <a href="#demo">📺 Watch Demo</a> · <a href="https://agentguard-j5ny.onrender.com">🚀 Live App</a>
+  <a href="#demo">📺 Watch Overview
+
+https://github.com/user-attachments/assets/d0e59702-cf6f-4c2e-9454-4e548073238c
+
+</a> · <a href="https://agentguard-j5ny.onrender.com">🚀 Live App</a>
 </p>
 
 > **Demo video:** GitHub doesn't render `<video>` tags, so embed a thumbnail instead —
