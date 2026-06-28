@@ -19,6 +19,7 @@ import { generateIndicAttacks, getIndicAttackCategories, identifyLanguage } from
 import { queryAuraAgent, AuraNotConfiguredError } from "./_core/aura";
 import { extractText, chunkText } from "./_core/document";
 import { buildDocumentGraph, searchDocumentGraph, listDocuments as listDocGraphs, getDocumentGraph } from "./_core/docgraph";
+import { getLogBuffer, type LogLevel } from "./_core/logger";
 
 // ============ AGENT ROUTER ============
 
@@ -34,6 +35,11 @@ export const appRouter = router({
       status: "ok",
       version: "1.0.0",
     })),
+    logs: publicProcedure
+      .input(z.object({ level: z.enum(["debug", "info", "warn", "error"]).optional() }))
+      .query(({ input }) => {
+        return getLogBuffer(input.level as LogLevel | undefined);
+      }),
   }),
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),

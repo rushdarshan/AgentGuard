@@ -20,6 +20,7 @@ import { generateIndicAttacks, getIndicAttackCategories, identifyLanguage } from
 import { queryAuraAgent, AuraNotConfiguredError } from "../_core/aura";
 import { extractText, chunkText } from "../_core/document";
 import { buildDocumentGraph, searchDocumentGraph, listDocuments as listDocGraphs, getDocumentGraph } from "../_core/docgraph";
+import { log } from "../_core/logger";
 
 // ============ AGENT ROUTER ============
 
@@ -168,6 +169,7 @@ export async function executeTestRunAsync(
   config: Record<string, { intensity: string; count: number }>
 ) {
   try {
+    log.info("[test-run] start", { testRunId, agentId, userId, categories: Object.keys(config).length });
     await db.updateTestRun(testRunId, userId, { status: "running", startedAt: new Date() });
 
     let totalTests = 0;
@@ -314,6 +316,7 @@ export async function executeTestRunAsync(
       });
 
       results.push({ category, passed: categoryPassed, failed: categoryFailed, severity, id: (testRes as any).insertId ?? (testRes as any).id });
+      log.info("[test-run] category", { testRunId, category, passed: categoryPassed, failed: categoryFailed, severity, totalSoFar: passedTests + failedTests + categoryPassed + categoryFailed });
     }
 
     for (let i = 1; i < results.length; i++) {
@@ -355,6 +358,7 @@ export async function executeTestRunAsync(
       reliabilityScore,
       completedAt: new Date(),
     });
+    log.info("[test-run] complete", { testRunId, totalTests, passedTests, failedTests, reliabilityScore });
 
     // Validation pass: re-run failed findings to confirm or disprove
     try {
@@ -387,10 +391,10 @@ export async function executeTestRunAsync(
         await db.updateTestResult((r as any).id, { details: updatedDetails });
       }
     } catch (err) {
-      console.warn("[Validation] Pass failed:", err);
+      log.warn("[test-run] validation pass failed", { testRunId, error: String(err) });
     }
   } catch (error) {
-    console.error("[TestRun] Execution failed:", error);
+    log.error("[test-run] execution failed", { testRunId, error: String(error) });
     await db.updateTestRun(testRunId, userId, { status: "failed", completedAt: new Date() });
   }
 }

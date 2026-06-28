@@ -5,6 +5,7 @@ import {
   InsertUser, users, agents, testRuns, testResults, testSuites, attackCorpus, failureCascades,
 } from "./schema";
 import { ENV } from "./_core/env";
+import { log } from "./_core/logger";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -14,7 +15,7 @@ export async function getDb() {
       const connection = await mysql.createConnection(ENV.DATABASE_URL);
       _db = drizzle(connection);
     } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
+      log.warn("[db] connect failed", { error: String(error) });
       _db = null;
     }
   }

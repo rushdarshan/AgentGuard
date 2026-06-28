@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { DashboardIcon, GlobeIcon, ClockIcon, ExitIcon, LightningBoltIcon, MixIcon, StarFilledIcon, SpeakerLoudIcon, SunIcon, MoonIcon, HamburgerMenuIcon, Cross1Icon } from "@radix-ui/react-icons";
+import { DashboardIcon, GlobeIcon, ClockIcon, ExitIcon, LightningBoltIcon, MixIcon, StarFilledIcon, SpeakerLoudIcon, SunIcon, MoonIcon, HamburgerMenuIcon, Cross1Icon, ReaderIcon } from "@radix-ui/react-icons";
 import { useTheme } from "@/_core/ThemeProvider";
 
 interface Props {
@@ -14,6 +14,7 @@ const navItems = [
   { href: "/leaderboard", label: "RANKINGS", icon: StarFilledIcon },
   { href: "/voice-demo", label: "VOICE", icon: SpeakerLoudIcon },
   { href: "/playground", label: "PLAYGROUND", icon: MixIcon },
+  { href: "/logs", label: "LOGS", icon: ReaderIcon },
 ];
 
 export default function DashboardLayout({ children }: Props) {

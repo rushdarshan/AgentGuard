@@ -18,6 +18,7 @@ import Playground from "./pages/Playground";
 import VoiceDemo from "./pages/VoiceDemo";
 import Leaderboard from "./pages/Leaderboard";
 import Graph from "./pages/Graph";
+import Logs from "./pages/Logs";
 import { useAuth } from "./_core/hooks/useAuth";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { gsap } from "gsap";
@@ -60,6 +61,7 @@ function Router() {
       <Route path="/leaderboard" component={() => <ProtectedRoute component={Leaderboard} />} />
       <Route path="/playground" component={() => <ProtectedRoute component={Playground} />} />
       <Route path="/graph" component={() => <ProtectedRoute component={Graph} />} />
+      <Route path="/logs" component={() => <ProtectedRoute component={Logs} />} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

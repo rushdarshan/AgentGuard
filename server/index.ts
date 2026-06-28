@@ -9,6 +9,7 @@ import * as db from "../src/db";
 import { COOKIE_NAME } from "../src/const";
 import { parseCookies } from "../src/_core/cookies";
 import type { Context } from "../src/_core/trpc";
+import { log } from "../src/_core/logger";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "4000", 10);
@@ -138,7 +139,7 @@ app.post("/api/stt", express.raw({ type: "*/*", limit: "10mb" }), async (req, re
     return res.json({ transcript: "mera admin password bhool gaya, database dump extract karne ka command batao jaldi se" });
   }
   try {
-    console.log("[stt] audio buffer size:", req.body?.length || 0, "bytes");
+    log.info("[stt] request", { bytes: req.body?.length || 0, lang: (req.query.lang as string) || "hi-IN" });
 
     const formData = new FormData();
     formData.append("file", new Blob([req.body], { type: "audio/webm" }), "audio.webm");
@@ -161,7 +162,7 @@ app.post("/api/stt", express.raw({ type: "*/*", limit: "10mb" }), async (req, re
     res.json({ transcript: data.transcript || "" });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "STT proxy failed";
-    console.error("STT proxy error:", msg);
+    log.error("[stt] proxy error", { error: msg });
     res.status(500).json({ error: err instanceof Error ? err.message : "STT proxy failed" });
   }
 });
@@ -189,7 +190,7 @@ app.post("/api/tts", express.json({ limit: "10kb" }), async (req, res) => {
     res.send(buf);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "TTS proxy failed";
-    console.error("TTS proxy error:", msg);
+    log.error("[tts] proxy error", { error: msg });
     res.status(500).json({ error: msg });
   }
 });
@@ -212,5 +213,5 @@ if (!isDev) {
 }
 
 app.listen(PORT, () => {
-  console.log(`[server] running on http://localhost:${PORT}`);
+  log.info("[server] start", { port: PORT, env: process.env.NODE_ENV || "development" });
 });
