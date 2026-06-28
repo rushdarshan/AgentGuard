@@ -81,10 +81,10 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div ref={containerRef} className="space-y-10">
-        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+      <div ref={containerRef}>
+        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center py-6">
           <div>
-            <p className="font-mono text-sm tracking-[0.15em] text-[#8A8A8A]">&lt; OPERATIONS /&gt;</p>
+            <p className="font-mono text-sm tracking-[0.15em] text-[#8A8A8A]">/// OPERATIONS \\\</p>
             <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">DASHBOARD</h1>
             <p className="mt-1 font-mono text-sm tracking-[0.08em] text-[#8A8A8A]">
               WELCOME BACK, {user?.name}
@@ -98,7 +98,7 @@ export default function Dashboard() {
         </div>
 
         {agentsLoading || runsLoading ? (
-          <div className="space-y-6">
+          <div className="space-y-6 border-t border-[#2A2A2A] pt-6">
             <div className="grid gap-[1px] bg-[#2A2A2A] md:grid-cols-4">
               {[1,2,3,4].map(i => (
                 <div key={i} className="bg-[#121212] p-6 animate-pulse">
@@ -117,7 +117,8 @@ export default function Dashboard() {
             </div>
           </div>
         ) : (<>
-        <div ref={statsRef} className="grid gap-[1px] bg-[#2A2A2A] md:grid-cols-4">
+        <hr data-divider="heavy" className="my-0" />
+        <div ref={statsRef} className="grid gap-[1px] bg-[#2A2A2A] md:grid-cols-4 border-b border-[#2A2A2A]">
           {[
             { label: "AGENTS", value: totalAgents, suffix: "", color: "#EAEAEA" },
             { label: "RELIABILITY", value: avgReliability, suffix: "%", color: "#EAEAEA" },
@@ -133,11 +134,11 @@ export default function Dashboard() {
           ))}
         </div>
 
-        <div>
-          <div className="mb-4 flex items-center justify-between">
-            <p className="font-mono text-sm tracking-[0.15em] text-[#8A8A8A]">[ RECENT RUNS ]</p>
+        <div className="py-10">
+          <div className="mb-4 flex items-center justify-between border-b border-[#2A2A2A] pb-2">
+            <p className="font-mono text-sm tracking-[0.15em] text-[#8A8A8A]" data-framed>RECENT RUNS</p>
             <Link href="/runs">
-              <Button variant="outline">[ VIEW ALL ]</Button>
+              <Button variant="outline" size="sm">[ VIEW ALL ]</Button>
             </Link>
           </div>
 
@@ -185,7 +186,7 @@ export default function Dashboard() {
               ))}
             </div>
           ) : (
-            <Card className="p-8 text-center">
+            <Card className="p-8 text-center border-[#2A2A2A] bg-[#121212] rounded-none">
               <p className="font-mono text-base text-[#8A8A8A]">NO RUNS YET. CREATE AN AGENT AND START TESTING.</p>
               <Link href="/agents/new">
                 <Button className="mt-4">[ CREATE AGENT ]</Button>
@@ -194,9 +195,9 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div className="grid gap-[1px] bg-[#2A2A2A] md:grid-cols-2">
-          <div className="bg-[#121212] p-6">
-            <p className="mb-6 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]">[ QUICK START ]</p>
+        <div className="grid gap-[1px] bg-[#2A2A2A] md:grid-cols-2 border-t border-[#2A2A2A]">
+          <div className="bg-[#121212] p-8">
+            <p className="mb-8 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]" data-framed>QUICK START</p>
             <ol className="space-y-4 font-mono text-sm">
               {[
                 "REGISTER YOUR AGENT ENDPOINT",
@@ -215,8 +216,8 @@ export default function Dashboard() {
             </ol>
           </div>
 
-          <div className="bg-[#121212] p-6">
-            <p className="mb-6 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]">[ ATTACK SURFACE ]</p>
+          <div className="bg-[#121212] p-8">
+            <p className="mb-8 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A]" data-framed>ATTACK SURFACE</p>
             <div className="space-y-2">
               {["PROMPT INJECTION", "CONTEXT OVERFLOW", "LOGIC COLLAPSE", "JAILBREAK", "HALLUCINATION", "SCHEMA DRIFT", "MULTI-TENANT LEAK", "INDIRECT INJECTION", "MULTI-TURN CRESCENDO"].map(cat => (
                 <div key={cat} className="flex items-center gap-2 font-mono text-sm text-[#EAEAEA]">

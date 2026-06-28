@@ -24,24 +24,24 @@ export default function DashboardLayout({ children }: Props) {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#EAEAEA]">
-      <nav className="border-b-2 border-[#2A2A2A]">
-        <div className="container flex items-center justify-between py-3">
-          <div className="flex items-center gap-6 min-w-0">
-            <Link href="/dashboard" className="flex items-center gap-2 group shrink-0">
+      <nav className="border-b-2 border-[#2A2A2A] bg-[#0A0A0A]">
+        <div className="container flex items-center justify-between py-2 md:py-0">
+          <div className="flex items-center gap-0 min-w-0">
+            <Link href="/dashboard" className="flex items-center gap-2 group shrink-0 pr-6">
               <span className="font-mono text-[10px] text-[#E61919] tracking-[0.15em]">®</span>
               <span className="font-mono text-sm md:text-base font-bold tracking-[0.08em] text-[#EAEAEA] whitespace-nowrap">[ AGENTGUARD ]</span>
             </Link>
-            <span data-barcode className="hidden md:inline-block"></span>
-            <div className="hidden md:flex items-center gap-1">
+            <span data-barcode className="hidden md:inline-block border-l border-[#2A2A2A] h-10 px-4"></span>
+            <div className="hidden md:flex items-center">
               {navItems.map((item) => {
                 const active = location.startsWith(item.href);
                 return (
                   <Link key={item.href} href={item.href}>
                     <button
-                      className={`px-3 py-1.5 font-mono text-sm tracking-[0.08em] border ${
+                      className={`px-4 py-3 h-full font-mono text-sm tracking-[0.08em] border-l border-[#2A2A2A] ${
                         active
-                          ? "bg-[#EAEAEA] text-[#0A0A0A] border-[#EAEAEA]"
-                          : "bg-transparent text-[#8A8A8A] border-transparent hover:text-[#EAEAEA] hover:border-[#2A2A2A]"
+                          ? "bg-[#EAEAEA] text-[#0A0A0A]"
+                          : "bg-transparent text-[#8A8A8A] hover:bg-[#121212] hover:text-[#EAEAEA]"
                       }`}
                     >
                       <item.icon className="h-3.5 w-3.5 inline-block mr-1.5" />
@@ -52,13 +52,15 @@ export default function DashboardLayout({ children }: Props) {
               })}
             </div>
           </div>
-          <div className="flex items-center gap-1 md:gap-2 shrink-0">
-            <button onClick={toggle} className="px-2 py-1.5 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A] border border-transparent hover:border-[#2A2A2A] hover:text-[#EAEAEA]" title="Toggle theme">
+          <div className="flex items-center h-full shrink-0">
+            <button onClick={toggle} className="h-full px-4 border-l border-[#2A2A2A] font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A] hover:bg-[#121212] hover:text-[#EAEAEA]" title="Toggle theme">
               {theme === "cyberpunk" ? <SunIcon className="h-3.5 w-3.5" /> : <MoonIcon className="h-3.5 w-3.5" />}
             </button>
-            <span className="hidden md:inline font-mono text-[10px] text-[#8A8A8A] tracking-[0.15em] border border-[#2A2A2A] px-1.5 py-0.5">REV 2.6</span>
-            <Link href="/" className="hidden md:inline">
-              <button className="px-3 py-1.5 font-mono text-sm tracking-[0.08em] text-[#8A8A8A] border border-transparent hover:text-[#E61919] hover:border-[#2A2A2A]">
+            <div className="hidden md:flex items-center h-full px-4 border-l border-[#2A2A2A]">
+              <span className="font-mono text-[10px] text-[#E61919] tracking-[0.15em] border border-[#E61919] px-1.5 py-0.5">REV 2.6</span>
+            </div>
+            <Link href="/" className="hidden md:inline h-full">
+              <button className="h-full px-4 border-l border-[#2A2A2A] font-mono text-sm tracking-[0.08em] text-[#8A8A8A] hover:bg-[#121212] hover:text-[#E61919]">
                 <ExitIcon className="h-3.5 w-3.5 inline-block mr-1.5" />
                 HOME
               </button>
