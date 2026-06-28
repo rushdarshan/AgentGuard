@@ -15,7 +15,7 @@ import { scanPII, formatPIISummary } from "./_core/pii";
 import { generateReport, generateReportHtml } from "./_core/report";
 import { validateFindings, type ValidationStatus, type ValidatedFinding } from "./_core/validate";
 import { analyzeRunGraph, computeLiftRatios, findCascadePaths, compareRuns as compareRunGraphs } from "./_core/neo4j";
-import { generateIndicAttacks, getIndicAttackCategories } from "./_core/sarvam";
+import { generateIndicAttacks, getIndicAttackCategories, identifyLanguage } from "./_core/sarvam";
 import { queryAuraAgent, AuraNotConfiguredError } from "./_core/aura";
 import { extractText, chunkText } from "./_core/document";
 import { buildDocumentGraph, searchDocumentGraph, listDocuments as listDocGraphs, getDocumentGraph } from "./_core/docgraph";
@@ -1061,6 +1061,9 @@ export const appRouter = router({
         return { transcript: "", verdict: "NO SPEECH" };
       }
 
+      // 1.5 Language identification
+      const language = await identifyLanguage(transcript);
+
       // 2. Judge via sarvam-30b
       let isAttack = false;
       try {
@@ -1082,6 +1085,8 @@ export const appRouter = router({
             ],
             temperature: 0.1,
             max_tokens: 10,
+            wiki_grounding: true,
+            reasoning_effort: "high",
           }),
         });
         if (judgeRes.ok) {
@@ -1123,7 +1128,7 @@ export const appRouter = router({
         } catch { /* TTS is optional */ }
       }
 
-      return { transcript, verdict, audioBase64 };
+      return { transcript, verdict, audioBase64, language };
     }),
 
   uploadDocument: publicProcedure

@@ -7,11 +7,12 @@
 
 **Adversarial testing harness · Runtime proxy · Pre-push gate**
 
-[![GitHub Actions](https://img.shields.io/badge/CI-AgentGuard-%23E61919)](#-github-action)
-[![Neo4j](https://img.shields.io/badge/Neo4j-Louvain%20%2B%20PageRank-%2347A248)](#-why-neo4j)
-[![Sarvam AI](https://img.shields.io/badge/Sarvam-Indic%20%2B%20Voice-%23FF6B35)](#-sarvam-ai-integration)
-[![Render](https://img.shields.io/badge/Render-Deploy%20Hook-%2346E3B7)](https://render.com)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![HACKHAZARDS](https://img.shields.io/badge/HACKHAZARDS-%2726-red)
+![Neo4j](https://img.shields.io/badge/Neo4j-AuraDB-4581C3)
+![Sarvam](https://img.shields.io/badge/Sarvam-AI-FF6F00)
+![Render](https://img.shields.io/badge/Render-Deploy-46E3B7)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6)
 
 > Built for [HACKHAZARDS '26](https://hackhazards.geekybase.com/)
 
@@ -25,16 +26,35 @@ agentguard pre-push --threshold 80      # block pushes below score
 
 ## Demo
 
-<!-- TODO: record 15s GIF of: test run starting → cascade edges appearing → community colors → score rendering -->
-<!-- ![AgentGuard Demo](.github/assets/demo.gif) -->
+AgentGuard runs a complete adversarial test suite against your agent endpoint, visualizes failure cascades as a force-directed graph, and gates deploys on statistically-rigorous readiness scores. Run it once, pipe it into CI, or leave the proxy running during development.
+
+| Feature | Description |
+|---------|-------------|
+| 🕵️ Adversarial Testing | 10 attack categories, multi-model judge, heuristic fallback |
+| 📊 Cascade Graph | Force-directed failure propagation visualization |
+| 🗣️ Voice Testing | Mic → Sarvam STT → LLM Judge → TTS verdict (Hindi) |
+| 📄 Document Upload | PDF → chunk → keyword searchable graph |
+| 🔬 Graph Explorer | Upload JSON test runs, query with natural language |
+| 🛡️ Proxy Mode | Forward proxy with real-time traffic judgment |
+| 🤖 MCP Server | Agentguard tools for MCP-aware AI agents |
+| ⚡ CI Integration | GitHub Action + pre-push hook + Render cron job |
 
 [![Deploy on Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+
+---
+
+## Screenshots
+
+![Cascade Graph](.github/assets/cascade-graph.png)
+![Graph Explorer](.github/assets/graph-explorer.png)
+![Voice Test](.github/assets/voice-test.png)
 
 ---
 
 ## Table of Contents
 
 - [Why AgentGuard](#why-agentguard)
+- [How It Works](#how-it-works)
 - [Quick Start](#quick-start)
 - [Commands](#commands)
 - [Attack Categories](#attack-categories)
@@ -50,35 +70,42 @@ agentguard pre-push --threshold 80      # block pushes below score
 
 ---
 
-## Why AgentGuard
+## Why AgentGuard?
 
-Most AI red-teaming tools are **research frameworks** — you run a benchmark, get a score, file the results. AgentGuard is different:
+Most AI agent testing tools are manual, single-model, and English-only. AgentGuard is the first **CI pipeline for AI agent reliability**:
 
-| Other tools | AgentGuard |
-|---|---|
-| Batch-only eval | **Batch + live proxy** — judge requests as they flow |
-| Single LLM judge | **Multi-provider, swap-position double-judging** with Cohen's κ stability check |
-| Point estimates | **Wilson 95% CI** — score with statistically rigorous bounds |
-| Flat pass/fail | **Failure cascade graphs** with Louvain community detection and PageRank |
-| No CI integration | **GitHub Action + pre-push hook** — gate deploys on readiness score |
-| Static attack sets | **LLM-generated + Indic-language** attacks via Sarvam AI |
+- **10 attack categories** — OWASP LLM + ATLAS + MITRE coverage
+- **Multi-model judge** — Consensus verdicts from 3 LLMs, not one
+- **Failure cascade graphs** — Neo4j-powered propagation analysis
+- **Indic language support** — Generate attacks in Hindi/Hinglish, test voice channels
+- **CI/CD native** — GitHub Action, pre-push hook, automated cron scanning
 
-**One-liner:** We are GitHub Actions for AI agents, not a research benchmark.
+## How It Works
+
+1. **Configure** — Point AgentGuard at your agent endpoint
+2. **Test** — 10 attack categories × N prompts each, parallel execution
+3. **Evaluate** — Multi-model judge + heuristic fallback, Wilson CI confidence
+4. **Harden** — Generate blocking rules, deploy pre-push gate, schedule nightly scans
 
 ---
 
 ## Quick Start
 
 ```bash
-npm install -g agentguard
+# Run a test against any agent endpoint
+npx agentguard test --url https://your-agent.com/chat
 
-# Run a full adversarial test suite against your agent
-agentguard test --url https://my-agent.example.com --output text
+# Interactive dashboard (pre-seeded demo data)
+npm run demo
 
-# Or launch the web dashboard
-cp .env.example .env    # add your LLM API key
-npm install
-npm run dev             # server (:4000) + client (:3000)
+# Install pre-push hook
+agentguard pre-push --url https://your-agent.com/chat --install
+
+# Proxy mode — intercept and judge live traffic
+agentguard proxy --port 9090
+
+# Nightly CI scan (via Render cron)
+# Already configured in render.yaml — deploys automatically
 ```
 
 ---

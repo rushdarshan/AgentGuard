@@ -8,7 +8,7 @@ type VoiceTestState = "idle" | "recording" | "processing" | "done";
 
 export default function VoiceTestButton() {
   const [state, setState] = useState<VoiceTestState>("idle");
-  const [result, setResult] = useState<{ transcript: string; verdict: string; audioBase64?: string } | null>(null);
+  const [result, setResult] = useState<{ transcript: string; verdict: string; audioBase64?: string; language?: string } | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -111,6 +111,9 @@ export default function VoiceTestButton() {
         <div className="w-72 border border-[#2A2A2A] bg-[#121212] p-4 text-left">
           <p className="font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">TRANSCRIPT</p>
           <p className="mt-1 font-mono text-sm text-[#EAEAEA]">{result.transcript || "[No speech detected]"}</p>
+          {result.language && (
+            <p className="mt-2 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">LANGUAGE <span className="text-[#EAEAEA]">{result.language}</span></p>
+          )}
           <p className="mt-3 font-mono text-[10px] tracking-[0.1em] text-[#6B6B6B]">VERDICT</p>
           <p
             className={`mt-1 font-display text-lg font-black uppercase ${result.verdict === "PASS" ? "text-green-500" : "text-[#E61919]"}`}

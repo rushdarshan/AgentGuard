@@ -6,13 +6,32 @@ interface SarvamMessage {
   content: string;
 }
 
-export async function sarvamChat(messages: SarvamMessage[], model = "sarvam-30b"): Promise<string> {
+export async function sarvamChat(messages: SarvamMessage[], model = "sarvam-30b", opts?: { wiki_grounding?: boolean; reasoning_effort?: string }): Promise<string> {
   const { text } = await generateText({
-    model: sarvam.chat(model),
+    model: sarvam.chat(model, opts as any),
     messages,
     temperature: 0.7,
   });
   return text;
+}
+
+export async function identifyLanguage(text: string): Promise<string> {
+  try {
+    const { ENV } = await import('./env');
+    const res = await fetch('https://api.sarvam.ai/v1/text/identify-language', {
+      method: 'POST',
+      headers: {
+        'api-subscription-key': ENV.SARVAM_API_KEY || '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ input: text }),
+    });
+    if (!res.ok) return 'unknown';
+    const data = await res.json();
+    return data.language_code || 'unknown';
+  } catch {
+    return 'unknown';
+  }
 }
 
 export async function sarvamTranslate(
