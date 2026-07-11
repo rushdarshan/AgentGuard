@@ -217,37 +217,6 @@ export default function TestRunDetail() {
     }
   }, { dependencies: [results.length], scope: detailRef });
 
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="space-y-6">
-          <div className="loading-skeleton h-8 w-64" />
-          <div className="loading-skeleton h-40 w-full" />
-          <div className="loading-skeleton h-32 w-full" />
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (!testRun) {
-    return (
-      <DashboardLayout>
-        <div className="text-center">
-          <p className="font-mono text-base text-[#8A8A8A]">TEST RUN NOT FOUND</p>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  const statusColor = ({
-    pending: "text-[#8A8A8A]",
-    running: "text-[#4AF626]",
-    completed: "text-[#EAEAEA]",
-    failed: "text-[#E61919]",
-    cancelled: "text-[#8A8A8A]",
-  } as Record<string, string>)[testRun.status] || "text-[#8A8A8A]";
-
-  // Compute validation summary across all results
   const validationSummary = useMemo(() => {
     let confirmed = 0, flaky = 0, total = 0;
     for (const r of results) {
@@ -277,6 +246,36 @@ export default function TestRunDetail() {
     }
     return langs;
   }, [results]);
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div className="loading-skeleton h-8 w-64" />
+          <div className="loading-skeleton h-40 w-full" />
+          <div className="loading-skeleton h-32 w-full" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!testRun) {
+    return (
+      <DashboardLayout>
+        <div className="text-center">
+          <p className="font-mono text-base text-[#8A8A8A]">TEST RUN NOT FOUND</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const statusColor = ({
+    pending: "text-[#8A8A8A]",
+    running: "text-[#4AF626]",
+    completed: "text-[#EAEAEA]",
+    failed: "text-[#E61919]",
+    cancelled: "text-[#8A8A8A]",
+  } as Record<string, string>)[testRun.status] || "text-[#8A8A8A]";
 
   return (
     <DashboardLayout>
