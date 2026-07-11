@@ -5,6 +5,10 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useAudioRecorder } from "@/_core/useAudioRecorder";
 import { Loader2 } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 type DemoStage = "idle" | "recording" | "transcribing" | "testing" | "judging" | "done" | "error";
 
@@ -55,6 +59,29 @@ export default function VoiceDemo() {
   const [error, setError] = useState("");
   const [elapsed, setElapsed] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pipelineRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const stages = pipelineRef.current?.querySelectorAll("[data-pipeline-stage]");
+      if (stages && stages.length > 0) {
+        gsap.fromTo(stages,
+          { x: -15, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.4, stagger: 0.06, ease: "power2.out" }
+        );
+      }
+      const cards = resultsRef.current?.querySelectorAll("[data-result-card]");
+      if (cards && cards.length > 0) {
+        gsap.fromTo(cards,
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power2.out" }
+        );
+      }
+    });
+    return () => mm.revert();
+  }, { scope: resultsRef });
 
   const selectedAgent = agents.find(a => a.id === agentId);
   const idx = STAGE_IDX[stage] ?? -1;
@@ -177,7 +204,7 @@ export default function VoiceDemo() {
         </div>
 
         {/* 5-stage pipeline */}
-        <div className="flex items-center justify-center">
+        <div ref={pipelineRef} className="flex items-center justify-center">
           {PIPELINE.map((label, i) => {
             const done = !isErr && i < idx;
             const active = !isErr && i === idx;
@@ -189,7 +216,7 @@ export default function VoiceDemo() {
             else if (failed) { bc = "border-[#D82C20]"; bg = "bg-[#D82C20]/5"; tc = "text-[#D82C20]"; }
 
             return (
-              <div key={label} className="flex items-center">
+              <div key={label} data-pipeline-stage className="flex items-center">
                 <div className={`border ${bc} ${bg} px-4 py-2 min-w-[90px] text-center`}>
                   <p className={`font-mono text-[10px] tracking-[0.1em] font-semibold ${tc}`}>
                     {done && "✓ "}{label}
@@ -267,8 +294,8 @@ export default function VoiceDemo() {
         </div>
 
         {/* Results */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card className="p-6 space-y-4 border border-[#2A2A2A]">
+        <div ref={resultsRef} className="grid gap-6 md:grid-cols-2">
+          <Card data-result-card className="p-6 space-y-4 border border-[#2A2A2A]">
             <div data-divider className="bg-[#111111] p-3 min-h-[60px]">
               <p className="telemetry-label text-[#808080]">TRANSCRIPT</p>
               <p className="mt-1 font-mono text-base text-[#F5F5F5] whitespace-pre-wrap">
@@ -283,7 +310,7 @@ export default function VoiceDemo() {
             </div>
           </Card>
 
-          <Card className="p-6 space-y-4 border border-[#2A2A2A]">
+          <Card data-result-card className="p-6 space-y-4 border border-[#2A2A2A]">
             {judgeVerdict ? (
               <div data-divider className={`p-3 border ${judgeVerdict.passed ? "border-[#22C55E]/40" : "border-[#D82C20]"}`}>
                 <p className="telemetry-label text-[#808080]">JUDGE VERDICT</p>

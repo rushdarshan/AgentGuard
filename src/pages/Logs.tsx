@@ -3,6 +3,10 @@ import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Loader2, X, Search } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 type LogLevel = "debug" | "info" | "warn" | "error";
 
@@ -33,6 +37,7 @@ export default function Logs() {
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const bottomRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
+  const rowsRef = useRef<HTMLDivElement>(null);
 
   const { data: logs = [], refetch, isFetching } = trpc.system.logs.useQuery(
     { level: levelFilter },
@@ -45,6 +50,20 @@ export default function Logs() {
         JSON.stringify(e).toLowerCase().includes(keyword.toLowerCase())
       )
     : logs;
+
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const rows = rowsRef.current?.querySelectorAll("[data-log-row]");
+      if (rows && rows.length > 0) {
+        gsap.fromTo(rows,
+          { x: -10, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.25, stagger: 0.02, ease: "power2.out" }
+        );
+      }
+    });
+    return () => mm.revert();
+  }, { scope: rowsRef, dependencies: [filtered.length] });
 
   useEffect(() => {
     if (autoScroll && !paused && bottomRef.current) {
@@ -197,13 +216,14 @@ export default function Logs() {
           )}
 
           {/* Rows — newest is first in the array, render in order (newest at bottom of list) */}
+          <div ref={rowsRef}>
           {[...filtered].reverse().map((entry: Entry) => {
             const s = LEVEL_STYLES[entry.level] ?? LEVEL_STYLES.info;
             const ctx = contextFields(entry);
             const isExpanded = expanded.has(entry.id);
 
             return (
-              <div key={entry.id} className={`border-b border-[#1A1A1A] ${s.row}`}>
+              <div key={entry.id} data-log-row className={`border-b border-[#1A1A1A] ${s.row}`}>
                 <div
                   className="flex items-start gap-0 cursor-pointer hover:bg-white/[0.02] transition-colors"
                   onClick={() => ctx.length > 0 && toggleExpand(entry.id)}
@@ -251,6 +271,7 @@ export default function Logs() {
               </div>
             );
           })}
+          </div>
 
           <div ref={bottomRef} />
         </div>

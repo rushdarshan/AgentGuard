@@ -1,6 +1,10 @@
 import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 const SCORES = [
   { rank: 1, name: "Claude 3.5 Sonnet", score: 94, runs: 3, best: 97, trend: "up" as const, trendVal: "+4", vendor: "anthropic", subscores: { injection: 92, memory: 96, logic: 98 } },
@@ -17,6 +21,21 @@ const SCORES = [
 
 export default function Leaderboard() {
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  const rowsRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const rows = rowsRef.current?.querySelectorAll("[data-rank-row]");
+      if (rows && rows.length > 0) {
+        gsap.fromTo(rows,
+          { y: 12, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.35, stagger: 0.04, ease: "power2.out" }
+        );
+      }
+    });
+    return () => mm.revert();
+  }, { scope: rowsRef });
   
   const getVendorColor = (vendor: string) => {
     switch (vendor) {
@@ -48,7 +67,7 @@ export default function Leaderboard() {
         </div>
 
         <Card className="p-0 border-0 overflow-x-auto">
-          <div className="space-y-[1px] bg-[#2A2A2A]">
+          <div ref={rowsRef} className="space-y-[1px] bg-[#2A2A2A]">
             <div className="bg-[#0A0A0A] px-4 md:px-6 py-3 font-mono text-[10px] tracking-[0.1em] text-[#8A8A8A] grid grid-cols-12 gap-2 md:gap-4">
               <span className="col-span-1">#</span>
               <span className="col-span-4">AGENT</span>
@@ -58,7 +77,7 @@ export default function Leaderboard() {
               <span className="col-span-1 text-right">TREND</span>
             </div>
             {SCORES.map((agent) => (
-              <div key={agent.rank} className="border-b border-[#2A2A2A]/30 last:border-0">
+              <div key={agent.rank} data-rank-row className="border-b border-[#2A2A2A]/30 last:border-0">
                 <div 
                   className={`bg-[#121212] hover:bg-[#1A1A1A] transition-colors px-4 md:px-6 py-4 grid grid-cols-12 gap-2 md:gap-4 items-center cursor-pointer ${expandedRow === agent.rank ? 'bg-[#1A1A1A]' : ''}`}
                   onClick={() => setExpandedRow(expandedRow === agent.rank ? null : agent.rank)}

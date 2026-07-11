@@ -4,7 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Link, useLocation } from "wouter";
 import { Plus, Trash2, Pencil, Clock, Zap } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 function formatTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -45,6 +49,21 @@ export default function AgentsList() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [scheduled, setScheduled] = useState<Record<number, boolean>>({});
   const [, setLocation] = useLocation();
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const cards = listRef.current?.querySelectorAll("[data-agent-card]");
+      if (cards && cards.length > 0) {
+        gsap.fromTo(cards,
+          { y: 15, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: "power2.out" }
+        );
+      }
+    });
+    return () => mm.revert();
+  }, { scope: listRef, dependencies: [agents] });
 
   const lastRunByAgent = useMemo(() => {
     const map = new Map<number, { lastRunAt: Date | null; reliabilityScore: number | null }>();
@@ -64,7 +83,7 @@ export default function AgentsList() {
   useEffect(() => {
     if (deleteId === null) return;
     if (confirm("DELETE THIS AGENT?")) {
-      deleteAgent.mutateAsync({ agentId: deleteId }).catch(() => setError('Delete failed')).finally(() => setDeleteId(null));
+      deleteAgent.mutateAsync({ agentId: deleteId }).finally(() => setDeleteId(null));
     } else {
       setDeleteId(null);
     }
@@ -86,13 +105,13 @@ export default function AgentsList() {
         </div>
 
         {agents.length > 0 ? (
-          <div className="space-y-[1px] bg-[#2A2A2A]">
+          <div ref={listRef} className="space-y-[1px] bg-[#2A2A2A]">
             {agents.map((agent) => {
               const info = lastRunByAgent.get(agent.id);
               const hasRuns = info?.lastRunAt !== null && info?.lastRunAt !== undefined;
               const reliability = info?.reliabilityScore;
               return (
-                <Card key={agent.id} className="card-hover bg-[#111111] py-3.5 px-4 border-0 group">
+                <Card key={agent.id} data-agent-card className="card-hover bg-[#111111] py-3.5 px-4 border-0 group">
                   <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
                     <div className="flex-1 flex gap-4 items-center">
                       <div className="w-10 h-10 border border-[#2A2A2A] bg-[#0A0A0A] flex items-center justify-center">

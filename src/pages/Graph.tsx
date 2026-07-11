@@ -4,6 +4,10 @@ import DemoCascadeGraph, { CATEGORY_COLORS } from "@/components/DemoCascadeGraph
 import type { Node, Edge } from "@/components/DemoCascadeGraph";
 import { Upload, Loader2, FileText, File, Search } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 function hashColor(s: string): string {
   let hash = 0;
@@ -91,6 +95,21 @@ export default function Graph() {
   const [docQuery, setDocQuery] = useState("");
   const [submittedDocQuery, setSubmittedDocQuery] = useState<string | null>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const panels = sidebarRef.current?.querySelectorAll("[data-sidebar-panel]");
+      if (panels && panels.length > 0) {
+        gsap.fromTo(panels,
+          { x: -15, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.4, stagger: 0.08, ease: "power2.out" }
+        );
+      }
+    });
+    return () => mm.revert();
+  }, { scope: sidebarRef });
 
   const queryResult = trpc.queryGraph.useQuery(
     { question: submittedQuestion ?? "" },
@@ -177,9 +196,9 @@ export default function Graph() {
           <p className="mt-2 font-mono text-[11px] text-[#8A8A8A]">UPLOAD TEST RESULTS TO VISUALIZE ATTACK CASCADE GRAPHS</p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-12">
+        <div ref={sidebarRef} className="grid gap-6 lg:grid-cols-12">
           <div className="lg:col-span-3 space-y-4">
-            <div className="border border-[#2A2A2A] bg-[#121212] p-5 space-y-4">
+            <div data-sidebar-panel className="border border-[#2A2A2A] bg-[#121212] p-5 space-y-4">
               <p className="font-mono text-[11px] text-[#8A8A8A] tracking-[0.05em]">DATA SOURCE</p>
               <label
                 htmlFor="json-upload"
@@ -210,7 +229,7 @@ export default function Graph() {
               )}
             </div>
 
-            <div className="border border-[#2A2A2A] bg-[#121212] p-5 space-y-2">
+            <div data-sidebar-panel className="border border-[#2A2A2A] bg-[#121212] p-5 space-y-2">
               <p className="font-mono text-[11px] text-[#8A8A8A] tracking-[0.05em]">EXPECTED FORMAT</p>
               <pre className="font-mono text-[10px] text-[#3A3A3A] leading-relaxed whitespace-pre-wrap">
 {`[
@@ -233,7 +252,7 @@ export default function Graph() {
               </p>
             </div>
 
-            <div className="border border-[#2A2A2A] bg-[#121212] p-5 space-y-4">
+            <div data-sidebar-panel className="border border-[#2A2A2A] bg-[#121212] p-5 space-y-4">
               <p className="font-mono text-[11px] text-[#8A8A8A] tracking-[0.05em]">DOCUMENT UPLOAD</p>
               <label
                 htmlFor="doc-upload"
