@@ -21,3 +21,6 @@ plans/
 .agents/
 .opencode/.dirac-symbol-index/
 
+
+# Compound Engineering local config
+.compound-engineering/*.local.yaml

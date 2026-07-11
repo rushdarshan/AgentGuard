@@ -60,6 +60,22 @@ AgentGuard runs a complete adversarial test suite against your agent endpoint, v
 
 [![Deploy on Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 
+### What Judges Will See
+
+1. **10 attack categories run in parallel** — live adversarial testing against a real agent endpoint
+2. **Cascade graph animates** — force-directed visualization shows which failures trigger others, with Louvain community coloring
+3. **Voice test** — speak a Hinglish jailbreak, hear the Hindi verdict via Sarvam TTS
+4. **Graph Explorer** — upload a JSON test run, query cascade data with natural language
+5. **Proxy mode** — real-time traffic interception with swap-position double-judging
+6. **GitHub Action** — PR comment with readiness score + hardening YAML
+
+| Screenshot | Description |
+|-----------|-------------|
+| ![Dashboard](docs/assets/dashboard.png) | Dashboard with test runs, scores, and attack categories |
+| ![Cascade Graph](docs/assets/home-cascade.png) | Force-directed cascade graph with Louvain communities |
+| ![Voice Test](docs/assets/voice-test.png) | Hinglish voice test with Sarvam STT → LLM judge → TTS |
+| ![Graph Explorer](docs/assets/graph-explorer.png) | Natural language graph query interface |
+
 ---
 
 ## Table of Contents
@@ -73,10 +89,10 @@ AgentGuard runs a complete adversarial test suite against your agent endpoint, v
 - [Bias-Resistant Multi-Judge Consensus](#bias-resistant-multi-judge-consensus)
 - [Why Neo4j](#why-neo4j)
 - [Sarvam AI Integration](#sarvam-ai-integration)
+- [Render Integration](#render-integration)
 - [GitHub Action](#github-action)
 - [Architecture](#architecture)
 - [Comparison](#comparison)
-- [Sponsor Tracks Used](#sponsor-tracks-used)
 - [Development](#development)
 - [License](#license)
 
@@ -329,39 +345,50 @@ Supported categories: Prompt Injection, Jailbreak, Indirect Prompt Injection, Mu
 
 ## Architecture
 
-```
-┌──────────────────────────────────────────────────┐
-│                   CLI (tsx)                       │
-│  test │ proxy │ pre-push │ harden │ validate     │
-│  publish                                         │
-└──────┬───────────────────────────────┬──────────┘
-       │                               │
-       ▼                               ▼
-┌──────────────────┐       ┌─────────────────────────┐
-│  Core Library    │       │  Express + tRPC Server  │
-│  ┌────────────┐  │       │  port 4000               │
-│  │ Judge      │  │       │  ┌──────────┐            │
-│  │  · Multi-  │  │       │  │ Drizzle  │──→ MySQL  │
-│  │  provider  │  │       │  │ ORM      │            │
-│  │  · Swap-   │  │       │  └──────────┘            │
-│  │  position  │  │       │  ┌──────────┐            │
-│  │  · Cohen's │  │       │  │ Neo4j    │──→ AuraDB │
-│  │    κ       │  │       │  │ GDS      │  (opt.)   │
-│  ├────────────┤  │       │  └──────────┘            │
-│  │ LLM        │  │       │  ┌──────────┐            │
-│  │  · OpenRtr │  │       │  │ Vite SPA │──→ :3000  │
-│  │  · Groq    │  │       │  │ React    │            │
-│  │  · Gemini  │  │       │  └──────────┘            │
-│  │  · Sarvam  │  │       └─────────────────────────┘
-│  ├────────────┤  │
-│  │ PII        │  │
-│  │ Proxy      │  │
-│  │ Harden     │  │
-│  │ Validate   │  │
-│  │ Report     │  │
-│  │ Stats      │  │
-│  └────────────┘  │
-└──────────────────┘
+```mermaid
+flowchart TB
+    subgraph CLI["CLI (npx tsx)"]
+        test["test"]
+        proxy["proxy"]
+        prepush["pre-push"]
+        harden["harden"]
+        validate["validate"]
+        publish["publish"]
+    end
+
+    subgraph Core["Core Library (src/_core/)"]
+        judge["Judge<br/>swap-position + Cohen's κ"]
+        llm["LLM Provider<br/>OpenRouter · Groq · Gemini"]
+        sarvam["Sarvam AI<br/>sarvam-30b · STT · TTS"]
+        pii["PII Detection<br/>regex + entropy"]
+        neo4j["Neo4j GDS<br/>Louvain · PageRank"]
+        hardening["Harden<br/>guardrail rules"]
+        report["Report<br/>MD + HTML"]
+    end
+
+    subgraph Server["Express + tRPC (port 4000)"]
+        drizzle["Drizzle ORM → MySQL"]
+        trpc["tRPC routers"]
+    end
+
+    subgraph Frontend["Vite SPA (port 3000)"]
+        dashboard["Dashboard"]
+        cascade["Cascade Graph"]
+        voice["Voice Test"]
+        explorer["Graph Explorer"]
+    end
+
+    subgraph External["External Services"]
+        neo4jdb[("Neo4j AuraDB")]
+        render["Render<br/>deploy + cron"]
+    end
+
+    CLI --> Core
+    Core --> Server
+    Server --> Frontend
+    neo4j --> neo4jdb
+    sarvam -.->|"STT / TTS"| voice
+    publish -->|"Deploy Hook"| render
 ```
 
 ### Key Modules
@@ -423,15 +450,64 @@ reconcile it with Aura via `python scripts/create_aura_agent.py --push`.
 
 ---
 
-## Sponsor Tracks Used
+## Render Integration
 
-Detailed compliance docs for each track in [`docs/Tracks/`](docs/Tracks/).
+AgentGuard deploys on Render with zero-config cron scanning, deploy hooks, and in-memory fallback for demo mode.
 
-| Track | How AgentGuard Uses It |
-|---|---|
-| **Neo4j** | Failure cascade graphs with Louvain community detection, PageRank, lift ratios, cross-run graph delta, and Aura Agent (Cypher Template + Text2Cypher). GDS procedures with JS fallback. Agent-as-code via `agents/agentguard.json`. [`docs/Tracks/NEO4J_TRACK.md`](docs/Tracks/NEO4J_TRACK.md) |
-| **Sarvam AI** | Indic-language attack generation via `sarvam-30b` (Hindi/Hinglish code-mixed). Voice demo pipeline: Saaras STT + Bulbul TTS. Translation fallback. [`docs/Tracks/SARVAM_TRACK.md`](docs/Tracks/SARVAM_TRACK.md) |
-| **Render** | Deploy Hook API integration in `agentguard publish`. `render.yaml` with service definitions. Zero-setup demo mode — in-memory fallback works without MySQL. [`docs/Tracks/RENDER_TRACK.md`](docs/Tracks/RENDER_TRACK.md) |
+### Deploy Button
+
+[![Deploy on Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+
+### render.yaml Service Definitions
+
+```yaml
+services:
+  - type: web
+    name: agentguard
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: NEO4J_URI
+        sync: false
+      - key: SARVAM_API_KEY
+        sync: false
+  - type: cron
+    name: agentguard-nightly
+    env: node
+    schedule: "0 2 * * *"
+    startCommand: npx tsx src/cli/index.ts test --url $AGENT_URL
+```
+
+### Deploy Hook API
+
+```bash
+# Trigger a deploy via Render's Deploy Hook API
+curl -X POST "https://api.render.com/deploy?key=$RENDER_DEPLOY_KEY"
+```
+
+The `publish` command in the CLI integrates directly with Render's Deploy Hook — run `npx tsx src/cli/index.ts publish report.html` to deploy an HTML report.
+
+### Zero-Setup Demo Mode
+
+When MySQL is unavailable, AgentGuard falls back to in-memory storage. No database setup required for the demo — just `npm run demo` and the dashboard loads with pre-seeded test data.
+
+---
+
+## Built With
+
+| Layer | Technology |
+|-------|-----------|
+| Runtime | Node.js 20+, TypeScript 5.6 |
+| Server | Express, tRPC, Drizzle ORM |
+| Database | MySQL (production), in-memory (demo) |
+| Graph | Neo4j AuraDB, Graph Data Science (GDS) |
+| AI | OpenRouter, Groq, Gemini, Sarvam AI |
+| Frontend | React, Vite, Tailwind CSS |
+| Deploy | Render (web + cron), GitHub Actions |
+| CLI | tsx, commander |
 
 ---
 
