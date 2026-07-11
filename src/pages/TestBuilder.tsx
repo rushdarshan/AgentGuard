@@ -117,7 +117,7 @@ export default function TestBuilder() {
           <table className="w-full border-collapse font-mono text-[11px]">
             <thead>
               <tr className="text-left text-[#8A8A8A] text-[10px] tracking-[0.1em]">
-                <th className="p-3 font-normal border-b border-[#2A2A2A] w-10"><span className="sr-only">Select</span>[ ON ]</th>
+                <th className="p-3 font-normal border-b border-[#2A2A2A] w-10"><span className="sr-only">Select</span>ON</th>
                 <th className="p-3 font-normal border-b border-[#2A2A2A]">[ CATEGORY ]</th>
                 <th className="p-3 font-normal border-b border-[#2A2A2A] w-52">[ INTENSITY ]</th>
                 <th className="p-3 font-normal border-b border-[#2A2A2A] w-44">[ COUNT ]</th>

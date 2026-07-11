@@ -461,31 +461,191 @@ export default function TestRunDetail() {
           </div>
         </div>
 
+        {/* impeccable-variants-start 57e6cdc8 */}
+        <style data-impeccable-css="57e6cdc8">{`
+          @scope ([data-impeccable-variant="1"]) {
+            :scope > .il-v-sticky-graph {
+              position: sticky;
+              top: 60px;
+              z-index: 10;
+              margin-bottom: 16px;
+            }
+            :scope > .il-v-sticky-graph .il-v-graph-inner {
+              border: 1px solid #2A2A2A;
+              background: #121212;
+              padding: 16px;
+            }
+            :scope > .il-v-sticky-graph .il-v-graph-header {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 12px;
+            }
+            :scope > .il-v-sticky-graph .il-v-graph-title {
+              font-family: "JetBrains Mono", monospace;
+              font-size: 11px;
+              letter-spacing: 0.15em;
+              color: #8A8A8A;
+              text-transform: uppercase;
+            }
+            :scope > .il-v-sticky-graph .il-v-graph-btn {
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              border: 1px solid #2A2A2A;
+              padding: 4px 8px;
+              background: transparent;
+              color: #8A8A8A;
+              font-family: "JetBrains Mono", monospace;
+              font-size: 11px;
+              cursor: pointer;
+              transition: all 150ms;
+            }
+            :scope > .il-v-sticky-graph .il-v-graph-btn:hover {
+              color: #EAEAEA;
+              border-color: #E61919;
+            }
+          }
+          @scope ([data-impeccable-variant="2"]) {
+            :scope > .il-v-split {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+            }
+            @media (max-width: 768px) {
+              :scope > .il-v-split {
+                grid-template-columns: 1fr;
+              }
+            }
+            :scope > .il-v-split .il-v-split-left {
+              display: flex;
+              flex-direction: column;
+              gap: 16px;
+            }
+            :scope > .il-v-split .il-v-split-right {
+              border: 1px solid #2A2A2A;
+              background: #121212;
+              padding: 16px;
+              position: sticky;
+              top: 60px;
+              align-self: start;
+            }
+            :scope > .il-v-split .il-v-split-right .il-v-graph-title {
+              font-family: "JetBrains Mono", monospace;
+              font-size: 11px;
+              letter-spacing: 0.15em;
+              color: #8A8A8A;
+              text-transform: uppercase;
+              margin-bottom: 12px;
+            }
+          }
+          @scope ([data-impeccable-variant="3"]) {
+            :scope > .il-v-compact-cats .il-v-cat-row {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              padding: 8px 12px;
+              border: 1px solid #2A2A2A;
+              background: #121212;
+              margin-bottom: 1px;
+              cursor: pointer;
+              transition: background 150ms;
+            }
+            :scope > .il-v-compact-cats .il-v-cat-row:hover {
+              background: #1A1A1A;
+            }
+            :scope > .il-v-compact-cats .il-v-cat-name {
+              font-family: "JetBrains Mono", monospace;
+              font-size: 12px;
+              font-weight: 600;
+              color: #EAEAEA;
+              min-width: 160px;
+            }
+            :scope > .il-v-compact-cats .il-v-cat-stats {
+              font-family: "JetBrains Mono", monospace;
+              font-size: 11px;
+              color: #8A8A8A;
+              flex: 1;
+            }
+            :scope > .il-v-compact-cats .il-v-cat-pct {
+              font-family: "Inter", system-ui, sans-serif;
+              font-size: 16px;
+              font-weight: 800;
+              color: #EAEAEA;
+              min-width: 48px;
+              text-align: right;
+            }
+            :scope > .il-v-compact-cats .il-v-cat-badge {
+              font-family: "JetBrains Mono", monospace;
+              font-size: 9px;
+              letter-spacing: 0.1em;
+              padding: 2px 6px;
+              border: 1px solid #2A2A2A;
+              color: #8A8A8A;
+              text-transform: uppercase;
+            }
+          }
+        `}</style>
         {neoCascades && neoCascades.nodes.length > 0 && (
-          <div data-graph>
-            <p className="font-mono mb-4 text-sm tracking-[0.15em] text-[#8A8A8A]">[ CASCADE ANALYSIS ]</p>
-            <Card className="p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <p className="font-mono text-sm text-[#8A8A8A]">
-                  {neoCascades.edges.length} CASCADE RELATIONSHIP{neoCascades.edges.length !== 1 ? "S" : ""} DETECTED
-                </p>
-                <button
-                  onClick={() => setColorBy(c => c === "category" ? "community" : "category")}
-                  className="flex items-center gap-1 border border-[#2A2A2A] px-2 py-1 font-mono text-sm text-[#8A8A8A] hover:text-[#EAEAEA] hover:border-[#E61919]"
-                >
-                  <ColorWheelIcon className="h-3 w-3" />
-                  COLOR BY {colorBy === "category" ? "COMMUNITY" : "CATEGORY"}
-                </button>
+          <>
+            <div data-impeccable-variant="1">
+              <div className="il-v-sticky-graph">
+                <div className="il-v-graph-inner">
+                  <div className="il-v-graph-header">
+                    <span className="il-v-graph-title">CASCADE ANALYSIS</span>
+                    <button className="il-v-graph-btn" onClick={() => setColorBy(c => c === "category" ? "community" : "category")}>
+                      <ColorWheelIcon className="h-3 w-3" /> COLOR BY {colorBy === "category" ? "COMMUNITY" : "CATEGORY"}
+                    </button>
+                  </div>
+                  <CascadeGraph nodes={neoCascades.nodes} edges={neoCascades.edges} colorBy={colorBy} onNodeClick={(cat) => setSelectedCategory(cat)} />
+                </div>
               </div>
-              <CascadeGraph
-                nodes={neoCascades.nodes}
-                edges={neoCascades.edges}
-                colorBy={colorBy}
-                onNodeClick={(cat) => setSelectedCategory(cat)}
-              />
-            </Card>
-          </div>
+            </div>
+            <div data-impeccable-variant="2" style={{display: 'none'}}>
+              <div className="il-v-split">
+                <div className="il-v-split-left">
+                  {results.map((result) => {
+                    const total = result.passed + result.failed;
+                    return (
+                      <div key={result.id} className="il-v-cat-row" onClick={() => setSelectedCategory(result.category)}>
+                        <span className="il-v-cat-name">{result.category}</span>
+                        <span className="il-v-cat-stats">{result.passed}P {result.failed}F</span>
+                        <span className="il-v-cat-pct">{total > 0 ? Math.round((result.passed / total) * 100) : 0}%</span>
+                        <span className="il-v-cat-badge">{result.severity}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="il-v-split-right">
+                  <span className="il-v-graph-title">CASCADE ANALYSIS</span>
+                  <CascadeGraph nodes={neoCascades.nodes} edges={neoCascades.edges} colorBy={colorBy} onNodeClick={(cat) => setSelectedCategory(cat)} />
+                </div>
+              </div>
+            </div>
+            <div data-impeccable-variant="3" style={{display: 'none'}}>
+              <div className="il-v-compact-cats">
+                {results.map((result) => {
+                  const total = result.passed + result.failed;
+                  return (
+                    <div key={result.id} className="il-v-cat-row" onClick={() => setSelectedCategory(result.category)}>
+                      <span className="il-v-cat-name">{result.category}</span>
+                      <span className="il-v-cat-stats">{result.passed} PASSED &bull; {result.failed} FAILED</span>
+                      <span className="il-v-cat-pct">{total > 0 ? Math.round((result.passed / total) * 100) : 0}%</span>
+                      <span className="il-v-cat-badge">{result.severity.toUpperCase()}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4">
+                <p className="font-mono mb-4 text-sm tracking-[0.15em] text-[#8A8A8A]">[ CASCADE ANALYSIS ]</p>
+                <Card className="p-6">
+                  <CascadeGraph nodes={neoCascades.nodes} edges={neoCascades.edges} colorBy={colorBy} onNodeClick={(cat) => setSelectedCategory(cat)} />
+                </Card>
+              </div>
+            </div>
+          </>
         )}
+        {/* impeccable-variants-end 57e6cdc8 */}
 
         <Card data-meta className="p-6">
           <div className="grid gap-4 md:grid-cols-3">

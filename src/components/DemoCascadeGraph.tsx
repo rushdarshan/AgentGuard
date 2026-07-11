@@ -177,8 +177,8 @@ export default function DemoCascadeGraph({ data }: { data?: { nodes: Node[]; edg
   }, { scope: ref });
 
   return (
-    <div ref={ref} className="w-full flex justify-center">
-      <svg width={cw} height={ch} viewBox={`0 0 ${cw} ${ch}`} className="overflow-visible">
+    <div ref={ref} className="w-full">
+      <svg width="100%" height="100%" viewBox={`0 0 ${cw} ${ch}`} className="overflow-visible" preserveAspectRatio="xMidYMid meet">
         <defs>
           {edges.map((_, i) => (
             <marker key={i} id={`da-${i}`} viewBox="0 0 8 8" refX="8" refY="4" markerWidth="5" markerHeight="5" orient="auto">

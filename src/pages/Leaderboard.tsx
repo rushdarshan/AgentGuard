@@ -21,9 +21,11 @@ export default function Leaderboard() {
         <div>
           <p className="font-mono text-sm tracking-[0.15em] text-[#8A8A8A]">&lt; PUBLIC RANKINGS /&gt;</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">LEADERBOARD</h1>
-          <p className="mt-2 font-mono text-sm tracking-[0.08em] text-[#8A8A8A]">
-            ILLUSTRATIVE SCORES — SET UP BENCHMARK INTEGRATION FOR LIVE DATA
-          </p>
+          <div className="mt-4 inline-block bg-[#FFD700] px-3 py-1">
+            <p className="font-mono text-xs font-bold tracking-[0.1em] text-[#0A0A0A]">
+              ⚠ ILLUSTRATIVE SCORES — SET UP BENCHMARK INTEGRATION FOR LIVE DATA
+            </p>
+          </div>
         </div>
 
         <Card className="p-0 border-0 overflow-x-auto">
@@ -37,7 +39,7 @@ export default function Leaderboard() {
               <span className="col-span-1 text-right">TREND</span>
             </div>
             {SCORES.map((agent) => (
-              <div key={agent.rank} className={`bg-[#121212] px-4 md:px-6 py-4 grid grid-cols-12 gap-2 md:gap-4 items-center ${agent.rank <= 3 ? "border-l-2" : ""}`}
+              <div key={agent.rank} className={`bg-[#121212] hover:bg-[#1A1A1A] transition-colors px-4 md:px-6 py-4 grid grid-cols-12 gap-2 md:gap-4 items-center ${agent.rank <= 3 ? "border-l-2" : ""}`}
                 style={{ borderLeftColor: agent.rank === 1 ? "#FFD700" : agent.rank === 2 ? "#C0C0C0" : agent.rank === 3 ? "#CD7F32" : "transparent" }}>
                 <span className="col-span-1 font-mono text-sm md:text-base font-black" style={{
                   color: agent.rank === 1 ? "#FFD700" : agent.rank === 2 ? "#C0C0C0" : agent.rank === 3 ? "#CD7F32" : "#8A8A8A"
