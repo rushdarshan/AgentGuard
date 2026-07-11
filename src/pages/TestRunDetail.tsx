@@ -16,7 +16,7 @@ gsap.registerPlugin(useGSAP);
 // Inline PII span highlighting — renders response text with PII spans
 // highlighted at their exact byte positions, matching privacy-filter.cpp's
 // span-position accuracy requirement.
-function HighlightedResponse({ text, spans }: { text: string; spans?: PIISpan[] }) {
+function HighlightedResponse({ text = "", spans }: { text?: string; spans?: PIISpan[] }) {
   if (!spans || spans.length === 0) {
     return <span>{text}</span>;
   }
@@ -61,7 +61,7 @@ export default function TestRunDetail() {
   const [, setLocation] = useLocation();
   const [colorBy, setColorBy] = useState<"category" | "community">("category");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [redactedIds] = useState<Set<number>>(new Set());
+  const [redactedIds, setRedactedIds] = useState<number[]>([]);
   const [showExport, setShowExport] = useState(false);
   const testRunId = parseInt(params?.id || "0");
   const detailRef = useRef<HTMLDivElement>(null);
@@ -289,7 +289,7 @@ export default function TestRunDetail() {
                 <DownloadIcon className="h-4 w-4" />[ DOWNLOAD ]
               </Button>
               {showExport && (
-                <div className="absolute right-0 top-full z-50 mt-1 w-40 border border-[#2A2A2A] bg-[#121212] shadow-lg">
+                <div className="absolute right-0 top-full z-50 mt-1 w-40 border border-[#2A2A2A] bg-[#121212]">
                   {([["json-raw", "JSON (raw)", handleExportJson, jsonQuery.isFetching],
                     ["md-report", "Markdown", handleExportMarkdown, reportQuery.isFetching],
                     ["pdf-print", "PDF (print)", handleExportPdf, reportHtmlQuery.isFetching]] as const).map(([key, label, handler, loading]) => (
@@ -461,191 +461,19 @@ export default function TestRunDetail() {
           </div>
         </div>
 
-        {/* impeccable-variants-start 57e6cdc8 */}
-        <style data-impeccable-css="57e6cdc8">{`
-          @scope ([data-impeccable-variant="1"]) {
-            :scope > .il-v-sticky-graph {
-              position: sticky;
-              top: 60px;
-              z-index: 10;
-              margin-bottom: 16px;
-            }
-            :scope > .il-v-sticky-graph .il-v-graph-inner {
-              border: 1px solid #2A2A2A;
-              background: #121212;
-              padding: 16px;
-            }
-            :scope > .il-v-sticky-graph .il-v-graph-header {
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              margin-bottom: 12px;
-            }
-            :scope > .il-v-sticky-graph .il-v-graph-title {
-              font-family: "JetBrains Mono", monospace;
-              font-size: 11px;
-              letter-spacing: 0.15em;
-              color: #8A8A8A;
-              text-transform: uppercase;
-            }
-            :scope > .il-v-sticky-graph .il-v-graph-btn {
-              display: flex;
-              align-items: center;
-              gap: 4px;
-              border: 1px solid #2A2A2A;
-              padding: 4px 8px;
-              background: transparent;
-              color: #8A8A8A;
-              font-family: "JetBrains Mono", monospace;
-              font-size: 11px;
-              cursor: pointer;
-              transition: all 150ms;
-            }
-            :scope > .il-v-sticky-graph .il-v-graph-btn:hover {
-              color: #EAEAEA;
-              border-color: #E61919;
-            }
-          }
-          @scope ([data-impeccable-variant="2"]) {
-            :scope > .il-v-split {
-              display: grid;
-              grid-template-columns: 1fr 1fr;
-              gap: 16px;
-            }
-            @media (max-width: 768px) {
-              :scope > .il-v-split {
-                grid-template-columns: 1fr;
-              }
-            }
-            :scope > .il-v-split .il-v-split-left {
-              display: flex;
-              flex-direction: column;
-              gap: 16px;
-            }
-            :scope > .il-v-split .il-v-split-right {
-              border: 1px solid #2A2A2A;
-              background: #121212;
-              padding: 16px;
-              position: sticky;
-              top: 60px;
-              align-self: start;
-            }
-            :scope > .il-v-split .il-v-split-right .il-v-graph-title {
-              font-family: "JetBrains Mono", monospace;
-              font-size: 11px;
-              letter-spacing: 0.15em;
-              color: #8A8A8A;
-              text-transform: uppercase;
-              margin-bottom: 12px;
-            }
-          }
-          @scope ([data-impeccable-variant="3"]) {
-            :scope > .il-v-compact-cats .il-v-cat-row {
-              display: flex;
-              align-items: center;
-              gap: 12px;
-              padding: 8px 12px;
-              border: 1px solid #2A2A2A;
-              background: #121212;
-              margin-bottom: 1px;
-              cursor: pointer;
-              transition: background 150ms;
-            }
-            :scope > .il-v-compact-cats .il-v-cat-row:hover {
-              background: #1A1A1A;
-            }
-            :scope > .il-v-compact-cats .il-v-cat-name {
-              font-family: "JetBrains Mono", monospace;
-              font-size: 12px;
-              font-weight: 600;
-              color: #EAEAEA;
-              min-width: 160px;
-            }
-            :scope > .il-v-compact-cats .il-v-cat-stats {
-              font-family: "JetBrains Mono", monospace;
-              font-size: 11px;
-              color: #8A8A8A;
-              flex: 1;
-            }
-            :scope > .il-v-compact-cats .il-v-cat-pct {
-              font-family: "Inter", system-ui, sans-serif;
-              font-size: 16px;
-              font-weight: 800;
-              color: #EAEAEA;
-              min-width: 48px;
-              text-align: right;
-            }
-            :scope > .il-v-compact-cats .il-v-cat-badge {
-              font-family: "JetBrains Mono", monospace;
-              font-size: 9px;
-              letter-spacing: 0.1em;
-              padding: 2px 6px;
-              border: 1px solid #2A2A2A;
-              color: #8A8A8A;
-              text-transform: uppercase;
-            }
-          }
-        `}</style>
         {neoCascades && neoCascades.nodes.length > 0 && (
-          <>
-            <div data-impeccable-variant="1">
-              <div className="il-v-sticky-graph">
-                <div className="il-v-graph-inner">
-                  <div className="il-v-graph-header">
-                    <span className="il-v-graph-title">CASCADE ANALYSIS</span>
-                    <button className="il-v-graph-btn" onClick={() => setColorBy(c => c === "category" ? "community" : "category")}>
-                      <ColorWheelIcon className="h-3 w-3" /> COLOR BY {colorBy === "category" ? "COMMUNITY" : "CATEGORY"}
-                    </button>
-                  </div>
-                  <CascadeGraph nodes={neoCascades.nodes} edges={neoCascades.edges} colorBy={colorBy} onNodeClick={(cat) => setSelectedCategory(cat)} />
-                </div>
+          <div className="sticky top-[60px] z-10 mb-4">
+            <div className="border border-[#2A2A2A] bg-[#121212] p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-mono text-[11px] tracking-[0.15em] text-[#8A8A8A] uppercase">CASCADE ANALYSIS</span>
+                <button className="flex items-center gap-1 border border-[#2A2A2A] px-2 py-1 bg-transparent text-[#8A8A8A] font-mono text-[11px] cursor-pointer hover:text-[#EAEAEA] hover:border-[#E61919] transition-colors" onClick={() => setColorBy(c => c === "category" ? "community" : "category")}>
+                  <ColorWheelIcon className="h-3 w-3" /> COLOR BY {colorBy === "category" ? "COMMUNITY" : "CATEGORY"}
+                </button>
               </div>
+              <CascadeGraph nodes={neoCascades.nodes} edges={neoCascades.edges} colorBy={colorBy} onNodeClick={(cat) => setSelectedCategory(cat)} />
             </div>
-            <div data-impeccable-variant="2" style={{display: 'none'}}>
-              <div className="il-v-split">
-                <div className="il-v-split-left">
-                  {results.map((result) => {
-                    const total = result.passed + result.failed;
-                    return (
-                      <div key={result.id} className="il-v-cat-row" onClick={() => setSelectedCategory(result.category)}>
-                        <span className="il-v-cat-name">{result.category}</span>
-                        <span className="il-v-cat-stats">{result.passed}P {result.failed}F</span>
-                        <span className="il-v-cat-pct">{total > 0 ? Math.round((result.passed / total) * 100) : 0}%</span>
-                        <span className="il-v-cat-badge">{result.severity}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="il-v-split-right">
-                  <span className="il-v-graph-title">CASCADE ANALYSIS</span>
-                  <CascadeGraph nodes={neoCascades.nodes} edges={neoCascades.edges} colorBy={colorBy} onNodeClick={(cat) => setSelectedCategory(cat)} />
-                </div>
-              </div>
-            </div>
-            <div data-impeccable-variant="3" style={{display: 'none'}}>
-              <div className="il-v-compact-cats">
-                {results.map((result) => {
-                  const total = result.passed + result.failed;
-                  return (
-                    <div key={result.id} className="il-v-cat-row" onClick={() => setSelectedCategory(result.category)}>
-                      <span className="il-v-cat-name">{result.category}</span>
-                      <span className="il-v-cat-stats">{result.passed} PASSED &bull; {result.failed} FAILED</span>
-                      <span className="il-v-cat-pct">{total > 0 ? Math.round((result.passed / total) * 100) : 0}%</span>
-                      <span className="il-v-cat-badge">{result.severity.toUpperCase()}</span>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="mt-4">
-                <p className="font-mono mb-4 text-sm tracking-[0.15em] text-[#8A8A8A]">[ CASCADE ANALYSIS ]</p>
-                <Card className="p-6">
-                  <CascadeGraph nodes={neoCascades.nodes} edges={neoCascades.edges} colorBy={colorBy} onNodeClick={(cat) => setSelectedCategory(cat)} />
-                </Card>
-              </div>
-            </div>
-          </>
+          </div>
         )}
-        {/* impeccable-variants-end 57e6cdc8 */}
 
         <Card data-meta className="p-6">
           <div className="grid gap-4 md:grid-cols-3">
@@ -801,7 +629,7 @@ export default function TestRunDetail() {
           const catCI = catTotal > 0 ? wilsonCI(activeResult.passed, catTotal) : null;
 
           return (
-            <div className="fixed inset-0 z-50 flex justify-end bg-black/80 backdrop-blur-sm transition-all duration-300">
+            <div className="fixed inset-0 z-50 flex justify-end bg-black/80 transition-all duration-300">
               <div className="absolute inset-0" onClick={() => setSelectedCategory(null)} />
               
               <div ref={drawerRef} className="relative w-full max-w-2xl bg-[#121212] border-l border-[#2A2A2A] h-full flex flex-col shadow-none p-6 md:p-8 will-change-transform">
@@ -894,10 +722,10 @@ export default function TestRunDetail() {
                                     {tc.pii.length} PII SPAN{tc.pii.length !== 1 ? "S" : ""}
                                   </span>
                                   <button
-                                    onClick={() => redactedIds.has(idx) ? redactedIds.delete(idx) : redactedIds.add(idx)}
+                                    onClick={() => setRedactedIds(prev => prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx])}
                                     className="font-mono text-sm text-[#8A8A8A] border border-[#2A2A2A] hover:border-[#EAEAEA] px-1.5 py-0.5 bg-transparent"
                                   >
-                                    {redactedIds.has(idx) ? "SHOW" : "REDACT"}
+                                    {redactedIds.includes(idx) ? "SHOW" : "REDACT"}
                                   </button>
                                 </>
                               )}
@@ -926,8 +754,8 @@ export default function TestRunDetail() {
                                 )}
                               </span>
                               <p className="text-[#EAEAEA] bg-[#121212]/50 p-2.5 border border-[#2A2A2A]/30 whitespace-pre-wrap leading-relaxed">
-                                {redactedIds.has(idx) && tc.pii?.length
-                                  ? redactPII(tc.response, tc.pii)
+                                {redactedIds.includes(idx) && tc.pii?.length
+                                  ? redactPII(tc.response || "", tc.pii)
                                   : <HighlightedResponse text={tc.response} spans={tc.pii} />
                                 }
                               </p>
@@ -974,14 +802,14 @@ export default function TestRunDetail() {
                                   <div className="flex gap-4">
                                     <div>
                                       <span className="text-[#8E8E8E] text-sm block">TOKENS USED</span>
-                                      <span className="text-[#EAEAEA] text-sm">{tc.tokens.used}</span>
+                                      <span className="text-[#EAEAEA] text-sm">{tc.tokens.used || 0}</span>
                                     </div>
                                     <div>
                                       <span className="text-[#8E8E8E] text-sm block">TOKENS WASTED</span>
-                                      <span className={`text-sm ${tc.tokens.wasted > 200 ? 'text-[#E61919] font-bold' : 'text-[#4AF626]'}`}>{tc.tokens.wasted}</span>
+                                      <span className={`text-sm ${(tc.tokens.wasted || 0) > 200 ? 'text-[#E61919] font-bold' : 'text-[#4AF626]'}`}>{tc.tokens.wasted || 0}</span>
                                     </div>
                                   </div>
-                                  {tc.tokens.wasted > 200 && (
+                                  {(tc.tokens.wasted || 0) > 200 && (
                                     <span className="text-[#E61919] text-sm border border-[#E61919]/30 bg-[#E61919]/5 px-1.5 py-0.5">
                                       VERBOSE COMPLIANCE DETECTED
                                     </span>
@@ -1013,9 +841,9 @@ export default function TestRunDetail() {
                         {validation.map((v, vi) => (
                           <div key={vi} className="flex items-start justify-between gap-3 border-b border-[#2A2A2A]/30 pb-2 last:border-0 last:pb-0">
                             <div className="flex-1 min-w-0">
-                              <p className="text-[#EAEAEA] truncate">{v.originalPrompt}</p>
+                              <p className="text-[#EAEAEA] truncate">{v.originalPrompt || ""}</p>
                               <p className="text-[#8A8A8A] mt-1 text-sm">
-                                Re-run: "{v.rephrasedPrompt.slice(0, 60)}..."
+                                Re-run: "{(v.rephrasedPrompt || "").slice(0, 60)}..."
                               </p>
                             </div>
                             <span className={`shrink-0 font-mono text-sm font-bold px-1.5 py-0.5 ${
@@ -1025,7 +853,7 @@ export default function TestRunDetail() {
                                   ? "text-[#FFA500] border border-[#FFA500]/30 bg-[#FFA500]/5"
                                   : "text-[#8A8A8A] border border-[#6B6B6B]/30"
                             }`}>
-                              {v.status === "confirmed" ? "CONFIRMED" : v.status === "flaky" ? "FLAKY" : v.status.toUpperCase()}
+                              {v.status === "confirmed" ? "CONFIRMED" : v.status === "flaky" ? "FLAKY" : (v.status || "UNKNOWN").toUpperCase()}
                             </span>
                           </div>
                         ))}

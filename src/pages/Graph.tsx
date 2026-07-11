@@ -94,14 +94,14 @@ export default function Graph() {
 
   const queryResult = trpc.queryGraph.useQuery(
     { question: submittedQuestion ?? "" },
-    { enabled: !!submittedQuestion }
+    { enabled: !!submittedQuestion, retry: false }
   );
 
   const uploadDoc = trpc.uploadDocument.useMutation();
   const docsQuery = trpc.listDocuments.useQuery();
   const docQueryResult = trpc.queryDocument.useQuery(
     { docId: selectedDocId ?? "", query: submittedDocQuery ?? "" },
-    { enabled: !!selectedDocId && !!submittedDocQuery }
+    { enabled: !!selectedDocId && !!submittedDocQuery, retry: false }
   );
   const docGraphResult = trpc.getDocumentGraph.useQuery(
     { docId: selectedDocId ?? "" },
@@ -330,10 +330,10 @@ export default function Graph() {
             />
             <button
               type="submit"
-              disabled={!question.trim() || queryResult.isLoading}
+              disabled={!question.trim() || queryResult.isFetching}
               className="border border-[#2A2A2A] bg-[#0A0A0A] px-5 font-mono text-[11px] tracking-[0.1em] text-[#EAEAEA] hover:border-[#E61919] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              {queryResult.isLoading ? (
+              {queryResult.isFetching ? (
                 <span className="flex items-center gap-2">
                   <ReloadIcon className="h-3 w-3 animate-spin" />
                   QUERYING
@@ -347,7 +347,7 @@ export default function Graph() {
             </button>
           </form>
 
-          {queryResult.isLoading && (
+          {queryResult.isFetching && (
             <div className="border border-[#2A2A2A] bg-[#0A0A0A] p-4">
               <p className="font-mono text-[11px] text-[#4AF626] animate-pulse">QUERYING THE GRAPH...</p>
             </div>
@@ -356,14 +356,12 @@ export default function Graph() {
           {queryResult.error && (
             <div className="border border-[#E61919]/20 bg-[#0A0A0A] p-4">
               <p className="font-mono text-[11px] text-[#E61919]">
-                ERROR: {queryResult.error.message.includes("AuraNotConfiguredError")
-                  ? "Graph querying requires AuraDB — configure in Settings"
-                  : queryResult.error.message}
+                ERROR: {queryResult.error.message}
               </p>
             </div>
           )}
 
-          {queryResult.data && !queryResult.isLoading && (
+          {queryResult.data && !queryResult.isFetching && (
             <div className="border border-[#2A2A2A] bg-[#0A0A0A] p-4">
               <p className="font-mono text-[10px] text-[#8A8A8A] tracking-[0.05em] mb-2">[ RESPONSE ]</p>
               <pre className="font-mono text-[12px] text-[#EAEAEA] leading-relaxed whitespace-pre-wrap">
@@ -393,10 +391,10 @@ export default function Graph() {
               />
               <button
                 type="submit"
-                disabled={!docQuery.trim() || docQueryResult.isLoading}
+                disabled={!docQuery.trim() || docQueryResult.isFetching}
                 className="border border-[#2A2A2A] bg-[#0A0A0A] px-5 font-mono text-[11px] tracking-[0.1em] text-[#EAEAEA] hover:border-[#E61919] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
-                {docQueryResult.isLoading ? (
+                {docQueryResult.isFetching ? (
                   <span className="flex items-center gap-2">
                     <ReloadIcon className="h-3 w-3 animate-spin" />
                     SEARCHING
@@ -410,7 +408,7 @@ export default function Graph() {
               </button>
             </form>
 
-            {docQueryResult.isLoading && (
+            {docQueryResult.isFetching && (
               <div className="border border-[#2A2A2A] bg-[#0A0A0A] p-4">
                 <p className="font-mono text-[11px] text-[#4AF626] animate-pulse">SEARCHING DOCUMENT...</p>
               </div>
@@ -422,7 +420,7 @@ export default function Graph() {
               </div>
             )}
 
-            {docQueryResult.data && !docQueryResult.isLoading && (
+            {docQueryResult.data && !docQueryResult.isFetching && (
               <div className="space-y-3">
                 {(docQueryResult.data as any).message ? (
                   <div className="border border-[#2A2A2A] bg-[#0A0A0A] p-4">

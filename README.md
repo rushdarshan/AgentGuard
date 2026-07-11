@@ -30,10 +30,10 @@ https://github.com/user-attachments/assets/6181bed7-a4e5-41ad-a24c-c1f635eb1ecf
 **Try it in 10 seconds:**
 
 ```bash
-npx tsx src/cli/index.ts test --url https://agentguard.onrender.com/api/demo-agent
+npx tsx src/cli/index.ts test --url https://agentguard-j5ny.onrender.com/api/demo-agent
 ```
 
-Or launch the [live demo](https://agentguard.onrender.com) and click "LAUNCH DEMO".
+Or launch the [live demo](https://agentguard-j5ny.onrender.com) and click "LAUNCH DEMO".
 
 ```
 npx tsx src/cli/index.ts test --url https://my-agent.com
@@ -71,10 +71,10 @@ AgentGuard runs a complete adversarial test suite against your agent endpoint, v
 
 | Screenshot | Description |
 |-----------|-------------|
-| ![Dashboard](docs/assets/dashboard.png) | Dashboard with test runs, scores, and attack categories |
-| ![Cascade Graph](docs/assets/home-cascade.png) | Force-directed cascade graph with Louvain communities |
-| ![Voice Test](docs/assets/voice-test.png) | Hinglish voice test with Sarvam STT → LLM judge → TTS |
-| ![Graph Explorer](docs/assets/graph-explorer.png) | Natural language graph query interface |
+| ![Dashboard](docs/assets/dashboard.png) | Security posture, agent health, recent runs with scores |
+| ![Cascade Graph](docs/assets/home-cascade.png) | Attack categories with force-directed cascade visualization |
+| ![Voice Test](docs/assets/voice-test.png) | Voice Attack pipeline — speak a multilingual attack, get a verdict |
+| ![Graph Explorer](docs/assets/graph-explorer.png) | Upload JSON test runs, visualize cascade graphs |
 
 ---
 
@@ -371,7 +371,7 @@ flowchart TB
         trpc["tRPC routers"]
     end
 
-    subgraph Frontend["Vite SPA (port 3000)"]
+    subgraph Frontend["Vite SPA (port 3001)"]
         dashboard["Dashboard"]
         cascade["Cascade Graph"]
         voice["Voice Test"]
@@ -518,7 +518,7 @@ git clone https://github.com/rushdarshan/AgentGuard.git
 cd AgentGuard
 cp .env.example .env     # configure API keys
 npm install
-npm run dev              # server (:4000) + client (:3000)
+npm run dev              # server (:4000) + client (:3001)
 ```
 
 ### Prerequisites

@@ -60,7 +60,7 @@ POSTs report as base64 tarball to Render Deploy Hook
         ↓
 Render deploys the updated report
         ↓
-Report available at: https://agentguard.onrender.com/reports/{id}
+Report available at: https://agentguard-j5ny.onrender.com/reports/{id}
 ```
 
 When `RENDER_DEPLOY_HOOK_URL` is not set, `agentguard publish` prints manual deployment instructions instead.
