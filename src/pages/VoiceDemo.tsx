@@ -61,27 +61,30 @@ export default function VoiceDemo() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pipelineRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const stages = pipelineRef.current?.querySelectorAll("[data-pipeline-stage]");
-      if (stages && stages.length > 0) {
-        gsap.fromTo(stages,
-          { x: -40, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power3.out" }
-        );
-      }
-      const cards = resultsRef.current?.querySelectorAll("[data-result-card]");
-      if (cards && cards.length > 0) {
-        gsap.fromTo(cards,
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.6, stagger: 0.12, ease: "power3.out" }
-        );
-      }
-    });
-    return () => mm.revert();
-  }, { scope: resultsRef });
+    const stages = pipelineRef.current?.querySelectorAll("[data-pipeline-stage]");
+    if (stages && stages.length > 0) {
+      gsap.from(stages, {
+        x: -40,
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: "power3.out",
+      });
+    }
+    const cards = resultsRef.current?.querySelectorAll("[data-result-card]");
+    if (cards && cards.length > 0) {
+      gsap.from(cards, {
+        y: 40,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.12,
+        ease: "power3.out",
+      });
+    }
+  }, { scope: containerRef });
 
   const selectedAgent = agents.find(a => a.id === agentId);
   const idx = STAGE_IDX[stage] ?? -1;
@@ -194,7 +197,7 @@ export default function VoiceDemo() {
           animation: wf 0.6s ease-in-out infinite;
         }
       `}</style>
-      <div className="space-y-6">
+      <div ref={containerRef} className="space-y-6">
         <div>
           <p className="font-mono text-sm tracking-[0.15em] text-[#808080]">&lt; VOICE DEMO /&gt;</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase tracking-[-0.04em]">VOICE ATTACK</h1>

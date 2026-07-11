@@ -52,17 +52,16 @@ export default function AgentsList() {
   const listRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const cards = listRef.current?.querySelectorAll("[data-agent-card]");
-      if (cards && cards.length > 0) {
-        gsap.fromTo(cards,
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power3.out" }
-        );
-      }
-    });
-    return () => mm.revert();
+    const cards = listRef.current?.querySelectorAll("[data-agent-card]");
+    if (cards && cards.length > 0) {
+      gsap.from(cards, {
+        y: 40,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "power3.out",
+      });
+    }
   }, { scope: listRef, dependencies: [agents] });
 
   const lastRunByAgent = useMemo(() => {

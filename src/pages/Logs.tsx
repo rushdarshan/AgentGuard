@@ -52,18 +52,17 @@ export default function Logs() {
     : logs;
 
   useGSAP(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const rows = rowsRef.current?.querySelectorAll("[data-log-row]");
-      if (rows && rows.length > 0) {
-        gsap.fromTo(rows,
-          { x: -30, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.5, stagger: 0.04, ease: "power3.out" }
-        );
-      }
-    });
-    return () => mm.revert();
-  }, { scope: rowsRef, dependencies: [filtered.length] });
+    const rows = rowsRef.current?.querySelectorAll("[data-log-row]");
+    if (rows && rows.length > 0) {
+      gsap.from(rows, {
+        x: -30,
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.04,
+        ease: "power3.out",
+      });
+    }
+  }, { scope: rowsRef, dependencies: [logs] });
 
   useEffect(() => {
     if (autoScroll && !paused && bottomRef.current) {

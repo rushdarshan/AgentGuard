@@ -24,18 +24,17 @@ export default function Leaderboard() {
   const rowsRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const rows = rowsRef.current?.querySelectorAll("[data-rank-row]");
-      if (rows && rows.length > 0) {
-        gsap.fromTo(rows,
-          { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, stagger: 0.08, ease: "power3.out" }
-        );
-      }
-    });
-    return () => mm.revert();
-  }, { scope: rowsRef });
+    const rows = rowsRef.current?.querySelectorAll("[data-rank-row]");
+    if (rows && rows.length > 0) {
+      gsap.from(rows, {
+        y: 30,
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.08,
+        ease: "power3.out",
+      });
+    }
+  }, { scope: rowsRef, dependencies: [rankings] });
   
   const getVendorColor = (vendor: string) => {
     switch (vendor) {

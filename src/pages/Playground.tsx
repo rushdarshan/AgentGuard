@@ -59,17 +59,16 @@ export default function Playground() {
   const gridRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const panels = gridRef.current?.children;
-      if (panels && panels.length > 0) {
-        gsap.fromTo(panels,
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.6, stagger: 0.15, ease: "power3.out" }
-        );
-      }
-    });
-    return () => mm.revert();
+    const panels = gridRef.current?.children;
+    if (panels && panels.length > 0) {
+      gsap.from(panels, {
+        y: 40,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.15,
+        ease: "power3.out",
+      });
+    }
   }, { scope: gridRef });
 
   const { data: agents = [], isLoading: isLoadingAgents } = trpc.agents.list.useQuery();

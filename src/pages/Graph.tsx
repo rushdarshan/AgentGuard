@@ -98,18 +98,17 @@ export default function Graph() {
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const panels = sidebarRef.current?.querySelectorAll("[data-sidebar-panel]");
-      if (panels && panels.length > 0) {
-        gsap.fromTo(panels,
-          { x: -40, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.5, stagger: 0.12, ease: "power3.out" }
-        );
-      }
-    });
-    return () => mm.revert();
-  }, { scope: sidebarRef });
+    const panels = sidebarRef.current?.querySelectorAll("[data-sidebar-panel]");
+    if (panels && panels.length > 0) {
+      gsap.from(panels, {
+        x: -40,
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.12,
+        ease: "power3.out",
+      });
+    }
+  }, { scope: sidebarRef, dependencies: [results] });
 
   const queryResult = trpc.queryGraph.useQuery(
     { question: submittedQuestion ?? "" },
