@@ -34,41 +34,44 @@ export default function Dashboard() {
   const runsRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const statCards = statsRef.current?.children;
-      if (statCards) {
-        gsap.fromTo(statCards,
-          { y: 20, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power2.out" }
-        );
+    const statCards = statsRef.current?.children;
+    if (statCards) {
+      gsap.from(statCards, {
+        y: 20,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "power2.out",
+      });
 
-        const numbers = statsRef.current?.querySelectorAll("[data-target]");
-        numbers?.forEach((el) => {
-          const target = parseInt(el.getAttribute("data-target") || "0");
-          const suffix = el.getAttribute("data-suffix") || "";
-          const proxy = { val: 0 };
-          gsap.to(proxy, {
-            val: target,
-            duration: 1.5,
-            ease: "power2.out",
-            snap: { val: 1 },
-            onUpdate: () => {
-              el.textContent = Math.round(proxy.val) + suffix;
-            },
-          });
+      const numbers = statsRef.current?.querySelectorAll("[data-target]");
+      numbers?.forEach((el) => {
+        const target = parseInt(el.getAttribute("data-target") || "0");
+        const suffix = el.getAttribute("data-suffix") || "";
+        const proxy = { val: 0 };
+        gsap.to(proxy, {
+          val: target,
+          duration: 1.5,
+          ease: "power2.out",
+          snap: { val: 1 },
+          onUpdate: () => {
+            el.textContent = Math.round(proxy.val) + suffix;
+          },
         });
-      }
+      });
+    }
 
-      const runCards = runsRef.current?.children;
-      if (runCards) {
-        gsap.fromTo(runCards,
-          { x: -20, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.5, stagger: 0.08, ease: "power2.out", delay: 0.3 }
-        );
-      }
-    });
-    return () => mm.revert();
+    const runCards = runsRef.current?.children;
+    if (runCards) {
+      gsap.from(runCards, {
+        x: -20,
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.08,
+        ease: "power2.out",
+        delay: 0.3,
+      });
+    }
   }, { scope: containerRef, dependencies: [agentsLoading, runsLoading] });
 
   return (

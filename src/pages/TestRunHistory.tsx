@@ -91,44 +91,32 @@ export default function TestRunHistory() {
   const logsRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      if (comparison && compareRef.current) {
-        gsap.fromTo(compareRef.current,
-          { y: -20, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }
-        );
-      }
-    });
-    return () => mm.revert();
+    if (comparison && compareRef.current) {
+      gsap.fromTo(compareRef.current,
+        { y: -20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }
+      );
+    }
   }, { dependencies: [comparison], scope: containerRef });
 
   useGSAP(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const runCards = runsRef.current?.children;
-      if (runCards && runCards.length > 0) {
-        gsap.fromTo(runCards,
-          { y: 15, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: "power2.out" }
-        );
-      }
-    });
-    return () => mm.revert();
+    const runCards = runsRef.current?.children;
+    if (runCards && runCards.length > 0) {
+      gsap.fromTo(runCards,
+        { y: 15, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: "power2.out" }
+      );
+    }
   }, { dependencies: [sortedRuns], scope: containerRef });
 
   useGSAP(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const logRows = logsRef.current?.querySelectorAll("[data-log-row]");
-      if (logRows && logRows.length > 0) {
-        gsap.fromTo(logRows,
-          { x: -12, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.3, stagger: 0.03, ease: "power2.out" }
-        );
-      }
-    });
-    return () => mm.revert();
+    const logRows = logsRef.current?.querySelectorAll("[data-log-row]");
+    if (logRows && logRows.length > 0) {
+      gsap.fromTo(logRows,
+        { x: -12, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.3, stagger: 0.03, ease: "power2.out" }
+      );
+    }
   }, { dependencies: [sortedLogs], scope: containerRef });
 
   return (

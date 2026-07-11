@@ -27,47 +27,43 @@ export default function Home() {
   const featuresRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      // 1. Hero text slide reveal
-      const spans = heroTextRef.current?.children;
-      if (spans) {
-        Array.from(spans).forEach((span: Element, index: number) => {
-          gsap.fromTo(span,
-            { clipPath: "inset(0 100% 0 0)" },
-            {
-              clipPath: "inset(0 0% 0 0)",
-              duration: 1.0,
-              delay: index * 0.25,
-              ease: "power3.out",
-            }
-          );
-        });
-      }
+    // 1. Hero text slide reveal
+    const spans = heroTextRef.current?.children;
+    if (spans) {
+      Array.from(spans).forEach((span: Element, index: number) => {
+        gsap.fromTo(span,
+          { clipPath: "inset(0 100% 0 0)" },
+          {
+            clipPath: "inset(0 0% 0 0)",
+            duration: 1.0,
+            delay: index * 0.25,
+            ease: "power3.out",
+          }
+        );
+      });
+    }
 
-      // 2. Number counters (proxy pattern — no innerHTML thrash)
-      const numberElements = numbersRef.current?.querySelectorAll("[data-number]");
-      if (numberElements) {
-        numberElements.forEach((el) => {
-          const target = parseInt(el.getAttribute("data-number") || "0");
-          const proxy = { val: 0 };
-          gsap.to(proxy, {
-            val: target,
+    // 2. Number counters
+    const numberElements = numbersRef.current?.querySelectorAll("[data-number]");
+    if (numberElements) {
+      numberElements.forEach((el) => {
+        const target = parseInt(el.getAttribute("data-number") || "0");
+        gsap.fromTo(el,
+          { innerHTML: 0 },
+          {
+            innerHTML: target,
             duration: 2,
             ease: "power2.out",
-            snap: { val: 1 },
-            onUpdate: () => {
-              el.textContent = String(proxy.val);
-            },
+            snap: { innerHTML: 1 },
             scrollTrigger: {
               trigger: numbersRef.current,
               start: "top 80%",
-            },
-          });
-        });
-      }
-    });
-    return () => mm.revert();
+            }
+          }
+        );
+      });
+    }
+
   }, { scope: containerRef });
 
   const handleLaunchDemo = async () => {
@@ -115,9 +111,9 @@ export default function Home() {
             </p>
 
             <h1 ref={heroTextRef} className="macro-text flex flex-col overflow-hidden">
-              <span data-text="CI FOR">CI FOR</span>
-              <span data-text="YOUR AI">YOUR AI</span>
-              <span data-text="AGENTS">AGENTS</span>
+              <span className="will-change-transform" data-text="CI FOR">CI FOR</span>
+              <span className="will-change-transform" data-text="YOUR AI">YOUR AI</span>
+              <span className="will-change-transform" data-text="AGENTS">AGENTS</span>
             </h1>
 
             <p className="mx-auto mt-8 max-w-2xl font-mono text-base text-[#8A8A8A]">
