@@ -4,12 +4,11 @@
 
 ### Added
 
-- Per-language pass-rate chart on run detail page (Sarvam track win)
-- Schedule/cron toggle on agent cards (Render Workflows track win)
-- OG meta tags, favicon, GitHub/Devpost footer links
-- Per-language analysis with Sarvam language identification
-- Wiki grounding + reasoning effort for sarvam-30b judge evaluations
-- Streaming chat option for Sarvam API
+- Institutional learning docs (docs/solutions/) — 3 learnings captured from investigation sessions
+- Mermaid flowchart architecture diagram in README
+- Pitch Narrative with timing annotations and visual cues for live demo
+- 4 annotated demo screenshots (dashboard, home cascade, voice test, graph explorer)
+- README sections: Render Integration, Built With, What Judges Will See
 
 ### Fixed
 
@@ -18,6 +17,8 @@
 - Demo sample size bumped to 15+ tests per category (removes Low Confidence warnings)
 - Seed agent URLs now relative (works on Render deploy)
 - Memory Poisoning now consistently listed in all category references
+- CRT scanline overlay and SVG noise texture removed from index.css
+- Newsreader font replaced with Inter throughout
 
 ## [0.1.0] - 2026-06-20
 
