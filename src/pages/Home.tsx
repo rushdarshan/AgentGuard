@@ -6,7 +6,7 @@ import { Link, useLocation } from "wouter";
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { LightningBoltIcon, ReloadIcon, EyeOpenIcon, LockClosedIcon, CheckCircledIcon } from "@radix-ui/react-icons";
+import { Zap, Loader2 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -179,9 +179,9 @@ export default function Home() {
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button size="lg" className="gap-2" onClick={handleLaunchDemo} disabled={demoLoading}>
                 {demoLoading ? (
-                  <>&gt; LAUNCHING... <ReloadIcon className="h-5 w-5 animate-spin" /></>
+                  <>&gt; LAUNCHING... <Loader2 className="h-5 w-5 animate-spin" /></>
                 ) : (
-                  <>&gt; LAUNCH DEMO <LightningBoltIcon className="h-5 w-5" /></>
+                  <>&gt; LAUNCH DEMO <Zap className="h-5 w-5" /></>
                 )}
               </Button>
               {isAuthenticated ? (

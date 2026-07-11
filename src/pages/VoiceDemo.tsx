@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useAudioRecorder } from "@/_core/useAudioRecorder";
-import { ReloadIcon } from "@radix-ui/react-icons";
+import { Loader2 } from "lucide-react";
 
 type DemoStage = "idle" | "recording" | "transcribing" | "testing" | "judging" | "done" | "error";
 
@@ -215,7 +215,7 @@ export default function VoiceDemo() {
             </button>
           ) : (
             <div className="w-24 h-24 border-2 border-[#2A2A2A] bg-[#111111] flex items-center justify-center">
-              <ReloadIcon className="h-8 w-8 text-[#808080] animate-spin" />
+              <Loader2 className="h-8 w-8 text-[#808080] animate-spin" />
             </div>
           )}
 

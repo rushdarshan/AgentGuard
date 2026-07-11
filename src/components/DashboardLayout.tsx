@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { DashboardIcon, GlobeIcon, ClockIcon, ExitIcon, LightningBoltIcon, MixIcon, StarFilledIcon, SpeakerLoudIcon, SunIcon, MoonIcon, HamburgerMenuIcon, Cross1Icon, ReaderIcon } from "@radix-ui/react-icons";
+import { ChartBar, Users, Clock, Star, Volume2, Terminal, Network, FileText, LogOut, Sun, Moon, Menu, X } from "lucide-react";
 import { useTheme } from "@/_core/ThemeProvider";
 
 interface Props {
@@ -8,14 +8,14 @@ interface Props {
 }
 
 const navItems = [
-  { href: "/dashboard", label: "DASHBOARD", icon: DashboardIcon },
-  { href: "/agents", label: "AGENTS", icon: GlobeIcon },
-  { href: "/runs", label: "HISTORY", icon: ClockIcon },
-  { href: "/leaderboard", label: "RANKINGS", icon: StarFilledIcon },
-  { href: "/voice-demo", label: "VOICE", icon: SpeakerLoudIcon },
-  { href: "/playground", label: "PLAYGROUND", icon: MixIcon },
-  { href: "/graph", label: "GRAPH", icon: MixIcon },
-  { href: "/logs", label: "LOGS", icon: ReaderIcon },
+  { href: "/dashboard", label: "DASHBOARD", icon: ChartBar },
+  { href: "/agents", label: "AGENTS", icon: Users },
+  { href: "/runs", label: "HISTORY", icon: Clock },
+  { href: "/leaderboard", label: "RANKINGS", icon: Star },
+  { href: "/voice-demo", label: "VOICE", icon: Volume2 },
+  { href: "/playground", label: "PLAYGROUND", icon: Terminal },
+  { href: "/graph", label: "GRAPH", icon: Network },
+  { href: "/logs", label: "LOGS", icon: FileText },
 ];
 
 export default function DashboardLayout({ children }: Props) {
@@ -54,11 +54,11 @@ export default function DashboardLayout({ children }: Props) {
 
           <div className="flex items-center h-full shrink-0">
             <button onClick={toggle} className="flex flex-col items-center justify-center w-12 h-14 border-l border-r border-[#2A2A2A] font-mono text-[9px] tracking-[0.1em] text-[#8A8A8A] hover:bg-[#121212] hover:text-[#EAEAEA] transition-colors" title="Toggle theme">
-              {theme === "light" ? <MoonIcon className="h-3.5 w-3.5" /> : <SunIcon className="h-3.5 w-3.5" />}
+              {theme === "light" ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
             </button>
             <Link href="/" className="hidden md:inline h-full">
               <button className="flex flex-col items-center justify-center gap-1 w-[100px] h-14 font-mono text-[10px] tracking-[0.08em] text-[#8A8A8A] hover:bg-[#121212] hover:text-[#E61919] transition-colors border-r border-[#2A2A2A]">
-                <ExitIcon className="h-3.5 w-3.5 shrink-0" />
+                <LogOut className="h-3.5 w-3.5 shrink-0" />
                 HOME
               </button>
             </Link>
@@ -67,7 +67,7 @@ export default function DashboardLayout({ children }: Props) {
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label="Toggle menu"
             >
-              {menuOpen ? <Cross1Icon className="h-4 w-4" /> : <HamburgerMenuIcon className="h-4 w-4" />}
+              {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
           </div>
         </div>
@@ -95,7 +95,7 @@ export default function DashboardLayout({ children }: Props) {
             })}
             <Link href="/" onClick={() => setMenuOpen(false)}>
               <button className="w-full text-left px-3 py-2 font-mono text-sm tracking-[0.08em] text-[#8A8A8A] border border-transparent">
-                <ExitIcon className="h-3.5 w-3.5 inline-block mr-2" />
+                <LogOut className="h-3.5 w-3.5 inline-block mr-2" />
                 HOME
               </button>
             </Link>

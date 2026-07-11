@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import DemoCascadeGraph, { CATEGORY_COLORS } from "@/components/DemoCascadeGraph";
 import type { Node, Edge } from "@/components/DemoCascadeGraph";
-import { UploadIcon, ReloadIcon, ReaderIcon, FileIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { Upload, Loader2, FileText, File, Search } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 function hashColor(s: string): string {
@@ -185,7 +185,7 @@ export default function Graph() {
                 htmlFor="json-upload"
                 className="flex flex-col items-center justify-center gap-3 border border-dashed border-[#2A2A2A] bg-[#0A0A0A] p-8 cursor-pointer hover:border-[#E61919]/40 transition-colors"
               >
-                <UploadIcon className="h-8 w-8 text-[#2A2A2A]" />
+                <Upload className="h-8 w-8 text-[#2A2A2A]" />
                 <span className="font-mono text-[10px] text-[#8A8A8A] text-center">
                   {fileName ? fileName.toUpperCase() : "CLICK TO UPLOAD .JSON"}
                 </span>
@@ -239,7 +239,7 @@ export default function Graph() {
                 htmlFor="doc-upload"
                 className="flex flex-col items-center justify-center gap-3 border border-dashed border-[#2A2A2A] bg-[#0A0A0A] p-8 cursor-pointer hover:border-[#E61919]/40 transition-colors"
               >
-                <FileIcon className="h-8 w-8 text-[#2A2A2A]" />
+                <File className="h-8 w-8 text-[#2A2A2A]" />
                 <span className="font-mono text-[10px] text-[#8A8A8A] text-center">
                   {uploading ? "UPLOADING..." : "CLICK TO UPLOAD .PDF / .TXT"}
                 </span>
@@ -335,12 +335,12 @@ export default function Graph() {
             >
               {queryResult.isFetching ? (
                 <span className="flex items-center gap-2">
-                  <ReloadIcon className="h-3 w-3 animate-spin" />
+                  <Loader2 className="h-3 w-3 animate-spin" />
                   QUERYING
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  <ReaderIcon className="h-3 w-3" />
+                  <FileText className="h-3 w-3" />
                   ASK
                 </span>
               )}
@@ -396,12 +396,12 @@ export default function Graph() {
               >
                 {docQueryResult.isFetching ? (
                   <span className="flex items-center gap-2">
-                    <ReloadIcon className="h-3 w-3 animate-spin" />
+                    <Loader2 className="h-3 w-3 animate-spin" />
                     SEARCHING
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    <MagnifyingGlassIcon className="h-3 w-3" />
+                    <Search className="h-3 w-3" />
                     SEARCH
                   </span>
                 )}

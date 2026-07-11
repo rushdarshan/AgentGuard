@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { ReloadIcon, Cross1Icon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { Loader2, X, Search } from "lucide-react";
 
 type LogLevel = "debug" | "info" | "warn" | "error";
 
@@ -89,7 +89,7 @@ export default function Logs() {
           <div className="flex items-center gap-2 flex-wrap">
             {/* Keyword search */}
             <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8A8A8A]" />
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8A8A8A]" />
               <input
                 type="text"
                 placeholder="Filter…"
@@ -102,7 +102,7 @@ export default function Logs() {
                   onClick={() => setKeyword("")}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8A8A8A] hover:text-[#EAEAEA]"
                 >
-                  <Cross1Icon className="h-3 w-3" />
+                  <X className="h-3 w-3" />
                 </button>
               )}
             </div>
@@ -153,7 +153,7 @@ export default function Logs() {
               disabled={isFetching}
               className="px-3 py-1.5 font-mono text-xs border border-[#2A2A2A] text-[#8A8A8A] hover:text-[#EAEAEA] hover:border-[#EAEAEA] disabled:opacity-40"
             >
-              <ReloadIcon className={`h-3.5 w-3.5 inline-block mr-1 ${isFetching ? "animate-spin" : ""}`} />
+              <Loader2 className={`h-3.5 w-3.5 inline-block mr-1 ${isFetching ? "animate-spin" : ""}`} />
               REFRESH
             </button>
           </div>

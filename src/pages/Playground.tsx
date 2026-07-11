@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import DashboardLayout from "@/components/DashboardLayout";
 import { toast } from "sonner";
-import { LightningBoltIcon, ReloadIcon, GlobeIcon, ReaderIcon, CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
+import { Zap, Loader2, Globe, FileText, CheckCircle, XCircle } from "lucide-react";
 import { ATTACK_CATEGORIES, DETECTOR_REGISTRY } from "@/const";
 
 const TEMPLATES: Record<string, string> = {
@@ -222,12 +222,12 @@ export default function Playground() {
             >
               {isRunning ? (
                 <>
-                  <ReloadIcon className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   EXECUTING SECURITY SCAN...
                 </>
               ) : (
                 <>
-                  <LightningBoltIcon className="h-5 w-5" />
+                  <Zap className="h-5 w-5" />
                   ⚡ LAUNCH TEST SUITE
                 </>
               )}
@@ -266,12 +266,12 @@ export default function Playground() {
                     </div>
                     {result.passed ? (
                       <div className="flex items-center gap-2 border border-[#4AF626]/20 bg-[#4AF626]/5 text-[#4AF626] px-4 py-2 font-mono text-sm font-bold tracking-[0.1em]">
-                        <CheckCircledIcon className="h-4 w-4" />
+                        <CheckCircle className="h-4 w-4" />
                         [ AGENT SECURED ]
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 border border-[#E61919]/20 bg-[#E61919]/5 text-[#E61919] px-4 py-2 font-mono text-sm font-bold tracking-[0.1em]">
-                        <CrossCircledIcon className="h-4 w-4" />
+                        <XCircle className="h-4 w-4" />
                         [ COMPROMISED ]
                       </div>
                     )}
@@ -313,7 +313,7 @@ export default function Playground() {
                 </div>
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border border-dashed border-[#2A2A2A] bg-[#0A0A0A] min-h-[300px]">
-                  <LightningBoltIcon className="h-10 w-10 text-[#2A2A2A] mb-3 animate-pulse" />
+                  <Zap className="h-10 w-10 text-[#2A2A2A] mb-3 animate-pulse" />
                   <p className="font-mono text-sm text-[#8A8A8A] tracking-[0.05em]">AWAITING TEST EXECUTION</p>
                   <p className="font-mono text-[10px] text-[#3A3A3A] mt-1">Configure inputs in left panel and press Dispatch</p>
                 </div>

@@ -5,7 +5,7 @@ import { useParams, useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import CascadeGraph from "@/components/CascadeGraph";
 import { useRef, useState, useEffect } from "react";
-import { ReloadIcon, DownloadIcon, ArrowLeftIcon, ColorWheelIcon } from "@radix-ui/react-icons";
+import { Loader2, Download, ArrowLeft, Palette } from "lucide-react";
 import { wilsonCI, formatCI, computeCompositeScore, getLetterGrade } from "@/_core/stats";
 import { type PIISpan, redactPII } from "@/_core/pii";
 import { classifyConfidence, getConfidenceBadge, getConfidenceLabel } from "@/_core/trust";
@@ -267,7 +267,7 @@ export default function TestRunDetail() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="outline" size="sm" onClick={() => setLocation("/runs")} className="gap-2">
-              <ArrowLeftIcon className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4" />
               [ BACK ]
             </Button>
             <div>
@@ -286,7 +286,7 @@ export default function TestRunDetail() {
             </Button>
             <div className="relative">
               <Button variant="outline" size="sm" onClick={() => setShowExport(!showExport)} className="gap-1">
-                <DownloadIcon className="h-4 w-4" />[ DOWNLOAD ]
+                <Download className="h-4 w-4" />[ DOWNLOAD ]
               </Button>
               {showExport && (
                 <div className="absolute right-0 top-full z-50 mt-1 w-40 border border-[#2A2A2A] bg-[#121212]">
@@ -352,7 +352,7 @@ export default function TestRunDetail() {
           {testRun.status === "running" && (
             <div className="mt-6 border-t border-[#2A2A2A] pt-6">
               <div className="flex items-center gap-2">
-                <ReloadIcon className="h-4 w-4 animate-spin text-[#4AF626]" />
+                <Loader2 className="h-4 w-4 animate-spin text-[#4AF626]" />
                 <span className="font-mono text-sm text-[#4AF626] tracking-[0.08em]">RUNNING...</span>
               </div>
               <div className="mt-4 h-2 border border-[#2A2A2A] bg-[#0A0A0A]">
@@ -467,7 +467,7 @@ export default function TestRunDetail() {
               <div className="flex items-center justify-between mb-3">
                 <span className="font-mono text-[11px] tracking-[0.15em] text-[#8A8A8A] uppercase">CASCADE ANALYSIS</span>
                 <button className="flex items-center gap-1 border border-[#2A2A2A] px-2 py-1 bg-transparent text-[#8A8A8A] font-mono text-[11px] cursor-pointer hover:text-[#EAEAEA] hover:border-[#E61919] transition-colors" onClick={() => setColorBy(c => c === "category" ? "community" : "category")}>
-                  <ColorWheelIcon className="h-3 w-3" /> COLOR BY {colorBy === "category" ? "COMMUNITY" : "CATEGORY"}
+                  <Palette className="h-3 w-3" /> COLOR BY {colorBy === "category" ? "COMMUNITY" : "CATEGORY"}
                 </button>
               </div>
               <CascadeGraph nodes={neoCascades.nodes} edges={neoCascades.edges} colorBy={colorBy} onNodeClick={(cat) => setSelectedCategory(cat)} />

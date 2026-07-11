@@ -6,7 +6,7 @@ import { useParams, useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState } from "react";
 import { toast } from "sonner";
-import { LightningBoltIcon } from "@radix-ui/react-icons";
+import { Zap } from "lucide-react";
 import { ATTACK_CATEGORIES, DETECTOR_REGISTRY } from "@/const";
 
 type AttackCategory = (typeof ATTACK_CATEGORIES)[number];
@@ -180,7 +180,7 @@ export default function TestBuilder() {
 
         <div className="flex items-center gap-6 border-t border-[#2A2A2A] py-4">
           <div className="flex items-center gap-2 font-mono text-[11px]">
-            <LightningBoltIcon className="h-4 w-4 text-[#E61919]" />
+            <Zap className="h-4 w-4 text-[#E61919]" />
             <span className="text-[#8A8A8A]">[ SUMMARY ]</span>
             <span>{selectedCategories.size} CATEGORIES</span>
             <span className="text-[#8A8A8A]">|</span>
@@ -198,7 +198,7 @@ export default function TestBuilder() {
               disabled={selectedCategories.size === 0 || createTestRun.isPending}
               className="gap-2"
             >
-              <LightningBoltIcon className="h-5 w-5" />
+              <Zap className="h-5 w-5" />
               [ EXECUTE ]
             </Button>
             <Button

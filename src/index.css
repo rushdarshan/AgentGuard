@@ -14,10 +14,12 @@
 
 [data-theme="professional"] body,
 [data-theme="professional"] .min-h-screen,
+[data-theme="professional"] .bg-substrate,
 [data-theme="professional"] .bg-\[\#0A0A0A\] {
   background-color: #FFFFFF !important;
 }
 
+[data-theme="professional"] .bg-surface,
 [data-theme="professional"] .bg-\[\#121212\] {
   background-color: #F8F9FA !important;
 }
@@ -26,28 +28,45 @@
   background-color: #E9ECEF !important;
 }
 
+[data-theme="professional"] .text-phosphor,
 [data-theme="professional"] .text-\[\#EAEAEA\] {
   color: #212529 !important;
 }
 
+[data-theme="professional"] .text-muted,
 [data-theme="professional"] .text-\[\#8A8A8A\] {
   color: #6C757D !important;
 }
 
+[data-theme="professional"] .text-accent,
 [data-theme="professional"] .text-\[\#E61919\] {
   color: var(--accent) !important;
 }
 
+[data-theme="professional"] .bg-accent,
 [data-theme="professional"] .bg-\[\#E61919\] {
   background-color: var(--accent) !important;
+}
+
+[data-theme="professional"] .text-terminal-green {
+  color: var(--success) !important;
+}
+
+[data-theme="professional"] .bg-terminal-green {
+  background-color: var(--success) !important;
 }
 
 [data-theme="professional"] .hover\:bg-\[\#CC1414\]:hover {
   background-color: #0B5ED7 !important;
 }
 
+[data-theme="professional"] .border-border,
 [data-theme="professional"] .border-\[\#2A2A2A\] {
   border-color: #DEE2E6 !important;
+}
+
+[data-theme="professional"] .bg-border {
+  background-color: #DEE2E6 !important;
 }
 
 [data-theme="professional"] .ring-1 {

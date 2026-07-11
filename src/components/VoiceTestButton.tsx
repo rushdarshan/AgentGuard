@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { ReloadIcon } from "@radix-ui/react-icons";
+import { Loader2 } from "lucide-react";
 
 type VoiceTestState = "idle" | "recording" | "processing" | "done";
 
@@ -122,7 +122,7 @@ export default function VoiceTestButton() {
         )}
         {state === "processing" && (
           <>
-            ANALYZING... <ReloadIcon className="h-5 w-5 animate-spin" />
+            ANALYZING... <Loader2 className="h-5 w-5 animate-spin" />
           </>
         )}
         {state === "done" && "> TRY AGAIN"}

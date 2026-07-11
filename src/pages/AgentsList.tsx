@@ -2,7 +2,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link, useLocation } from "wouter";
-import { PlusIcon, TrashIcon, Pencil1Icon, ClockIcon, LightningBoltIcon } from "@radix-ui/react-icons";
+import { Plus, Trash2, Pencil, Clock, Zap } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useState, useEffect, useMemo } from "react";
 
@@ -80,7 +80,7 @@ export default function AgentsList() {
           </div>
           <Link href="/agents/new">
             <Button className="gap-2 px-5 py-3">
-              <PlusIcon className="h-4 w-4" /> [ ADD AGENT ]
+              <Plus className="h-4 w-4" /> [ ADD AGENT ]
             </Button>
           </Link>
         </div>
@@ -127,17 +127,17 @@ export default function AgentsList() {
                       <div className="flex items-center gap-2">
                         <Link href={`/agents/${agent.id}/test`}>
                           <button className="flex items-center gap-2 px-4 py-2 bg-[#D82C20] hover:bg-[#D82C20] text-white font-mono text-xs tracking-[0.1em] font-bold transition-all group-hover:shadow-[0_0_12px_rgba(230,25,25,0.3)]">
-                            <LightningBoltIcon className="h-3 w-3" /> DISPATCH TEST
+                            <Zap className="h-3 w-3" /> DISPATCH TEST
                           </button>
                         </Link>
 
                         <div className="flex items-center ml-2 border border-[#2A2A2A]">
                           <button title="Schedule" className="w-8 h-8 flex items-center justify-center bg-transparent text-[#808080] hover:bg-[#2A2A2A] hover:text-[#F5F5F5] transition-colors" onClick={() => setScheduled(s => ({ ...s, [agent.id]: !s[agent.id] }))}>
-                            <ClockIcon className="h-3 w-3" />
+                            <Clock className="h-3 w-3" />
                           </button>
-                          <a href={`/agents/${agent.id}/edit`} className="w-8 h-8 flex items-center justify-center bg-transparent text-[#808080] border-l border-[#2A2A2A] hover:bg-[#2A2A2A] hover:text-[#F5F5F5] transition-colors"><Pencil1Icon className="h-3 w-3" /></a>
+                          <a href={`/agents/${agent.id}/edit`} className="w-8 h-8 flex items-center justify-center bg-transparent text-[#808080] border-l border-[#2A2A2A] hover:bg-[#2A2A2A] hover:text-[#F5F5F5] transition-colors"><Pencil className="h-3 w-3" /></a>
                           <button title="Delete" className="w-8 h-8 flex items-center justify-center bg-transparent text-[#D82C20] border-l border-[#2A2A2A] hover:bg-[#D82C20]/10 transition-colors" onClick={() => setDeleteId(agent.id)}>
-                            <TrashIcon className="h-3 w-3" />
+                            <Trash2 className="h-3 w-3" />
                           </button>
                         </div>
                       </div>
@@ -152,7 +152,7 @@ export default function AgentsList() {
             <p className="font-mono text-base text-[#808080]">NO AGENTS REGISTERED</p>
             <Link href="/agents/new">
               <Button className="mt-4 gap-2">
-                <PlusIcon className="h-4 w-4" /> [ CREATE FIRST AGENT ]
+                <Plus className="h-4 w-4" /> [ CREATE FIRST AGENT ]
               </Button>
             </Link>
           </Card>
