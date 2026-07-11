@@ -23,7 +23,7 @@ export default function TestBuilder() {
   const [, setLocation] = useLocation();
   const agentId = parseInt(params?.id || "0");
 
-  const { data: agent } = trpc.agents.get.useQuery({ agentId });
+  const { data: agent } = trpc.agents.get.useQuery({ agentId }, { enabled: agentId > 0 });
   const createTestRun = trpc.testRuns.create.useMutation();
 
   const [selectedCategories, setSelectedCategories] = useState<Set<AttackCategory>>(

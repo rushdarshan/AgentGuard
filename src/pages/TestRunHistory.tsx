@@ -3,12 +3,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useState } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { reliabilityBadge, reliabilityLabel } from "@/const";
 import { wilsonCI, formatCI } from "@/_core/stats";
-import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -44,37 +43,43 @@ export default function TestRunHistory() {
     { enabled: !!compareA && !!compareB }
   );
 
-  const filteredRuns = testRuns.filter((run) => {
+  const filteredRuns = useMemo(() => testRuns.filter((run) => {
     if (filterStatus !== "all" && run.status !== filterStatus) return false;
     const score = run.reliabilityScore || 0;
     if (score < filterScoreMin || score > filterScoreMax) return false;
     return true;
-  });
+  }), [testRuns, filterStatus, filterScoreMin, filterScoreMax]);
 
-  const sortedRuns = [...filteredRuns].sort(
+  const sortedRuns = useMemo(() => [...filteredRuns].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+  ), [filteredRuns]);
 
-  const sortedLogs = [...logs].sort(
+  const sortedLogs = useMemo(() => [...logs].sort(
     (a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime()
-  );
+  ), [logs]);
 
-  const errorCount = sortedLogs.filter((e) => e.level === "error").length;
-  const warnCount = sortedLogs.filter((e) => e.level === "warn").length;
-  const completedRuns = testRuns.filter(
-    (r) => r.status === "completed" && r.startedAt && r.completedAt
-  );
-  const avgDuration =
-    completedRuns.length > 0
-      ? Math.round(
-          completedRuns.reduce((sum, r) => {
-            const dur =
-              new Date(r.completedAt!).getTime() -
-              new Date(r.startedAt!).getTime();
-            return sum + dur;
-          }, 0) / completedRuns.length / 1000
-        )
-      : null;
+  const { errorCount, warnCount, avgDuration } = useMemo(() => {
+    let errorCount = 0, warnCount = 0;
+    for (const e of sortedLogs) {
+      if (e.level === "error") errorCount++;
+      else if (e.level === "warn") warnCount++;
+    }
+    const completedRuns = testRuns.filter(
+      (r) => r.status === "completed" && r.startedAt && r.completedAt
+    );
+    const avgDuration =
+      completedRuns.length > 0
+        ? Math.round(
+            completedRuns.reduce((sum, r) => {
+              const dur =
+                new Date(r.completedAt!).getTime() -
+                new Date(r.startedAt!).getTime();
+              return sum + dur;
+            }, 0) / completedRuns.length / 1000
+          )
+        : null;
+    return { errorCount, warnCount, avgDuration };
+  }, [sortedLogs, testRuns]);
 
   const handleCompareClick = (runId: number) => {
     if (compareA === runId) { setCompareA(null); return; }

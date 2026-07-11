@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import DemoCascadeGraph, { CATEGORY_COLORS } from "@/components/DemoCascadeGraph";
 import type { Node, Edge } from "@/components/DemoCascadeGraph";
@@ -90,7 +90,6 @@ export default function Graph() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [docInfo, setDocInfo] = useState<{ docId: string; docName: string; chunkCount: number } | null>(null);
-  const [documents, setDocuments] = useState<Array<{ docId: string; docName: string; nodeCount: number }>>([]);
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   const [docQuery, setDocQuery] = useState("");
   const [submittedDocQuery, setSubmittedDocQuery] = useState<string | null>(null);
@@ -117,6 +116,7 @@ export default function Graph() {
 
   const uploadDoc = trpc.uploadDocument.useMutation();
   const docsQuery = trpc.listDocuments.useQuery();
+  const documents = docsQuery.data ?? [];
   const docQueryResult = trpc.queryDocument.useQuery(
     { docId: selectedDocId ?? "", query: submittedDocQuery ?? "" },
     { enabled: !!selectedDocId && !!submittedDocQuery, retry: false }
@@ -125,10 +125,6 @@ export default function Graph() {
     { docId: selectedDocId ?? "" },
     { enabled: !!selectedDocId }
   );
-
-  useEffect(() => {
-    if (docsQuery.data) setDocuments(docsQuery.data);
-  }, [docsQuery.data]);
 
   const handleDocFile = async (file: File | undefined) => {
     setUploadError(null);

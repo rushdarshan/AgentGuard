@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { reliabilityBadge, reliabilityLabel } from "@/const";
 import { classifyConfidence, getConfidenceBadge } from "@/_core/trust";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -19,15 +19,16 @@ export default function Dashboard() {
   const { data: testRuns = [], isLoading: runsLoading } = trpc.testRuns.list.useQuery({});
 
   const totalAgents = agents.length;
-  const recentRuns = testRuns.slice(0, 5);
-  const avgReliability =
+  const recentRuns = useMemo(() => testRuns.slice(0, 5), [testRuns]);
+  const avgReliability = useMemo(() =>
     testRuns.length > 0
       ? Math.round(
           testRuns.reduce((sum, run) => sum + (run.reliabilityScore || 0), 0) / testRuns.length
         )
-      : 0;
+      : 0
+  , [testRuns]);
 
-  const criticalIssues = testRuns.filter((run) => (run.reliabilityScore || 0) < 50).length;
+  const criticalIssues = useMemo(() => testRuns.filter((run) => (run.reliabilityScore || 0) < 50).length, [testRuns]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
@@ -127,7 +128,7 @@ export default function Dashboard() {
           </div>
           <div className="flex gap-6">
             <div className="text-right">
-              <span className="block font-display text-2xl font-bold text-phosphor">{agents.filter(a => a.isActive !== false).length || agents.length}</span>
+              <span className="block font-display text-2xl font-bold text-phosphor">{agents.filter(a => a.isActive !== 0).length || agents.length}</span>
               <span className="block font-mono text-[11px] text-muted/60 uppercase tracking-[0.1em]">ACTIVE</span>
             </div>
             <div className="text-right">
