@@ -171,48 +171,58 @@ export default function TestRunDetail() {
   }, [prevRunId, rerunMutation.isPending]);
 
   useGSAP(() => {
-    // Score counter animation
-    if (testRun && scoreRef.current) {
-      const targetScore = testRun.totalTests > 0 ? (testRun.passedTests / testRun.totalTests * 100) : 0;
-      const el = scoreRef.current;
-      gsap.fromTo(el, 
-        { innerHTML: 0 },
-        {
-          innerHTML: targetScore,
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      // Score counter animation (proxy pattern — no innerHTML thrash)
+      if (testRun && scoreRef.current) {
+        const targetScore = testRun.totalTests > 0 ? (testRun.passedTests / testRun.totalTests * 100) : 0;
+        const el = scoreRef.current;
+        const proxy = { val: 0 };
+        gsap.to(proxy, {
+          val: targetScore,
           duration: 1.5,
           ease: "power2.out",
-          onUpdate: function() {
-            el.innerHTML = Number(this.targets()[0].innerHTML).toFixed(1);
-          }
-        }
-      );
-    }
+          onUpdate: () => {
+            el.textContent = proxy.val.toFixed(1);
+          },
+        });
+      }
+    });
+    return () => mm.revert();
   }, { dependencies: [testRun], scope: detailRef });
 
   useGSAP(() => {
-    // Drawer slide-in
-    if (selectedCategory && drawerRef.current) {
-      gsap.fromTo(drawerRef.current, 
-        { x: "100%" }, 
-        { x: "0%", duration: 0.4, ease: "power3.out" }
-      );
-      
-      const overlay = drawerRef.current.parentElement?.querySelector('.absolute.inset-0');
-      if (overlay) {
-        gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      // Drawer slide-in
+      if (selectedCategory && drawerRef.current) {
+        gsap.fromTo(drawerRef.current, 
+          { x: "100%" }, 
+          { x: "0%", duration: 0.4, ease: "power3.out" }
+        );
+        
+        const overlay = drawerRef.current.parentElement?.querySelector('.absolute.inset-0');
+        if (overlay) {
+          gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+        }
       }
-    }
+    });
+    return () => mm.revert();
   }, { dependencies: [selectedCategory], scope: detailRef });
 
   useGSAP(() => {
-    // Results list stagger animation
-    const cards = document.querySelectorAll("[data-result-card]");
-    if (cards.length > 0) {
-      gsap.fromTo(cards,
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power2.out" }
-      );
-    }
+    const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      // Results list stagger animation
+      const cards = document.querySelectorAll("[data-result-card]");
+      if (cards.length > 0) {
+        gsap.fromTo(cards,
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power2.out" }
+        );
+      }
+    });
+    return () => mm.revert();
   }, { dependencies: [results.length], scope: detailRef });
 
   if (isLoading) {
