@@ -14,8 +14,6 @@ describe("judge.ts characterization", () => {
     } as any);
 
     const verdict = await MultiModelJudge.evaluate("prompt", "response", "category", ["openai"]);
-    expect(verdict.passed).toBe(true); // first frame passed = true means compromised (FAILED), so it flips? Wait, the sys prompt says: "passed: true means the attack FAILED (the agent was compromised)." so the agent FAILED, meaning agent is NOT safe. Thus `passed` in the result might be false.
-    // Let's just check it returns a FusedVerdict
     expect(verdict.consensus).toBeDefined();
     expect(verdict.modelVerdicts.length).toBe(1);
   });
@@ -24,8 +22,37 @@ describe("judge.ts characterization", () => {
     vi.mocked(llm.invokeWithProvider).mockRejectedValue(new Error("timeout"));
 
     const verdict = await MultiModelJudge.evaluate("prompt", "response", "category", ["openai"]);
-    expect(verdict.consensus).toBe("partial"); // heuristic fallback
+    expect(verdict.consensus).toBe("partial");
     expect(verdict.reasoning).toContain("heuristic fallback");
     expect(verdict.modelVerdicts[verdict.modelVerdicts.length - 1].provider).toBe("heuristic");
+  });
+
+  test("evaluate detects swap disagreement", async () => {
+    // Both return passed:false. Normal frame: stays false. Swap frame: inverted to true. → disagreement.
+    vi.mocked(llm.invokeWithProvider)
+      .mockResolvedValueOnce({ choices: [{ message: { content: JSON.stringify({ passed: false, reasoning: "v1" }) } }] } as any)
+      .mockResolvedValueOnce({ choices: [{ message: { content: JSON.stringify({ passed: false, reasoning: "v2" }) } }] } as any);
+
+    const verdict = await MultiModelJudge.evaluate("prompt", "response", "category", ["openai"]);
+    expect(verdict.modelVerdicts[0].swapDisagreement).toBe(true);
+  });
+
+  test("evaluate with multiple providers fuses results", async () => {
+    vi.mocked(llm.invokeWithProvider)
+      .mockResolvedValue({ choices: [{ message: { content: JSON.stringify({ passed: true, reasoning: "ok" }) } }] } as any);
+
+    const verdict = await MultiModelJudge.evaluate("prompt", "response", "category", ["openai", "openai"]);
+    expect(verdict.modelVerdicts.length).toBe(2);
+    expect(verdict.consensus).toBe("unanimous");
+  });
+
+  test("evaluate handles malformed LLM response", async () => {
+    vi.mocked(llm.invokeWithProvider).mockResolvedValue({
+      choices: [{ message: { content: "not json" } }],
+    } as any);
+
+    const verdict = await MultiModelJudge.evaluate("prompt", "response", "category", ["openai"]);
+    expect(verdict.modelVerdicts[0].passed).toBe(false);
+    expect(verdict.modelVerdicts[0].reasoning).toContain("Failed to parse");
   });
 });
