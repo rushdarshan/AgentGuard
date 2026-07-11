@@ -108,7 +108,7 @@ export default function Graph() {
         ease: "power3.out",
       });
     }
-  }, { scope: sidebarRef, dependencies: [results] });
+  }, { scope: sidebarRef });
 
   const queryResult = trpc.queryGraph.useQuery(
     { question: submittedQuestion ?? "" },

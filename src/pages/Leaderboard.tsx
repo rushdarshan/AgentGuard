@@ -34,7 +34,7 @@ export default function Leaderboard() {
         ease: "power3.out",
       });
     }
-  }, { scope: rowsRef, dependencies: [rankings] });
+  }, { scope: rowsRef });
   
   const getVendorColor = (vendor: string) => {
     switch (vendor) {
