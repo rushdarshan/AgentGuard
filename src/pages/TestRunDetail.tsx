@@ -56,6 +56,8 @@ function HighlightedResponse({ text = "", spans }: { text?: string; spans?: PIIS
   return <>{parts}</>;
 }
 
+const LANG_COLORS: Record<string, string> = { en: "#60a5fa", "hi-IN": "#f59e0b", "bn-IN": "#34d399", "ta-IN": "#f472b6" };
+
 export default function TestRunDetail() {
   const params = useParams();
   const [, setLocation] = useLocation();
@@ -519,9 +521,7 @@ export default function TestRunDetail() {
           </div>
         </Card>
 
-        {langStats.size > 1 && (() => {
-          const langColors: Record<string, string> = { en: "#60a5fa", "hi-IN": "#f59e0b", "bn-IN": "#34d399", "ta-IN": "#f472b6" };
-          return (
+        {langStats.size > 1 && (
             <div data-languages>
               <p className="font-mono mb-4 text-sm tracking-[0.15em] text-[#8A8A8A]">[ PER-LANGUAGE PASS RATE ]</p>
               <Card className="p-6">
@@ -535,7 +535,7 @@ export default function TestRunDetail() {
                           <span className="text-[#8A8A8A]">{data.passed}/{data.total} ({rate}%)</span>
                         </div>
                         <div className="h-3 border border-[#2A2A2A] bg-[#0A0A0A]">
-                          <div className="h-full transition-all" style={{ width: `${rate}%`, backgroundColor: langColors[lang] || "#818CF8" }} />
+                          <div className="h-full transition-all" style={{ width: `${rate}%`, backgroundColor: LANG_COLORS[lang] || "#818CF8" }} />
                         </div>
                       </div>
                     );
@@ -544,8 +544,7 @@ export default function TestRunDetail() {
                 <p className="mt-4 font-mono text-sm text-[#8A8A8A] italic">Pass rate varies by language — testing in Indic languages surfaces agent failures invisible in English-only tests (Sarvam AI)</p>
               </Card>
             </div>
-          );
-        })()}
+        )}
 
         {prevRunId && graphComparisonQuery.data && (
           <Card className="p-6">
