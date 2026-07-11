@@ -64,8 +64,8 @@ export default function Playground() {
       const panels = gridRef.current?.children;
       if (panels && panels.length > 0) {
         gsap.fromTo(panels,
-          { y: 20, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, stagger: 0.12, ease: "power2.out" }
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, stagger: 0.15, ease: "power3.out" }
         );
       }
     });

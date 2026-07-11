@@ -57,8 +57,8 @@ export default function AgentsList() {
       const cards = listRef.current?.querySelectorAll("[data-agent-card]");
       if (cards && cards.length > 0) {
         gsap.fromTo(cards,
-          { y: 15, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: "power2.out" }
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power3.out" }
         );
       }
     });

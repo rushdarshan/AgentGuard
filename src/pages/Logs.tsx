@@ -57,8 +57,8 @@ export default function Logs() {
       const rows = rowsRef.current?.querySelectorAll("[data-log-row]");
       if (rows && rows.length > 0) {
         gsap.fromTo(rows,
-          { x: -10, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.25, stagger: 0.02, ease: "power2.out" }
+          { x: -30, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.5, stagger: 0.04, ease: "power3.out" }
         );
       }
     });

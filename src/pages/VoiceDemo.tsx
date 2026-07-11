@@ -68,15 +68,15 @@ export default function VoiceDemo() {
       const stages = pipelineRef.current?.querySelectorAll("[data-pipeline-stage]");
       if (stages && stages.length > 0) {
         gsap.fromTo(stages,
-          { x: -15, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.4, stagger: 0.06, ease: "power2.out" }
+          { x: -40, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power3.out" }
         );
       }
       const cards = resultsRef.current?.querySelectorAll("[data-result-card]");
       if (cards && cards.length > 0) {
         gsap.fromTo(cards,
-          { y: 20, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power2.out" }
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, stagger: 0.12, ease: "power3.out" }
         );
       }
     });

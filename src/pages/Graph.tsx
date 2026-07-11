@@ -103,8 +103,8 @@ export default function Graph() {
       const panels = sidebarRef.current?.querySelectorAll("[data-sidebar-panel]");
       if (panels && panels.length > 0) {
         gsap.fromTo(panels,
-          { x: -15, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.4, stagger: 0.08, ease: "power2.out" }
+          { x: -40, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.5, stagger: 0.12, ease: "power3.out" }
         );
       }
     });
