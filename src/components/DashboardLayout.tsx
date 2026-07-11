@@ -14,6 +14,7 @@ const navItems = [
   { href: "/leaderboard", label: "RANKINGS", icon: StarFilledIcon },
   { href: "/voice-demo", label: "VOICE", icon: SpeakerLoudIcon },
   { href: "/playground", label: "PLAYGROUND", icon: MixIcon },
+  { href: "/graph", label: "GRAPH", icon: MixIcon },
   { href: "/logs", label: "LOGS", icon: ReaderIcon },
 ];
 
