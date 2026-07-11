@@ -39,7 +39,7 @@ This is a force-directed Neo4j graph of attack propagation. Not just which attac
 
 ## 2:40 – Close / CTA (20s)
 
-"AgentGuard is open source, MIT licensed. Live demo at agentguard.onrender.com. The repo has a 10-second quick start. If you're shipping an AI agent without running it through AgentGuard first — your users will find the vulnerabilities for you."
+"AgentGuard is open source, MIT licensed. Live demo at agentguard-j5ny.onrender.com. The repo has a 10-second quick start. If you're shipping an AI agent without running it through AgentGuard first — your users will find the vulnerabilities for you."
 
 ---
 

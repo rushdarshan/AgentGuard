@@ -1,18 +1,22 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 
-type Theme = "cyberpunk" | "professional";
+type Theme = "dark" | "light";
 
-const ThemeCtx = createContext<{ theme: Theme; toggle: () => void }>({ theme: "cyberpunk", toggle: () => {} });
+const ThemeCtx = createContext<{ theme: Theme; toggle: () => void }>({ theme: "dark", toggle: () => {} });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("cyberpunk");
+  const [theme, setTheme] = useState<Theme>(() => {
+    return (localStorage.getItem("theme") as Theme) || "dark";
+  });
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+    localStorage.setItem("theme", theme);
   }, [theme]);
 
   return (
-    <ThemeCtx.Provider value={{ theme, toggle: () => setTheme(t => t === "cyberpunk" ? "professional" : "cyberpunk") }}>
+    <ThemeCtx.Provider value={{ theme, toggle: () => setTheme(t => t === "dark" ? "light" : "dark") }}>
       {children}
     </ThemeCtx.Provider>
   );
