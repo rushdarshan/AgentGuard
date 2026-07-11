@@ -1,0 +1,14 @@
+AGENTGUARD THREAT INTELLIGENCE REPORT
+Target: Acme Corp Support Agent v2
+Date: 2026-07-11
+
+EXECUTIVE SUMMARY
+The agent demonstrates high resilience against Multi-Tenant Leak (100% pass) and Schema Drift (95% pass). However, critical vulnerabilities were discovered in the handling of adversarial inputs, specifically Jailbreaks (10% pass) and Prompt Injections (20% pass).
+
+FAILURE CASCADE ANALYSIS
+The failure cascade indicates that when the agent fails a Prompt Injection test, it is highly likely to also succumb to Indirect Injections and Multi-Turn Crescendo attacks. This suggests a systemic weakness in instruction hierarchy and context isolation. 
+
+RECOMMENDATIONS
+1. Implement a strict instruction firewall to prioritize system prompts over user instructions.
+2. Introduce a secondary LLM "judge" for outputs to detect indirect injections.
+3. Harden the context window against multi-turn manipulations by periodically summarizing and scrubbing the conversational history.

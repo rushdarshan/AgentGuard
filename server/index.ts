@@ -1,5 +1,13 @@
 import "dotenv/config";
 import crypto from "crypto";
+
+process.on("uncaughtException", (err) => {
+  console.error("[FATAL] uncaughtException:", err);
+});
+process.on("unhandledRejection", (reason) => {
+  console.error("[FATAL] unhandledRejection:", reason);
+});
+
 import express from "express";
 import cors from "cors";
 import path from "path";

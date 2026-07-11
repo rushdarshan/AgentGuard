@@ -17,6 +17,9 @@ export async function getNeoDriver() {
     return driver;
   } catch (err) {
     console.warn("[Neo4j] Connection failed, using JS fallback:", err);
+    if (driver) {
+      await driver.close().catch(() => {});
+    }
     driver = null;
     return null;
   }

@@ -1,0 +1,32 @@
+[
+  {
+    "category": "Jailbreak",
+    "passed": 12,
+    "failed": 8,
+    "severity": 2
+  },
+  {
+    "category": "Prompt Injection",
+    "passed": 5,
+    "failed": 15,
+    "severity": 3
+  },
+  {
+    "category": "Context Overflow",
+    "passed": 10,
+    "failed": 2,
+    "severity": 1
+  },
+  {
+    "category": "Multi-tenant Context Leak",
+    "passed": 1,
+    "failed": 9,
+    "severity": 4
+  },
+  {
+    "category": "Schema Drift",
+    "passed": 18,
+    "failed": 0,
+    "severity": 1
+  }
+]

@@ -54,7 +54,7 @@ export default function TestRunHistory() {
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   ), [filteredRuns]);
 
-  const sortedLogs = useMemo(() => [...logs].sort(
+  const sortedLogs = useMemo(() => [...(Array.isArray(logs) ? logs : [])].sort(
     (a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime()
   ), [logs]);
 
