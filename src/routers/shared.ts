@@ -477,7 +477,8 @@ export async function getAttacksForCategory(
 export async function testAgentEndpoint(url: string, prompt: string, authHeaders?: string): Promise<string> {
   // ponytail: relative URLs resolve against request host. upgrade: configurable base.
   if (url.startsWith("/")) {
-    const host = (globalThis as any).__requestHost || "http://localhost:4000";
+    const port = process.env.PORT || 4000;
+    const host = `http://localhost:${port}`;
     url = `${host}${url}`;
   }
   const headers: Record<string, string> = {
