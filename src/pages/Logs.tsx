@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -44,12 +44,12 @@ export default function Logs() {
     { refetchInterval: paused ? false : 2000, refetchIntervalInBackground: false }
   );
 
-  const filtered = keyword
+  const filtered = useMemo(() => keyword
     ? logs.filter((e: Entry) =>
         e.msg.toLowerCase().includes(keyword.toLowerCase()) ||
         JSON.stringify(e).toLowerCase().includes(keyword.toLowerCase())
       )
-    : logs;
+    : logs, [logs, keyword]);
 
   useGSAP(() => {
     const rows = rowsRef.current?.querySelectorAll("[data-log-row]");

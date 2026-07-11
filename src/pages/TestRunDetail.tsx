@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useParams, useLocation } from "wouter";
 import DashboardLayout from "@/components/DashboardLayout";
 import CascadeGraph from "@/components/CascadeGraph";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { Loader2, Download, ArrowLeft, Palette } from "lucide-react";
 import { wilsonCI, formatCI, computeCompositeScore, getLetterGrade } from "@/_core/stats";
 import { type PIISpan, redactPII } from "@/_core/pii";
@@ -74,11 +74,11 @@ export default function TestRunDetail() {
   );
   const { data: results = [] } = trpc.testRuns.getResults.useQuery(
     { testRunId },
-    { refetchInterval: testRun?.status === "completed" ? false : 2000 }
+    { enabled: testRunId > 0, refetchInterval: testRun?.status === "completed" ? false : 2000 }
   );
   const { data: cascades = [] } = trpc.testRuns.getCascades.useQuery(
     { testRunId },
-    { refetchInterval: testRun?.status === "completed" ? false : 2000 }
+    { enabled: testRunId > 0, refetchInterval: testRun?.status === "completed" ? false : 2000 }
   );
   const { data: neoCascades } = trpc.testRuns.getNeoCascades.useQuery(
     { testRunId },
@@ -246,7 +246,7 @@ export default function TestRunDetail() {
   } as Record<string, string>)[testRun.status] || "text-[#8A8A8A]";
 
   // Compute validation summary across all results
-  const validationSummary = (() => {
+  const validationSummary = useMemo(() => {
     let confirmed = 0, flaky = 0, total = 0;
     for (const r of results) {
       if (!(r as any).details) continue;
@@ -259,7 +259,22 @@ export default function TestRunDetail() {
       } catch (err) { console.warn(err);  }
     }
     return { confirmed, flaky, total };
-  })();
+  }, [results]);
+
+  const langStats = useMemo(() => {
+    const langs = new Map<string, { total: number; passed: number; failed: number }>();
+    for (const r of results) {
+      const lang = (r as any).language || "en";
+      if (!langs.has(lang)) langs.set(lang, { total: 0, passed: 0, failed: 0 });
+      const entry = langs.get(lang)!;
+      const pt = r.passed ?? 0;
+      const fl = r.failed ?? 0;
+      entry.total += pt + fl;
+      entry.passed += pt;
+      entry.failed += fl;
+    }
+    return langs;
+  }, [results]);
 
   return (
     <DashboardLayout>
@@ -405,7 +420,7 @@ export default function TestRunDetail() {
                           const piiCount = tests.filter((t: any) => t.pii?.length > 0).length;
                           const valCount = (d.validation || []).length;
                           const confirmedCount = (d.validation || []).filter((v: any) => v.status === "confirmed").length;
-                          return (
+  return (
                             <>
                               {piiCount > 0 && (
                                 <span className="font-mono text-sm text-[#E61919] border border-[#E61919]/30 px-1.5 py-0.5">
@@ -504,26 +519,14 @@ export default function TestRunDetail() {
           </div>
         </Card>
 
-        {results.length > 0 && (() => {
-          const langs = new Map<string, { total: number; passed: number; failed: number }>();
-          for (const r of results) {
-            const lang = (r as any).language || "en";
-            if (!langs.has(lang)) langs.set(lang, { total: 0, passed: 0, failed: 0 });
-            const entry = langs.get(lang)!;
-            const pt = r.passed ?? 0;
-            const fl = r.failed ?? 0;
-            entry.total += pt + fl;
-            entry.passed += pt;
-            entry.failed += fl;
-          }
+        {langStats.size > 1 && (() => {
           const langColors: Record<string, string> = { en: "#60a5fa", "hi-IN": "#f59e0b", "bn-IN": "#34d399", "ta-IN": "#f472b6" };
-          if (langs.size <= 1) return null;
           return (
             <div data-languages>
               <p className="font-mono mb-4 text-sm tracking-[0.15em] text-[#8A8A8A]">[ PER-LANGUAGE PASS RATE ]</p>
               <Card className="p-6">
                 <div className="space-y-3">
-                  {Array.from(langs.entries()).map(([lang, data]) => {
+                  {Array.from(langStats.entries()).map(([lang, data]) => {
                     const rate = data.total > 0 ? Math.round((data.passed / data.total) * 100) : 0;
                     return (
                       <div key={lang}>
