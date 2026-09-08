@@ -47,6 +47,7 @@ export interface Trace {
   emitted_sink: SinkCall | null;
   gateway_decision: "allow" | "block";
   forbidden_sink_emitted: boolean;
+  trust_probability: number;
   policy_version: string;
   git_sha: string;
   node_version: string;

@@ -2,6 +2,7 @@
 > TRUST_PROB is a calibration parameter of the simulator, not an empirical estimate of real LLM behavior.
 > The event measured is a forbidden-call EMISSION at a spy sink; nothing executed.
 > M0 measures pipeline validity plus the causal gate effect under a calibrated simulator, not real-world LLM security efficacy.
+> The ± is the Wilson interval half-width measured around the interval center, not the point estimate, so point ± margin need not span the [bracket].
 
 | Family | N | ASR_vuln [95% CI] | ASR_prot [95% CI] | BlockRate [95% CI] | FP [95% CI] | ΔASR |
 | --- | ---: | --- | --- | --- | --- | ---: |

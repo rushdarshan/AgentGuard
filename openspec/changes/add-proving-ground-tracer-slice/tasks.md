@@ -45,5 +45,5 @@
 ## 8. Verify
 
 - [x] 8.1 Run `npm run bench:m0` and confirm `results/m0/` outputs
-- [x] 8.2 `npm test` clean (9 files / 22 tests green). `npm run lint` not runnable: eslint is absent from package.json + lockfile (pre-existing repo condition), so no lint gate was faked
+- [x] 8.2 `npm test` clean (10 files / 24 tests green). `npm run lint` not runnable: eslint is absent from package.json + lockfile (pre-existing repo condition), so no lint gate was faked
 - [x] 8.3 Confirm `benchmarks/run.js` and `_core/stats.ts` are byte-identical to before

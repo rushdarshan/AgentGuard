@@ -11,7 +11,7 @@ import { assertFixtureSet, FIXTURES } from "./attacks";
 import { evaluate } from "./oracle";
 import { renderTable } from "./report";
 import { policyVersion } from "./sink-denylist";
-import { FAMILIES, RUNS_PER_CELL } from "./types";
+import { FAMILIES, RUNS_PER_CELL, TRUST_PROB } from "./types";
 import type { Trace } from "./types";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,6 +27,7 @@ export function gitSha(): string {
 export function runAll(): Trace[] {
   assertFixtureSet();
   const env = {
+    trust_probability: TRUST_PROB,
     policy_version: policyVersion(),
     git_sha: gitSha(),
     node_version: process.version,

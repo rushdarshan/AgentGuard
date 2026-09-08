@@ -40,4 +40,4 @@ Stakeholders: the Mitacs push needs one small reproducible experiment, not a pla
 
 ## Migration Plan
 
-Additive only: new `benchmarks/m0/` tree, new `results/m0/`, one npm script, four test files. No schema/DB change, no deploy, no rollback surface. Remove the directory to undo. `stats.ts` and `run.js` are not edited.
+Additive only: new `benchmarks/m0/` tree, new `results/m0/`, one npm script, ten test files. No schema/DB change, no deploy, no rollback surface. Remove the directory to undo. `stats.ts` and `run.js` are not edited.
