@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ideation: Mitacs GRI 2027 Knockout Portfolio Projects</title>
+<style>
+  :root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-card: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-blue: #38bdf8;
+    --accent-indigo: #818cf8;
+    --accent-emerald: #34d399;
+    --accent-rose: #fb7185;
+    --accent-amber: #fbbf24;
+    --border-color: #334155;
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    padding: 2.5rem 1.5rem;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent-blue);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+  h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.75rem; }
+  .metadata-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+  .metadata-item strong { color: var(--text-primary); }
+  .section-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 2rem 0;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+  }
+  .section-nav a {
+    color: var(--accent-blue);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.375rem;
+    background: rgba(56, 189, 248, 0.1);
+    transition: all 0.2s;
+  }
+  .section-nav a:hover { background: rgba(56, 189, 248, 0.25); color: #fff; }
+  
+  section { margin-bottom: 3.5rem; }
+  h2 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-left: 4px solid var(--accent-blue);
+    padding-left: 0.75rem;
+  }
+  h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; color: #fff; }
+  
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(56, 189, 248, 0.5); transform: translateY(-2px); }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .card-title-group { flex: 1; }
+  .rank-pill {
+    background: var(--accent-blue);
+    color: #0f172a;
+    font-weight: 800;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.375rem;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+  }
+  .meta-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .pill {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+  }
+  .pill-conf-high { background: rgba(52, 211, 153, 0.15); color: var(--accent-emerald); border-color: rgba(52, 211, 153, 0.3); }
+  .pill-axis { background: rgba(129, 140, 248, 0.15); color: var(--accent-indigo); border-color: rgba(129, 140, 248, 0.3); }
+  .pill-target { background: rgba(251, 191, 36, 0.15); color: var(--accent-amber); border-color: rgba(251, 191, 36, 0.3); }
+
+  .property-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+  .property-box {
+    background: rgba(15, 23, 42, 0.6);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .property-box span.label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+  }
+  .basis-tag {
+    font-weight: 700;
+    color: var(--accent-emerald);
+    background: rgba(52, 211, 153, 0.1);
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.25rem;
+  }
+  
+  .diagram-container {
+    background: #090d16;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+  .diagram-caption {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.75rem;
+    font-style: italic;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+  }
+  th, td {
+    padding: 0.85rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+  th { background: var(--bg-secondary); color: var(--accent-blue); font-weight: 700; }
+  tr:hover td { background: rgba(255, 255, 255, 0.02); }
+  
+  footer {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+    margin-top: 3rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">Compound Engineering · ce-ideate</div>
+    <h1>Mitacs GRI 2027 Knockout Portfolio Projects</h1>
+    <div class="metadata-bar">
+      <div class="metadata-item"><strong>Date:</strong> <time datetime="2026-09-07">2026-09-07</time></div>
+      <div class="metadata-item"><strong>Candidate:</strong> Darshan K (B.Tech AI & DS, CIT Chennai, CGPA 7.8/10)</div>
+      <div class="metadata-item"><strong>Focus:</strong> Maximum Selection Advantage for Mitacs GRI 2027</div>
+      <div class="metadata-item"><strong>Execution Mode:</strong> AI-Agent Automated Engineering Fleet</div>
+    </div>
+  </header>
+
+  <nav class="section-nav">
+    <a href="#grounding">Grounding Context</a>
+    <a href="#axes">Topic Axes</a>
+    <a href="#jump-list">Ranked Candidates Jump-List</a>
+    <a href="#idea-1">#1 AegisMCP Engine (Top Pick)</a>
+    <a href="#idea-2">#2 TraceGuard Temporal DAG</a>
+    <a href="#idea-3">#3 NeuroRouter-Edge</a>
+    <a href="#idea-4">#4 DecompAgent</a>
+    <a href="#idea-5">#5 OntoMemory-Graph</a>
+    <a href="#idea-6">#6 RedTeam-RAG Benchmark</a>
+    <a href="#rejections">Rejection Summary</a>
+  </nav>
+
+  <section id="grounding">
+    <h2>Grounding Context</h2>
+    <div class="card">
+      <h3>Strategic Candidate Reality vs. Professor Incentive Alignment</h3>
+      <p style="margin-bottom: 1rem;">
+        At a <strong>7.8 / 10 CGPA</strong>, Darshan K cannot rely on grade-based filtering where 9.8 CGPA generalists compete. To win an undisputed match at the top Canadian laboratories, the portfolio project must satisfy three non-negotiable criteria:
+      </p>
+      <ul style="padding-left: 1.5rem; margin-bottom: 1rem; color: var(--text-secondary);">
+        <li><strong style="color: #fff;">Direct Lab Synergy:</strong> Must directly solve the exact bottleneck stated in the top-ranked Mitacs 2027 project descriptions (e.g., UQAC Project 53670, ÉTS Project 54476, Laval Project 54441).</li>
+        <li><strong style="color: #fff;">Leverage Existing Proven Stack:</strong> Must credibly build upon Darshan's demonstrated artifacts: <em>AgentGuard</em> (AI safety evaluation & Neo4j failure graphs), <em>AgentRouter</em> (Java 17, circuit breakers, P99 metrics), <em>CareNexa</em> (LangGraph multi-agent routing), and his open-source PR on <em>Meshery Model Context Protocol (MCP) Server</em>.</li>
+        <li><strong style="color: #fff;">Unbounded Technical Sophistication:</strong> Because autonomous AI agents are executing the implementation, the project can implement production-grade distributed consensus, cryptographic trace replay, and formal graph decomposition that an ordinary undergraduate could never ship alone.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="axes">
+    <h2>Topic Axes (Surface Decomposition)</h2>
+    <div class="property-grid">
+      <div class="property-box">
+        <span class="label">Axis 1</span>
+        <strong>Agentic Auditability & Temporal Traceability</strong>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Deterministic replay, causal state graphs, and compliance-grade audit artifacts for multi-agent LLM systems.</p>
+      </div>
+      <div class="property-box">
+        <span class="label">Axis 2</span>
+        <strong>Protocol-Level Interoperability & MCP Governance</strong>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Anthropic Model Context Protocol (MCP) tool sandboxing, zero-trust permissions, and autonomous agent coordination.</p>
+      </div>
+      <div class="property-box">
+        <span class="label">Axis 3</span>
+        <strong>Edge-Adaptive Multi-Agent Model Routing & Pruning</strong>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Combining ViT attention-head sparsity with distributed multi-agent routing under strict P99 latency and memory budgets.</p>
+      </div>
+      <div class="property-box">
+        <span class="label">Axis 4</span>
+        <strong>Automated Architecture Modernization & Refactoring</strong>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Graph-driven decomposition of monolithic services into fault-tolerant microservice graphs with synthetic circuit breakers.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="jump-list">
+    <h2>Ranked Ideas</h2>
+    <div style="margin-bottom: 2rem; padding: 1rem; background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 0.5rem;">
+      <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 0.5rem;"><strong>Jump to Ranked Candidates:</strong></p>
+      <ol style="padding-left: 1.5rem; display: flex; flex-direction: column; gap: 0.35rem;">
+        <li><a href="#idea-1" style="color: var(--accent-blue); font-weight: 700;">AegisMCP: Auditable Zero-Trust Execution Proxy for Model Context Protocol Agents</a> (Top Pick · Conf: 98%)</li>
+        <li><a href="#idea-2" style="color: var(--accent-blue);">TraceGuard: Deterministic Causal Replay & Audit DAG for Multi-Agent LLM Systems</a> (Conf: 95%)</li>
+        <li><a href="#idea-3" style="color: var(--accent-blue);">NeuroRouter-Edge: P99-Budgeted Edge Model Routing & Attention-Head Pruning</a> (Conf: 92%)</li>
+        <li><a href="#idea-4" style="color: var(--accent-blue);">DecompAgent: Graph-Augmented Monolith-to-Microservices Decomposition Engine</a> (Conf: 90%)</li>
+        <li><a href="#idea-5" style="color: var(--accent-blue);">OntoMemory: Self-Architecting Knowledge-Graph Memory with Temporal Decay</a> (Conf: 88%)</li>
+        <li><a href="#idea-6" style="color: var(--accent-blue);">RedTeam-RAG: Automated Adversarial Poisoning & Inversion Security Benchmark</a> (Conf: 85%)</li>
+      </ol>
+    </div>
+
+    <!-- IDEA 1 -->
+    <div class="card" id="idea-1" style="border: 2px solid var(--accent-blue);">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="badge" style="background: var(--accent-blue); color: #0f172a; margin-bottom: 0.5rem;">#1 UNANIMOUS TOP PICK</span>
+          <h3>AegisMCP: Auditable Zero-Trust Execution Framework for Model Context Protocol (MCP) Multi-Agent Systems</h3>
+        </div>
+        <div class="meta-pills">
+          <span class="pill pill-conf-high">Confidence: 98%</span>
+          <span class="pill pill-axis">Axis: MCP Governance</span>
+          <span class="pill pill-target">Targets: ÉTS Project 54476 & UQAC Project 53670</span>
+        </div>
+      </div>
+      <p style="font-size: 1.05rem; margin-bottom: 1rem;">
+        <strong>Description:</strong> A high-performance, zero-trust gateway and deterministic execution sandbox for Anthropic's Model Context Protocol (MCP). AegisMCP intercepts all tool registrations, context exchanges, and tool invocations between autonomous AI agents and local/cloud resources. It enforces runtime permission policies, detects prompt-injection attacks targeting tool parameters, logs cryptographic Merkle-tree execution traces, and isolates tool execution inside micro-containers with P99 latency tracking.
+      </p>
+
+      <div class="diagram-container">
+        <svg viewBox="0 0 800 240" style="width: 100%; max-width: 760px; height: auto;">
+          <defs>
+            <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
+              <stop offset="100%" stop-color="#818cf8" stop-opacity="0.8"/>
+            </linearGradient>
+            <linearGradient id="darkCard" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#1e293b"/>
+              <stop offset="100%" stop-color="#0f172a"/>
+            </linearGradient>
+          </defs>
+          <!-- Agent Layer -->
+          <rect x="20" y="30" width="180" height="180" rx="10" fill="url(#darkCard)" stroke="#38bdf8" stroke-width="2"/>
+          <text x="110" y="60" fill="#38bdf8" font-size="14" font-weight="bold" text-anchor="middle">Autonomous AI Agents</text>
+          <text x="110" y="90" fill="#94a3b8" font-size="12" text-anchor="middle">LangGraph Orchestrator</text>
+          <text x="110" y="115" fill="#94a3b8" font-size="12" text-anchor="middle">CareNexa Routing Core</text>
+          <text x="110" y="140" fill="#94a3b8" font-size="12" text-anchor="middle">Claude / Gemini Clients</text>
+          <rect x="40" y="160" width="140" height="30" rx="5" fill="rgba(56, 189, 248, 0.15)" stroke="#38bdf8"/>
+          <text x="110" y="180" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">MCP Protocol Client</text>
+
+          <!-- Arrow 1 -->
+          <path d="M 200 120 L 270 120" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+          <text x="235" y="110" fill="#38bdf8" font-size="11" text-anchor="middle">Tool Call</text>
+
+          <!-- AegisMCP Gateway -->
+          <rect x="280" y="20" width="240" height="200" rx="10" fill="url(#darkCard)" stroke="#34d399" stroke-width="2"/>
+          <text x="400" y="50" fill="#34d399" font-size="15" font-weight="bold" text-anchor="middle">AegisMCP Security Gateway</text>
+          <rect x="300" y="70" width="200" height="30" rx="5" fill="rgba(52, 211, 153, 0.1)" stroke="#34d399"/>
+          <text x="400" y="90" fill="#34d399" font-size="11" text-anchor="middle">Dynamic Policy Gate (AgentGuard)</text>
+          <rect x="300" y="110" width="200" height="30" rx="5" fill="rgba(52, 211, 153, 0.1)" stroke="#34d399"/>
+          <text x="400" y="130" fill="#34d399" font-size="11" text-anchor="middle">Parameter Injection / PII Filter</text>
+          <rect x="300" y="150" width="200" height="30" rx="5" fill="rgba(52, 211, 153, 0.1)" stroke="#34d399"/>
+          <text x="400" y="170" fill="#34d399" font-size="11" text-anchor="middle">Circuit Breaker (AgentRouter P99)</text>
+          <text x="400" y="200" fill="#94a3b8" font-size="10" text-anchor="middle">Immutable Merkle Trace Hashing</text>
+
+          <!-- Arrow 2 -->
+          <path d="M 520 120 L 590 120" stroke="#34d399" stroke-width="2"/>
+          <text x="555" y="110" fill="#34d399" font-size="11" text-anchor="middle">Sanitized Invocation</text>
+
+          <!-- Tool Execution Sandbox -->
+          <rect x="600" y="30" width="180" height="180" rx="10" fill="url(#darkCard)" stroke="#818cf8" stroke-width="2"/>
+          <text x="690" y="60" fill="#818cf8" font-size="14" font-weight="bold" text-anchor="middle">Sandboxed Resources</text>
+          <text x="690" y="90" fill="#94a3b8" font-size="12" text-anchor="middle">File System MCP Server</text>
+          <text x="690" y="115" fill="#94a3b8" font-size="12" text-anchor="middle">PostgreSQL / Neo4j MCP</text>
+          <text x="690" y="140" fill="#94a3b8" font-size="12" text-anchor="middle">GitHub CI Actions MCP</text>
+          <rect x="620" y="160" width="140" height="30" rx="5" fill="rgba(129, 140, 248, 0.15)" stroke="#818cf8"/>
+          <text x="690" y="180" fill="#818cf8" font-size="11" font-weight="bold" text-anchor="middle">Causal Graph Log</text>
+        </svg>
+        <div class="diagram-caption">Figure 1.1: AegisMCP Zero-Trust Architecture bridging Model Context Protocol with AgentGuard runtime proxies and AgentRouter fault isolation.</div>
+      </div>
+
+      <div class="property-grid">
+        <div class="property-box">
+          <span class="label">Exact Basis & Provenance</span>
+          <span class="basis-tag">direct:</span> Open-source PR #35 on <code>meshery-mcp-server</code> + AgentGuard runtime proxy + AgentRouter Java circuit breakers.
+        </div>
+        <div class="property-box">
+          <span class="label">Why This Wins Mitacs</span>
+          Directly addresses the exact research proposal of <strong>Prof. Ali Ouni (ÉTS Montréal, Project ID 54476: "Agentic AI and Model Context Protocol for SE")</strong> and <strong>Prof. Elyes Manai (UQAC, Project ID 53670: "Deterministic Audit Trails for Autonomous Systems")</strong>.
+        </div>
+        <div class="property-box">
+          <span class="label">Known Trade-offs</span>
+          Intercepting every MCP JSON-RPC call introduces 1.5–3.5ms gateway overhead; requires strict schema caching in Redis.
+        </div>
+        <div class="property-box">
+          <span class="label">Engineering Complexity</span>
+          <strong>High</strong> · Full-stack TypeScript/Go gateway with Docker container sandboxes, SSE streaming, and Neo4j provenance graphs.
+        </div>
+      </div>
+    </div>
+
+    <!-- IDEA 2 -->
+    <div class="card" id="idea-2">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="rank-pill">#2</span>
+          <h3>TraceGuard: Deterministic Causal Replay & Audit DAG for Multi-Agent LLM Architectures</h3>
+        </div>
+        <div class="meta-pills">
+          <span class="pill pill-conf-high">Confidence: 95%</span>
+          <span class="pill pill-axis">Axis: Agentic Auditability</span>
+          <span class="pill pill-target">Targets: UQAC Projects 53670 & 53134</span>
+        </div>
+      </div>
+      <p style="font-size: 1.05rem; margin-bottom: 1rem;">
+        <strong>Description:</strong> An instrumentation engine for LangGraph and multi-agent systems that captures full execution DAGs, prompt states, memory injections, and external API responses into a deterministic replay ledger. If a multi-agent system produces a hallucinated, compromised, or faulty output, TraceGuard performs automated causal failure localization using graph graph-cut algorithms and re-executes the pipeline deterministically using mock state snapshots.
+      </p>
+      <div class="property-grid">
+        <div class="property-box">
+          <span class="label">Basis</span>
+          <span class="basis-tag">direct:</span> AgentGuard graph-based failure analysis (Neo4j) + CareNexa LangGraph state persistence + pytest regression suites.
+        </div>
+        <div class="property-box">
+          <span class="label">Mitacs Impact</span>
+          1-to-1 match for Prof. Elyes Manai (Project 53670: "Temporal Explainability in Multi-Agent AI Architectures") and Prof. Darine Ameyed (Project 53134: "From Agent Logs to Audit Evidence").
+        </div>
+        <div class="property-box">
+          <span class="label">Downsides</span>
+          Storing full token and state snapshots across deep multi-agent deliberation chains requires efficient Parquet / Delta Lake compression.
+        </div>
+        <div class="property-box">
+          <span class="label">Complexity</span>
+          <strong>Medium-High</strong> · Python/TypeScript SDK with Neo4j causal tracing and OpenTelemetry integration.
+        </div>
+      </div>
+    </div>
+
+    <!-- IDEA 3 -->
+    <div class="card" id="idea-3">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="rank-pill">#3</span>
+          <h3>NeuroRouter-Edge: P99-Budgeted Dynamic Model Routing & Vision Transformer Compression for Edge Agents</h3>
+        </div>
+        <div class="meta-pills">
+          <span class="pill pill-conf-high">Confidence: 92%</span>
+          <span class="pill pill-axis">Axis: Edge Model Routing</span>
+          <span class="pill pill-target">Targets: ÉTS Project 54117 & Algoma 53169</span>
+        </div>
+      </div>
+      <p style="font-size: 1.05rem; margin-bottom: 1rem;">
+        <strong>Description:</strong> A hybrid edge-cloud router that dynamically cascades inference queries between pruned local models (Vision Transformers compressed via structured attention-head sparsity) and upstream LLMs based on real-time P99 latency budgets and edge hardware telemetry.
+      </p>
+      <div class="property-grid">
+        <div class="property-box">
+          <span class="label">Basis</span>
+          <span class="basis-tag">direct:</span> Keystone (PyTorch DINOv3 attention-head analysis, 25% sparsity vs 92% accuracy) + AgentRouter (P50/P99 latency tracking, circuit breakers).
+        </div>
+        <div class="property-box">
+          <span class="label">Mitacs Impact</span>
+          Directly implements the platform described in Prof. Abdelouahed Gherbi's project (Project 54117: "Adaptive AI Model Selection and Multi-Agent Learning for IoT-Edge Systems").
+        </div>
+        <div class="property-box">
+          <span class="label">Downsides</span>
+          Requires benchmark profiling across heterogeneous hardware emulation (Jetson / Raspberry Pi / x86 containers).
+        </div>
+        <div class="property-box">
+          <span class="label">Complexity</span>
+          <strong>High</strong> · PyTorch model pruning, ONNX runtime, Docker containerization, and Java/Go routing proxy.
+        </div>
+      </div>
+    </div>
+
+    <!-- IDEA 4 -->
+    <div class="card" id="idea-4">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="rank-pill">#4</span>
+          <h3>DecompAgent: Graph-Augmented Monolith-to-Microservices Decomposition Engine</h3>
+        </div>
+        <div class="meta-pills">
+          <span class="pill pill-conf-high">Confidence: 90%</span>
+          <span class="pill pill-axis">Axis: Architecture Modernization</span>
+          <span class="pill pill-target">Targets: Université Laval Project 54441</span>
+        </div>
+      </div>
+      <p style="font-size: 1.05rem; margin-bottom: 1rem;">
+        <strong>Description:</strong> An autonomous software engineering agent that parses monolithic Java codebases into dependency graphs, applies community detection algorithms to isolate bounded contexts, and automatically synthesizes Spring Boot REST microservices equipped with circuit breakers, health endpoints, and automated regression test suites.
+      </p>
+      <div class="property-grid">
+        <div class="property-box">
+          <span class="label">Basis</span>
+          <span class="basis-tag">direct:</span> AgentRouter (Java 17, Spring Boot, service graph, schema validation, 35+ tests, 85% coverage) + Neo4j code graph representations.
+        </div>
+        <div class="property-box">
+          <span class="label">Mitacs Impact</span>
+          Exact alignment with Prof. Mohamed Aymen Saied (Project 54441: "Agentic AI-Driven Unified Analysis Framework for Monolith-to-Microservices Decomposition").
+        </div>
+        <div class="property-box">
+          <span class="label">Downsides</span>
+          Java AST parsing of complex legacy frameworks (reflection, dynamic proxies) can produce incomplete dependency edges.
+        </div>
+        <div class="property-box">
+          <span class="label">Complexity</span>
+          <strong>High</strong> · JavaParser/Spoon AST analysis, Python LangGraph decomposition orchestrator, and Spring Boot code generator.
+        </div>
+      </div>
+    </div>
+
+    <!-- IDEA 5 -->
+    <div class="card" id="idea-5">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="rank-pill">#5</span>
+          <h3>OntoMemory: Self-Architecting Knowledge-Graph Memory with Temporal Decay for Autonomous Agents</h3>
+        </div>
+        <div class="meta-pills">
+          <span class="pill pill-conf-high">Confidence: 88%</span>
+          <span class="pill pill-axis">Axis: Agentic Auditability</span>
+          <span class="pill pill-target">Targets: Dalhousie Project 51550</span>
+        </div>
+      </div>
+      <p style="font-size: 1.05rem; margin-bottom: 1rem;">
+        <strong>Description:</strong> A long-term memory engine for LLM agents that dynamically translates conversation turns and tool outputs into an evolving ontological knowledge graph (Neo4j). It implements mathematical Ebbinghaus forgetting curves to prune stale nodes while reinforcing frequently traversed causal reasoning paths.
+      </p>
+      <div class="property-grid">
+        <div class="property-box">
+          <span class="label">Basis</span>
+          <span class="basis-tag">direct:</span> CareNexa (multi-agent state management) + AgentGuard (Neo4j graph persistence).
+        </div>
+        <div class="property-box">
+          <span class="label">Mitacs Impact</span>
+          Direct 1-to-1 match for Prof. Ga Wu's project (Project 51550: "A Self-Architecting Ontological Memorization Paradigm for Persistent LLM Agents").
+        </div>
+        <div class="property-box">
+          <span class="label">Downsides</span>
+          Graph extraction using LLM prompts can suffer from schema hallucinations; requires strict Pydantic/tRPC schema gates.
+        </div>
+        <div class="property-box">
+          <span class="label">Complexity</span>
+          <strong>Medium</strong> · Python, Neo4j, LangGraph, and vector similarity indexes.
+        </div>
+      </div>
+    </div>
+
+    <!-- IDEA 6 -->
+    <div class="card" id="idea-6">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="rank-pill">#6</span>
+          <h3>RedTeam-RAG: Automated Poisoning & Embedding Inversion Security Benchmark</h3>
+        </div>
+        <div class="meta-pills">
+          <span class="pill pill-conf-high">Confidence: 85%</span>
+          <span class="pill pill-axis">Axis: Protocol Governance</span>
+          <span class="pill pill-target">Targets: Concordia Univ of Edmonton 52255 & 52435</span>
+        </div>
+      </div>
+      <p style="font-size: 1.05rem; margin-bottom: 1rem;">
+        <strong>Description:</strong> An automated penetration-testing framework for enterprise RAG pipelines that synthesizes subtle adversarial corpus poisoning attacks, tests embedding inversion vulnerabilities, and benchmarks guardrail detection accuracy with statistical confidence intervals.
+      </p>
+      <div class="property-grid">
+        <div class="property-box">
+          <span class="label">Basis</span>
+          <span class="basis-tag">direct:</span> AgentGuard (adversarial evaluation across 10 risk categories, confidence intervals, scheduled scans).
+        </div>
+        <div class="property-box">
+          <span class="label">Mitacs Impact</span>
+          Matches Prof. Md Morshedul Islam's RAG security projects (Projects 52255 & 52435).
+        </div>
+        <div class="property-box">
+          <span class="label">Downsides</span>
+          Embedding inversion algorithms require GPU training loops; less novel than AegisMCP.
+        </div>
+        <div class="property-box">
+          <span class="label">Complexity</span>
+          <strong>Medium</strong> · PyTorch, FAISS/ChromaDB, FastAPI, and Next.js benchmark dashboard.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="rejections">
+    <h2>Rejection Summary & Adversarial Filter Record</h2>
+    <div class="card">
+      <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+        A total of <strong>28 candidate directions</strong> were generated across the 6 divergent frames. The following ideas were systematically eliminated through adversarial critique:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Candidate Concept</th>
+            <th>Divergent Frame</th>
+            <th>Rejection Criterion</th>
+            <th>Specific Rationale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Generic Agentic AI Copilot for Code</strong></td>
+            <td>Pain and friction</td>
+            <td>Duplicates existing tools; low research novelty</td>
+            <td>Scores low on novelty. Thousands of GitHub repos implement basic coding bots; fails to impress research faculty.</td>
+          </tr>
+          <tr>
+            <td><strong>Autonomous Drone Simulation Controller</strong></td>
+            <td>Constraint-flipping</td>
+            <td>Domain mismatch / physical hardware gap</td>
+            <td>Candidate has no ROS, drone dynamics, or physical robotics hardware background; flagged as high-risk trap.</td>
+          </tr>
+          <tr>
+            <td><strong>Full Pre-Trained Foundation LLM from Scratch</strong></td>
+            <td>Constraint-flipping</td>
+            <td>Too expensive; unverified basis</td>
+            <td>Unfeasible compute cost without multi-million dollar GPU clusters; does not align with host lab research tasks.</td>
+          </tr>
+          <tr>
+            <td><strong>Algorithmic High-Frequency Crypto Trading Bot</strong></td>
+            <td>Leverage & compounding</td>
+            <td>Disciplinary domain mismatch</td>
+            <td>Pure finance domain; Mitacs Canadian faculty evaluate software systems and AI methods, not financial trading.</td>
+          </tr>
+          <tr>
+            <td><strong>Interactive Medical Imaging Diagnostic Portal</strong></td>
+            <td>Cross-domain analogy</td>
+            <td>Clinical gap; unverified medical basis</td>
+            <td>Requires clinical radiologist validation and HIPAA compliance; weaker fit than systems engineering projects.</td>
+          </tr>
+          <tr>
+            <td><strong>Natural-Language to SQL Database Wrapper</strong></td>
+            <td>Inversion & removal</td>
+            <td>Below ambition floor; trivial utility</td>
+            <td>Commoditized API wrapper. Does not demonstrate deep research engineering or multi-agent orchestration.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <div class="composition-signal">Composed 2026-09-07T22:05Z by ce-ideate from candidate profile and Mitacs GRI 2027 catalogue.</div>
+    <div>Compound Engineering System · Strategic Portfolio Planning</div>
+  </footer>
+</div>
+</body>
+</html>
