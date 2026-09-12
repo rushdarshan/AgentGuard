@@ -40,7 +40,7 @@ runs:
       shell: bash
       run: |
         npx tsx src/cli/index.ts test --url "${{ inputs.url }}" --output json > agentguard-report.json
-        SCORE=$(cat agentguard-report.json | node -e "const d=require('fs').readFileSync('/dev/stdin','utf8');const j=JSON.parse(d);console.log(Math.round((j.summary?.passed/j.summary?.total||0)*100))")
+        SCORE=$(cat agentguard-report.json | node -e "const d=require('fs').readFileSync('/dev/stdin','utf8');const j=JSON.parse(d);const s=(typeof j.score==='number'?j.score:(j.summary?.passed/j.summary?.total||0)*100);console.log(Math.round(s*10)/10)")
         echo "score=$SCORE" >> $GITHUB_OUTPUT
         PASSED=$([ $SCORE -ge ${{ inputs.threshold }} ] && echo "true" || echo "false")
         echo "passed=$PASSED" >> $GITHUB_OUTPUT

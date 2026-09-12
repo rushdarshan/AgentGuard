@@ -7,12 +7,20 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
+  demoFailures,
   EXPERIMENT_ID,
+  FAULT_DEMO_EXPERIMENT_ID,
+  flipOracleOutcome,
+  provenanceFailures,
   replaySlice,
+  rescore,
   runSlice,
   TRACES_PATH,
   verifySlice,
 } from "./experiments/destructive-command-relay.js";
+import { demonstrateFaults } from "./faults.js";
+import { listExperimentBundles } from "./bundle.js";
+import { evaluatorVersion } from "./replay.js";
 import { parseArgs } from "./run.js";
 
 const agentRoot = process.cwd();
@@ -60,7 +68,8 @@ suite("verify and replay modes", () => {
     resultsRoot = mkdtempSync(join(tmpdir(), "lab-modes-results-"));
     mkdirSync(join(sandboxAgent, "results", "m0"), { recursive: true });
     writeFileSync(join(sandboxAgent, TRACES_PATH), readFileSync(join(agentRoot, TRACES_PATH), "utf8"));
-    runSlice(sandboxAgent, resultsRoot);
+    const summary = runSlice(sandboxAgent, resultsRoot);
+    demonstrateFaults(summary.executions[0], resultsRoot, FAULT_DEMO_EXPERIMENT_ID, { rescore }, flipOracleOutcome);
   }, 120_000);
 
   it("verify passes on a fresh generate and writes nothing", () => {
@@ -128,4 +137,89 @@ suite("verify and replay modes", () => {
     // Bundles untouched by verification.
     expect(readFileSync(join(expDir2, caseFile), "utf8")).toBe(bundleBefore);
   }, 120_000);
+
+  it("provenanceFailures rejects null evidence, duplicates, and input drift", () => {
+    // Fresh sandbox: earlier tamper tests leave the shared tree behind.
+    const agentP = mkdtempSync(join(tmpdir(), "lab-modes-agentP-"));
+    const resultsP = mkdtempSync(join(tmpdir(), "lab-modes-resultsP-"));
+    mkdirSync(join(agentP, "results", "m0"), { recursive: true });
+    writeFileSync(join(agentP, TRACES_PATH), readFileSync(join(agentRoot, TRACES_PATH), "utf8"));
+    runSlice(agentP, resultsP);
+    const traces = readFileSync(join(agentP, TRACES_PATH), "utf8")
+      .split("\n")
+      .filter(Boolean)
+      .map((l) => JSON.parse(l));
+    const exec = listExperimentBundles(resultsP, EXPERIMENT_ID)[0];
+    expect(provenanceFailures(exec, traces)).toEqual([]);
+    const nulled = JSON.parse(JSON.stringify(exec));
+    nulled.provenance[0].rawResponse = null;
+    nulled.provenance[0].configHash = null;
+    expect(provenanceFailures(nulled, traces).join("\n")).toMatch(/PROVENANCE_LABEL_MISMATCH/);
+    const duped = JSON.parse(JSON.stringify(exec));
+    duped.provenance = [...duped.provenance, duped.provenance[0]];
+    expect(provenanceFailures(duped, traces).join("\n")).toMatch(/DUPLICATE_JUDGE_LABEL/);
+    const drifted = JSON.parse(JSON.stringify(exec));
+    drifted.input.toolResponse += " extra";
+    expect(provenanceFailures(drifted, traces).join("\n")).toMatch(/PROVENANCE_INPUT_MISMATCH/);
+  }, 120_000);
+
+  it("demoFailures requires all five successful current demos", () => {
+    const current = listExperimentBundles(resultsRoot, FAULT_DEMO_EXPERIMENT_ID);
+    expect(current).toHaveLength(5);
+    expect(demoFailures(resultsRoot, evaluatorVersion())).toEqual([]);
+    const empty = mkdtempSync(join(tmpdir(), "lab-modes-empty-"));
+    try {
+      const failures = demoFailures(empty, evaluatorVersion()).join("\n");
+      for (const fault of ["evaluator_failure", "malformed_result", "missing_trace", "replay_mismatch", "duplicate_result"]) {
+        expect(failures).toContain(`MISSING_FAULT_DEMO: ${fault}`);
+      }
+    } finally {
+      rmSync(empty, { recursive: true, force: true });
+    }
+  });
+
+  it("a lying index entry fails verification without touching bundles", () => {
+    const agent3 = mkdtempSync(join(tmpdir(), "lab-modes-agent3-"));
+    const results3 = mkdtempSync(join(tmpdir(), "lab-modes-results3-"));
+    mkdirSync(join(agent3, "results", "m0"), { recursive: true });
+    writeFileSync(join(agent3, TRACES_PATH), readFileSync(join(agentRoot, TRACES_PATH), "utf8"));
+    runSlice(agent3, results3);
+    demonstrateFaults(
+      listExperimentBundles(results3, EXPERIMENT_ID)[0],
+      results3,
+      FAULT_DEMO_EXPERIMENT_ID,
+      { rescore },
+      flipOracleOutcome,
+    );
+    const indexPath = join(results3, "index.jsonl");
+    const before = readFileSync(indexPath, "utf8");
+    const lines = before.split("\n").filter(Boolean);
+    const entry = JSON.parse(lines[0]);
+    entry.file = "does-not-exist.json";
+    entry.result = "INVALID_RESULT";
+    lines[0] = JSON.stringify(entry);
+    writeFileSync(indexPath, lines.join("\n") + "\n");
+    const expCase = readdirSync(join(results3, EXPERIMENT_ID)).filter((f) => f.endsWith(".json") && f !== "agreement.json" && f !== "model-verdicts.json")[0];
+    const bundleBefore = readFileSync(join(results3, EXPERIMENT_ID, expCase), "utf8");
+    const outcome = verifySlice(agent3, results3);
+    expect(outcome.ok).toBe(false);
+    expect(outcome.failures.join("\n")).toMatch(/INDEX_FILE_MISMATCH/);
+    expect(outcome.failures.join("\n")).toMatch(/INDEX_RESULT_MISMATCH/);
+    expect(readFileSync(join(results3, EXPERIMENT_ID, expCase), "utf8")).toBe(bundleBefore);
+  }, 120_000);
+
+  it("demoFailures requires all five successful current demos", () => {
+    const current = listExperimentBundles(resultsRoot, FAULT_DEMO_EXPERIMENT_ID);
+    expect(current).toHaveLength(5);
+    expect(demoFailures(resultsRoot, evaluatorVersion())).toEqual([]);
+    const empty = mkdtempSync(join(tmpdir(), "lab-modes-empty-"));
+    try {
+      const failures = demoFailures(empty, evaluatorVersion()).join("\n");
+      for (const fault of ["evaluator_failure", "malformed_result", "missing_trace", "replay_mismatch", "duplicate_result"]) {
+        expect(failures).toContain(`MISSING_FAULT_DEMO: ${fault}`);
+      }
+    } finally {
+      rmSync(empty, { recursive: true, force: true });
+    }
+  });
 });

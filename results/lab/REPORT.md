@@ -100,9 +100,9 @@ FRESH_EXECUTION is the existing path and is explicitly non-deterministic.
 Demonstration records are flagged in metadata and excluded from the slice statistics above.
 
 ## Versions and provenance
-- evaluatorVersion: 652f24d91b9fa93152d61fc5672dc1d5388dce5ef1310107e74880b3af8277af (content hash over the declared evaluator input set)
+- evaluatorVersion: 54d9e103e268b56994fd1479d6a5529d74fcb4a09c63d1cdb5aabc62e14ae456 (content hash over the declared evaluator input set)
 - datasetVersion: bf0473200aea0b4e8c39ea9efc077d327f76c2074a4403d511bf9ef7a9e5980e (M0 trace digest for family destructive-command-relay)
-- targetVersion: 02105e4312042244008dda29dc0045fd3e22b193 (parent git SHA; caveat: a commit cannot contain its own SHA,
+- targetVersion: 33497ef42ef282749ec525bed11a8e450ab4d572 (parent git SHA; caveat: a commit cannot contain its own SHA,
   and untracked or modified working-tree files are not captured by it (provenance, not integrity))
 - agreement record: exp-destructive-command-relay-v1/agreement.json (digest 6d16d97a2eea)
 - label provenance: every recorded label carries origin, judgeId, config/input hashes, raw response, parsed label

@@ -118,24 +118,18 @@ export function applyFault(
     }
     case "replay_mismatch": {
       // Boundary: observations are mutated, then the real replay comparison
-      // must detect the divergence. Requires the experiment's rescorer.
+      // must detect the divergence using the experiment's rescorer UNCHANGED.
+      // Only a mutation the rescorer's verdict actually depends on can make
+      // the fault take; otherwise applyFault honestly reports NOT detected.
       if (!ctx.rescorer) throw new Error("replay_mismatch requires ctx.rescorer");
-      const rescorer: Rescorer = {
-        rescore: (candidate) => {
-          const result = ctx.rescorer!.rescore(candidate);
-          return {
-            ...result,
-            outcome: result.outcome === "PASS" ? "FAIL" : "PASS",
-            reasonCode: "FAULT_REPLAY_MISMATCH",
-          };
-        },
-      };
-      if (copy.observations !== null && typeof copy.observations === "object" && !Array.isArray(copy.observations)) {
-        (copy.observations as Record<string, unknown>).__fault_replay_mismatch = true;
-      } else {
-        copy.observations = { __wrapped: copy.observations, __fault_replay_mismatch: true };
-      }
-      const outcome = replay(copy, rescorer, { mode: "ARTIFACT_REPLAY" });
+      const mutate =
+        ctx.mutate ??
+        ((obs: unknown) =>
+          obs !== null && typeof obs === "object" && !Array.isArray(obs)
+            ? { ...(obs as Record<string, unknown>), __fault_replay_mismatch: true }
+            : { __wrapped: obs, __fault_replay_mismatch: true });
+      copy.observations = mutate(copy.observations);
+      const outcome = replay(copy, ctx.rescorer, { mode: "ARTIFACT_REPLAY" });
       const ok = outcome.code === "REPLAY_MISMATCH";
       if (ok) {
         copy.evidenceIntegrity = { status: "FAILED", findings: ["REPLAY_MISMATCH: re-scored canonical projection differs"] };

@@ -14,6 +14,7 @@ import { listExperimentBundles } from "./bundle.js";
 import {
   EXPERIMENT_ID,
   FAULT_DEMO_EXPERIMENT_ID,
+  flipOracleOutcome,
   replaySlice,
   rescore,
   runSlice,
@@ -100,11 +101,7 @@ function main(): void {
     // The mutation the slice rescorer genuinely depends on: flipping the
     // recorded oracle outcome changes the re-scored verdict, so the replay
     // comparison really detects the divergence (no stub rescorer).
-    const flipOracle = (obs: unknown) =>
-      obs !== null && typeof obs === "object" && !Array.isArray(obs)
-        ? { ...(obs as Record<string, unknown>), forbidden_sink_emitted: !(obs as { forbidden_sink_emitted?: boolean }).forbidden_sink_emitted }
-        : obs;
-    demonstrateFaults(base, resultsRoot, FAULT_DEMO_EXPERIMENT_ID, { rescore }, flipOracle);
+    demonstrateFaults(base, resultsRoot, FAULT_DEMO_EXPERIMENT_ID, { rescore }, flipOracleOutcome);
   }
   const report = renderReportFromCommitted(agentRoot, resultsRoot);
   writeFileSync(join(resultsRoot, "REPORT.md"), report);

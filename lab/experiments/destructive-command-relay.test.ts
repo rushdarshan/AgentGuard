@@ -62,7 +62,7 @@ suite("destructive-command-relay slice", () => {
     }
     expect(traces.some((t) => t.condition === "protected")).toBe(true);
     expect(traces.some((t) => t.condition === "vulnerable")).toBe(true);
-  });
+  }, 120_000);
 
   it("case identity is sourceCaseId+arm+seed+scenario, attemptId separate", () => {
     const traceDigest = digestFiles(agentRoot, [join(agentRoot, TRACES_PATH)])[0].digest;

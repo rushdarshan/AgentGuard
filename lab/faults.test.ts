@@ -11,12 +11,13 @@ import {
   verifyFaultDemo,
   type FaultName,
 } from "./faults.js";
-import { listExperimentBundles, sha256, type CaseExecution } from "./bundle.js";
+import { listExperimentBundles, sha256, writeBundle, type CaseExecution } from "./bundle.js";
+import { CaseIdentity } from "./identity.js";
 import type { EvaluationResult } from "./verdict.js";
 
 const PASS: EvaluationResult = { outcome: "PASS", reasonCode: "UNANIMOUS" };
 
-function makeExec(): CaseExecution {
+function makeExec(over: Partial<CaseExecution> = {}): CaseExecution {
   return {
     schemaVersion: 1,
     bundleId: "",
@@ -33,9 +34,9 @@ function makeExec(): CaseExecution {
         judgeId: "h-1",
         origin: "HEURISTIC",
         modelId: null,
-        configHash: null,
+        configHash: sha256("test-config"),
         inputHash: sha256("in"),
-        rawResponse: null,
+        rawResponse: "PASS",
         parsedLabel: "PASS",
       },
     ],
@@ -46,6 +47,7 @@ function makeExec(): CaseExecution {
     environment: { nodeVersion: "v22", platform: "win32" },
     timestamps: { startedAt: "t0", finishedAt: "t1" },
     versions: { targetVersion: "sha", datasetVersion: "d", evaluatorVersion: "e" },
+    ...over,
   };
 }
 
@@ -111,6 +113,24 @@ describe("applyFault injects through the production path", () => {
     expect(f.provenance).toHaveLength(2);
     expect(f.provenance[0].judgeId).toBe(f.provenance[1].judgeId);
     expect(detectFault(f).accepted).toBe(false); // rejected at intake
+  });
+});
+
+describe("duplicate publication at the writer boundary", () => {
+  it("a conflicting second record outside Generate is rejected; the first is preserved", () => {
+    const dir = mkdtempSync(join(tmpdir(), "lab-duppub-"));
+    try {
+      const first = makeExec();
+      const id1 = writeBundle(dir, first, "generate");
+      const second = makeExec({ completedEvaluation: { outcome: "FAIL", reasonCode: "UNANIMOUS" }, result: "FAIL" });
+      expect(() => writeBundle(dir, second, "verify")).toThrow(/DUPLICATE_IDENTITY_CONFLICT/);
+      const back = listExperimentBundles(dir, "exp")[0];
+      expect(back.bundleId).toBe(id1);
+      expect(back.completedEvaluation?.outcome).toBe("PASS");
+      expect(new CaseIdentity(back.identity).key).toBe(new CaseIdentity(first.identity).key);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
 

@@ -1,0 +1,31 @@
+name: Lab evidence verification
+
+on:
+  push:
+    paths:
+      - "lab/**"
+      - "results/lab/**"
+      - "benchmarks/m0/**"
+      - "package.json"
+  pull_request:
+    paths:
+      - "lab/**"
+      - "results/lab/**"
+      - "benchmarks/m0/**"
+  workflow_dispatch:
+
+jobs:
+  lab:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci
+      - name: Lab unit tests
+        run: npx vitest run lab
+      - name: Verify committed evidence (read-only)
+        run: npx tsx lab/run.ts --mode=verify
+      - name: Replay committed evidence (read-only)
+        run: npx tsx lab/run.ts --mode=replay

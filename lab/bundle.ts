@@ -225,8 +225,13 @@ export function validateCaseExecution(exec: unknown): asserts exec is CaseExecut
   if (typeof e.schemaVersion !== "number") fail("schemaVersion is not a number");
   if (typeof e.bundleId !== "string" || !e.bundleId) fail("bundleId is not a non-empty string");
   if (typeof e.experimentId !== "string" || !e.experimentId) fail("experimentId is not a non-empty string");
-  for (const field of ["input", "observations", "environment", "timestamps", "agreementRef"] as const) {
-    if (!Object.prototype.hasOwnProperty.call(e, field)) fail(`${field} is required`);
+  const env = e.environment as Record<string, unknown> | undefined;
+  if (typeof env?.nodeVersion !== "string" || !env.nodeVersion || typeof env?.platform !== "string" || !env.platform) {
+    fail("environment must carry nodeVersion/platform strings");
+  }
+  const ts = e.timestamps as Record<string, unknown> | undefined;
+  if (typeof ts?.startedAt !== "string" || !ts.startedAt || typeof ts?.finishedAt !== "string" || !ts.finishedAt) {
+    fail("timestamps must carry startedAt/finishedAt strings");
   }
   try {
     new CaseIdentity(e.identity as CaseIdentityFields);
@@ -253,10 +258,13 @@ export function validateCaseExecution(exec: unknown): asserts exec is CaseExecut
   if (!["REPRODUCIBLE", "NON_DETERMINISTIC"].includes(e.determinismClaim as string)) {
     fail(`determinismClaim ${String(e.determinismClaim)} unknown`);
   }
-  const ar = e.agreementRef as AgreementRef | null | undefined;
-  if (ar !== null && ar !== undefined) {
-    if (typeof ar !== "object" || typeof ar.recordFile !== "string" || typeof ar.recordDigest !== "string") {
-      fail("agreementRef is neither null nor {recordFile, recordDigest}");
+  for (const field of ["input", "observations", "agreementRef"] as const) {
+    if (!Object.prototype.hasOwnProperty.call(e, field)) fail(`${field} is required`);
+  }
+  if (e.agreementRef !== null) {
+    const ar = e.agreementRef as Record<string, unknown>;
+    if (typeof ar !== "object" || typeof ar.recordFile !== "string" || !ar.recordFile || typeof ar.recordDigest !== "string" || !ar.recordDigest) {
+      fail("agreementRef must be null or carry recordFile/recordDigest strings");
     }
   }
   if (!Array.isArray(e.provenance)) fail("provenance is not an array");
@@ -266,7 +274,12 @@ export function validateCaseExecution(exec: unknown): asserts exec is CaseExecut
     if (!["PASS", "FAIL", "ABSTAIN", "EVALUATOR_ERROR"].includes(p.parsedLabel as string)) {
       fail(`provenance parsedLabel ${String(p.parsedLabel)} unknown`);
     }
-    if (!Object.prototype.hasOwnProperty.call(p, "rawResponse")) fail("provenance rawResponse is required");
+    // Presence is not enough: null or empty evidence values fail. modelId is
+    // the only nullable provenance field (null = keyless heuristic judge).
+    for (const field of ["configHash", "inputHash", "rawResponse"] as const) {
+      if (typeof p[field] !== "string" || !(p[field] as string)) fail(`provenance ${field} must be a non-empty string`);
+    }
+    if (p.modelId !== null && (typeof p.modelId !== "string" || !p.modelId)) fail("provenance modelId must be null or a non-empty string");
   }
   if (!Array.isArray(e.traces)) fail("traces is not an array");
   for (const t of e.traces as Record<string, unknown>[]) {

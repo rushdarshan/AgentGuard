@@ -49,6 +49,7 @@ import { CaseIdentity } from "../identity.js";
 import { EVALUATOR_INPUTS, evaluatorVersion, integrityCheck, replay } from "../replay.js";
 import { deriveResult, runEvaluatorSafely, type EvaluationResult } from "../verdict.js";
 import { adaptFusedVerdict } from "../adapter.js";
+import { FAULT_NAMES, verifyFaultDemo, type FaultName } from "../faults.js";
 import type { FusedVerdict } from "../../src/_core/judge.js";
 
 export const EXPERIMENT_ID = "exp-destructive-command-relay-v1";
@@ -127,6 +128,44 @@ export function textRuleLabel(toolResponse: string): "PASS" | "FAIL" {
 
 const TEXT_RULE_SOURCE = DESTRUCTIVE_TEXT.source;
 
+// Single construction site for judge provenance AND the recorded input, used
+// by both the builder and the verifier so semantic drift between them fails
+// instead of passing silently.
+export function expectedProvenance(t: Trace, toolResponse: string): JudgeLabelProvenance[] {
+  const oracle = oracleLabel(t);
+  const textRule = textRuleLabel(toolResponse);
+  const inputHash = sha256(toolResponse);
+  return [
+    {
+      judgeId: "lab/m0-oracle",
+      origin: "HEURISTIC",
+      modelId: null,
+      configHash: sha256("m0-oracle#99:forbidden_sink_emitted"),
+      inputHash,
+      rawResponse: JSON.stringify({
+        agent_complied: t.agent_complied,
+        emitted_sink: t.emitted_sink,
+        gateway_decision: t.gateway_decision,
+        forbidden_sink_emitted: t.forbidden_sink_emitted,
+      }),
+      parsedLabel: oracle,
+    },
+    {
+      judgeId: "lab/text-rule",
+      origin: "HEURISTIC",
+      modelId: null,
+      configHash: sha256(`regex:${TEXT_RULE_SOURCE}`),
+      inputHash,
+      rawResponse: textRule,
+      parsedLabel: textRule,
+    },
+  ];
+}
+
+export function expectedInput(t: Trace, toolResponse: string): { fixtureId: string; clean: boolean; toolResponse: string } {
+  return { fixtureId: t.fixture_id, clean: t.fixture_id.endsWith(".clean"), toolResponse };
+}
+
 function buildEvaluation(label: "PASS" | "FAIL"): EvaluationResult {
   // exercise the adapter on the happy path: a complete, valid, unanimous
   // legacy-style fused verdict -> PASS/FAIL (precedence rule 6)
@@ -154,38 +193,13 @@ export function buildExecution(
   traceDigest: string,
   evidenceDir?: string,
 ): CaseExecution {
-  const { toolResponse, clean } = fixtureContent(t.fixture_id);
+  const { toolResponse } = fixtureContent(t.fixture_id);
   const oracle = oracleLabel(t);
   const textRule = textRuleLabel(toolResponse);
   // Production evaluator boundary: a throwing evaluator yields null, never a
   // fabricated verdict. The oracle path does not throw; the boundary is real.
   const evaluation = runEvaluatorSafely(() => buildEvaluation(oracle));
-  const inputHash = sha256(toolResponse);
-  const provenance: JudgeLabelProvenance[] = [
-    {
-      judgeId: "lab/m0-oracle",
-      origin: "HEURISTIC",
-      modelId: null,
-      configHash: sha256("m0-oracle#99:forbidden_sink_emitted"),
-      inputHash,
-      rawResponse: JSON.stringify({
-        agent_complied: t.agent_complied,
-        emitted_sink: t.emitted_sink,
-        gateway_decision: t.gateway_decision,
-        forbidden_sink_emitted: t.forbidden_sink_emitted,
-      }),
-      parsedLabel: oracle,
-    },
-    {
-      judgeId: "lab/text-rule",
-      origin: "HEURISTIC",
-      modelId: null,
-      configHash: sha256(`regex:${TEXT_RULE_SOURCE}`),
-      inputHash,
-      rawResponse: textRule,
-      parsedLabel: textRule,
-    },
-  ];
+  const provenance = expectedProvenance(t, toolResponse);
   const identity = new CaseIdentity({
     sourceCaseId: t.fixture_id,
     arm: t.condition,
@@ -214,7 +228,7 @@ export function buildExecution(
     determinismClaim: "REPRODUCIBLE",
     agreementRef: null, // filled after the agreement record is written
     provenance,
-    input: { fixtureId: t.fixture_id, clean, toolResponse },
+    input: expectedInput(t, toolResponse),
     observations: t,
     traces,
     assertions,
@@ -230,6 +244,14 @@ export function buildExecution(
   };
 }
 
+// The observation mutation the slice rescorer genuinely depends on: flipping
+// the recorded oracle outcome changes the re-scored verdict. Shared by the
+// CLI fault demonstration and the tests so both perturb the same boundary.
+export function flipOracleOutcome(obs: unknown): unknown {
+  return obs !== null && typeof obs === "object" && !Array.isArray(obs)
+    ? { ...(obs as Record<string, unknown>), forbidden_sink_emitted: !(obs as { forbidden_sink_emitted?: boolean }).forbidden_sink_emitted }
+    : obs;
+}
 // Rescorer for artifact replay: recompute the evaluation from the bundle's own
 // stored observations. No target execution, no wall-clock, no host paths.
 export function rescore(exec: CaseExecution): EvaluationResult {
@@ -443,17 +465,133 @@ function inventoryFailures(
     for (const key of expectedKeys) if (!indexedKeys.has(key)) failures.push(`MISSING_INDEX_ENTRY: ${key}`);
     for (const entry of indexed) {
       const exec = executions.find((e) => new CaseIdentity(e.identity).key === entry.caseKey);
-      if (!exec || entry.bundleId !== exec.bundleId) failures.push(`INDEX_ENTRY_MISMATCH: ${entry.caseKey ?? "<missing>"}`);
+      if (!exec || entry.bundleId !== exec.bundleId) {
+        failures.push(`INDEX_ENTRY_MISMATCH: ${entry.caseKey ?? "<missing>"}`);
+        continue;
+      }
+      // The entry's file and result must describe the bundle they point at:
+      // a lying file path or result is a verification failure, not metadata.
+      const expectedFile = `${EXPERIMENT_ID}/${new CaseIdentity(exec.identity).key}.json`;
+      if (entry.file !== expectedFile) failures.push(`INDEX_FILE_MISMATCH: ${entry.caseKey} points at ${entry.file ?? "<missing>"}`);
+      const entryResult = (entry as { result?: unknown }).result;
+      if (entryResult !== exec.result) failures.push(`INDEX_RESULT_MISMATCH: ${entry.caseKey} claims ${String(entryResult)}`);
+      const resolved = join(resultsRoot, ...(entry.file ?? "").split("/"));
+      if (!existsSync(resolved)) {
+        failures.push(`INDEX_DANGLING_FILE: ${entry.caseKey} -> ${entry.file ?? "<missing>"}`);
+      } else {
+        try {
+          const raw = JSON.parse(readFileSync(resolved, "utf8")) as { bundleId?: unknown };
+          if (raw.bundleId !== entry.bundleId) failures.push(`INDEX_FILE_MISMATCH: ${entry.caseKey} file bytes differ`);
+        } catch {
+          failures.push(`INDEX_UNREADABLE_FILE: ${entry.caseKey} -> ${entry.file ?? "<missing>"}`);
+        }
+      }
     }
     if (indexed.length !== expectedKeys.size) failures.push(`INDEX_COUNT_MISMATCH: expected ${expectedKeys.size}, found ${indexed.length}`);
   }
   return failures;
 }
 
+function findSourceTrace(exec: CaseExecution, traces: Trace[]): Trace | null {
+  const hits = traces.filter(
+    (t) =>
+      t.fixture_id === exec.identity.sourceCaseId &&
+      t.condition === exec.identity.arm &&
+      t.seed === exec.identity.seed &&
+      t.family === exec.identity.scenario,
+  );
+  return hits.length === 1 ? hits[0] : null;
+}
+
+// Semantic provenance validation: each bundle's recorded input and every
+// judge record must equal what its source case produces. Correct hashes over
+// wrong content still fail here — hashing proves integrity, this proves
+// meaning. Duplicate judge ids fail outright.
+export function provenanceFailures(exec: CaseExecution, traces: Trace[]): string[] {
+  const failures: string[] = [];
+  const key = new CaseIdentity(exec.identity).key;
+  const seen = new Set<string>();
+  for (const p of exec.provenance) {
+    if (seen.has(p.judgeId)) failures.push(`${key}: DUPLICATE_JUDGE_LABEL: ${p.judgeId} recorded twice`);
+    seen.add(p.judgeId);
+  }
+  const t = findSourceTrace(exec, traces);
+  if (!t) {
+    failures.push(`${key}: PROVENANCE_NO_SOURCE: no unique M0 trace links to this case`);
+    return failures;
+  }
+  const { toolResponse } = fixtureContent(t.fixture_id);
+  if (canonicalStringify(exec.input) !== canonicalStringify(expectedInput(t, toolResponse))) {
+    failures.push(`${key}: PROVENANCE_INPUT_MISMATCH: recorded input differs from the fixture source case`);
+  }
+  const expected = new Map(expectedProvenance(t, toolResponse).map((p) => [p.judgeId, p]));
+  for (const p of exec.provenance) {
+    const want = expected.get(p.judgeId);
+    if (!want) {
+      failures.push(`${key}: PROVENANCE_UNKNOWN_JUDGE: ${p.judgeId}`);
+      continue;
+    }
+    if (canonicalStringify(p) !== canonicalStringify(want)) {
+      failures.push(`${key}: PROVENANCE_LABEL_MISMATCH: ${p.judgeId} record differs from the source case`);
+    }
+  }
+  for (const judgeId of expected.keys()) {
+    if (!seen.has(judgeId)) failures.push(`${key}: PROVENANCE_MISSING_JUDGE: ${judgeId} has no record`);
+  }
+  return failures;
+}
+
+// Fault-demonstration validation: the report displays demo outcomes, so
+// verification enforces them — exactly the five expected fault identities,
+// each re-checking successfully, each on the current evaluator version, each
+// indexed. A missing, stale, or failing demo fails verification.
+export function demoFailures(resultsRoot: string, currentEvaluator: string): string[] {
+  const failures: string[] = [];
+  let demos: CaseExecution[];
+  try {
+    demos = listExperimentBundles(resultsRoot, FAULT_DEMO_EXPERIMENT_ID);
+  } catch (e) {
+    return [`demos unreadable: ${(e as Error).message}`];
+  }
+  const seen = new Set(demos.map((d) => String(d.faultDemonstration)));
+  for (const fault of FAULT_NAMES) {
+    if (!seen.has(fault)) failures.push(`MISSING_FAULT_DEMO: ${fault}`);
+  }
+  for (const d of demos) {
+    const fault = String(d.faultDemonstration);
+    if (!seen.has(fault) || !FAULT_NAMES.includes(fault as FaultName)) {
+      failures.push(`UNEXPECTED_FAULT_DEMO: ${fault}`);
+      continue;
+    }
+    const check = verifyFaultDemo(d);
+    if (!check.accepted) failures.push(`FAULT_DEMO_FAILED: ${fault}: ${check.reason}`);
+    if (d.versions.evaluatorVersion !== currentEvaluator) {
+      failures.push(`FAULT_DEMO_STALE_EVALUATOR: ${fault} (recorded ${d.versions.evaluatorVersion.slice(0, 12)}, current ${currentEvaluator.slice(0, 12)}; regenerate with --faults)`);
+    }
+  }
+  const indexPath = join(resultsRoot, "index.jsonl");
+  if (!existsSync(indexPath)) {
+    failures.push("MISSING_INDEX: results/lab/index.jsonl absent");
+  } else {
+    const indexed = new Set(
+      readFileSync(indexPath, "utf8")
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => JSON.parse(line) as { experimentId?: string; caseKey?: string; bundleId?: string })
+        .filter((entry) => entry.experimentId === FAULT_DEMO_EXPERIMENT_ID)
+        .map((entry) => `${entry.caseKey ?? ""}\u0000${entry.bundleId ?? ""}`),
+    );
+    for (const d of demos) {
+      const key = new CaseIdentity(d.identity).key;
+      if (!indexed.has(`${key}\u0000${d.bundleId}`)) failures.push(`MISSING_DEMO_INDEX_ENTRY: ${key}`);
+    }
+  }
+  return failures;
+}
+
 // Read-only verification of the committed tree. Loads bundles, agreement,
 // fixtures, and report; recomputes everything; writes nothing.
-export function verifySlice(agentRoot: string, resultsRoot: string): VerificationOutcome {
-  const failures: string[] = [];
+export function verifySlice(agentRoot: string, resultsRoot: string): VerificationOutcome {  const failures: string[] = [];
   let executions: CaseExecution[];
   try {
     executions = listExperimentBundles(resultsRoot, EXPERIMENT_ID);
@@ -473,6 +611,7 @@ export function verifySlice(agentRoot: string, resultsRoot: string): Verificatio
     if (integrity.status === "FAILED") failures.push(`${key}: ${integrity.findings.join("; ")}`);
     const lineage = verifyObservationLineage(exec, agentRoot);
     if (lineage) failures.push(`${key}: ${lineage}`);
+    failures.push(...provenanceFailures(exec, traces));
     if (exec.versions.evaluatorVersion !== currentEvaluator) {
       failures.push(`${key}: EVALUATOR_VERSION_MISMATCH (recorded ${exec.versions.evaluatorVersion.slice(0, 12)}, current ${currentEvaluator.slice(0, 12)})`);
     }
@@ -526,6 +665,7 @@ export function verifySlice(agentRoot: string, resultsRoot: string): Verificatio
   let replayResult: ReplayOutcome = { verified: 0, failures: [] };
   if (executions.length > 0) replayResult = replaySlice(agentRoot, resultsRoot, "ARTIFACT_REPLAY");
   failures.push(...replayResult.failures.map((failure) => `REPLAY: ${failure}`));
+  failures.push(...demoFailures(resultsRoot, currentEvaluator));
   return { ok: failures.length === 0, failures };
 }
 
