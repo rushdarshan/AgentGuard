@@ -15,8 +15,9 @@ describe("deriveResult", () => {
     expect(preserved.outcome).toBe("FAIL");
   });
 
-  it("null evaluation reports INFRASTRUCTURE_ERROR", () => {
-    expect(deriveResult(null, COMPLETE)).toBe("INFRASTRUCTURE_ERROR");
+  it("null evaluation with intact evidence is evaluator error, not infrastructure error", () => {
+    expect(deriveResult(null, COMPLETE)).toBe("EVALUATOR_ERROR");
+    expect(deriveResult(null, BROKEN)).toBe("INFRASTRUCTURE_ERROR");
   });
 
   it("complete evidence passes the outcome through", () => {

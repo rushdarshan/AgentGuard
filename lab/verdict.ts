@@ -31,7 +31,21 @@ export function deriveResult(
   completedEvaluation: EvaluationResult | null,
   evidenceIntegrity: EvidenceIntegrityView,
 ): CaseResult {
+  // Broken evidence dominates: nothing reported from an untrustworthy chain.
   if (evidenceIntegrity.status === "FAILED") return "INFRASTRUCTURE_ERROR";
-  if (completedEvaluation === null) return "INFRASTRUCTURE_ERROR"; // nothing to report on
+  // No evaluation ran but the chain is intact: the evaluator failed, not the
+  // target (fault-injection and evidence-bundle specs).
+  if (completedEvaluation === null) return "EVALUATOR_ERROR";
   return completedEvaluation.outcome;
+}
+
+// Production evaluator boundary: an evaluator that raises produces no verdict.
+// The caller records completedEvaluation null with evidence COMPLETE, which
+// derives EVALUATOR_ERROR — never a fabricated verdict, never a target FAIL.
+export function runEvaluatorSafely(evaluate: () => EvaluationResult): EvaluationResult | null {
+  try {
+    return evaluate();
+  } catch {
+    return null;
+  }
 }

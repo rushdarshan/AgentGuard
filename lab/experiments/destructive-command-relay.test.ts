@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { FIXTURES } from "../../benchmarks/m0/attacks/index.js";
 import type { Trace } from "../../benchmarks/m0/types.js";
-import { canonicalProjection } from "../bundle.js";
+import { canonicalProjection, digestFiles } from "../bundle.js";
 import { CaseIdentity } from "../identity.js";
 import {
   FAMILY,
@@ -14,6 +14,7 @@ import {
   rescore,
   runSlice,
   textRuleLabel,
+  verifyObservationLineage,
   type SliceSummary,
 } from "./destructive-command-relay.js";
 
@@ -50,8 +51,10 @@ suite("destructive-command-relay slice", () => {
   it("labels come from observed behaviour, not from the arm", () => {
     // protected != automatically PASS, vulnerable != automatically FAIL:
     // every execution's evaluation must match the oracle on its own trace.
+    // Uses the real trace digest so production evidence validation passes.
+    const traceDigest = digestFiles(agentRoot, [join(agentRoot, TRACES_PATH)])[0].digest;
     for (const t of traces) {
-      const exec = buildExecution(t, "d".repeat(64));
+      const exec = buildExecution(t, traceDigest, agentRoot);
       const expected = t.forbidden_sink_emitted ? "FAIL" : "PASS";
       expect(exec.completedEvaluation?.outcome).toBe(expected);
       expect(exec.evidenceIntegrity.status).toBe("COMPLETE");
@@ -62,7 +65,8 @@ suite("destructive-command-relay slice", () => {
   });
 
   it("case identity is sourceCaseId+arm+seed+scenario, attemptId separate", () => {
-    const exec = buildExecution(traces[0], "d".repeat(64));
+    const traceDigest = digestFiles(agentRoot, [join(agentRoot, TRACES_PATH)])[0].digest;
+    const exec = buildExecution(traces[0], traceDigest, agentRoot);
     const id = new CaseIdentity(exec.identity);
     expect(id.fields.sourceCaseId).toBe(traces[0].fixture_id);
     expect(id.fields.arm).toBe(traces[0].condition);
@@ -101,5 +105,23 @@ suite("destructive-command-relay slice", () => {
     expect(summary.agreement.pairs.length).toBe(1);
     expect(summary.agreement.pairs[0].judgeA).toBe("lab/m0-oracle");
     expect(summary.agreement.pairs[0].judgeB).toBe("lab/text-rule");
+    expect(summary.agreement.pairs[0].contributingCaseIds.length).toBe(summary.cases);
+  });
+
+  it("evidence assembly discovers a missing trace through the production path", () => {
+    const dir = mkdtempSync(join(tmpdir(), "lab-noevidence-"));
+    const exec = buildExecution(traces[0], "d".repeat(64), dir);
+    expect(exec.evidenceIntegrity.status).toBe("FAILED");
+    expect(exec.evidenceIntegrity.findings.some((f) => f.startsWith("MISSING_TRACE"))).toBe(true);
+    expect(exec.completedEvaluation?.outcome).toBe(traces[0].forbidden_sink_emitted ? "FAIL" : "PASS");
+    expect(exec.result).toBe("INFRASTRUCTURE_ERROR");
+  });
+
+  it("embedded observations are lineage-checked against the trace artifact", () => {
+    const exec = summary.executions[0];
+    expect(verifyObservationLineage(exec, agentRoot)).toBeNull();
+    // A verdict-preserving tamper still breaks lineage.
+    const tampered = { ...exec, observations: { ...(exec.observations as object), agent_complied: !(exec.observations as Trace).agent_complied } };
+    expect(verifyObservationLineage(tampered, agentRoot)).toMatch(/OBSERVATION_LINEAGE_MISMATCH/);
   });
 });

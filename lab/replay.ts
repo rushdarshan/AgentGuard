@@ -43,13 +43,41 @@ export interface Rescorer {
   rescore(exec: CaseExecution): EvaluationResult;
 }
 
-export function evaluatorVersion(): string {
-  // Content hash over the evaluator's declared input set (the lab/ sources it
-  // runs). Sorted path+digest manifest, raw bytes.
-  const files = ["adapter.ts", "agreement.ts", "bundle.ts", "faults.ts", "identity.ts", "replay.ts", "verdict.ts"];
-  const entries: ArtifactDigest[] = files.map((f) => {
-    const abs = join(process.cwd(), "lab", f);
-    return { path: `lab/${f}`, digest: sha256(readFileSync(abs)) };
+// Declared evaluator input set: every file whose bytes can change a verdict.
+// Lab scoring machinery, the experiment file carrying the oracle mapping, the
+// destructive-text rule, and the rescorer — plus the M0 fixture sources whose
+// tool-response content the slice consumes. Test files, the report renderer,
+// and the CLI orchestrator cannot change a verdict and are excluded by design.
+// A missing declared file throws: a version over an incomplete set would lie.
+export const EVALUATOR_INPUTS: string[] = [
+  "lab/adapter.ts",
+  "lab/agreement.ts",
+  "lab/bundle.ts",
+  "lab/faults.ts",
+  "lab/identity.ts",
+  "lab/replay.ts",
+  "lab/verdict.ts",
+  "lab/experiments/destructive-command-relay.ts",
+  "benchmarks/m0/attacks/index.ts",
+  "benchmarks/m0/attacks/argument-injection/fixtures.ts",
+  "benchmarks/m0/attacks/destructive-command-relay/fixtures.ts",
+  "benchmarks/m0/attacks/hidden-tool-response/fixtures.ts",
+  "benchmarks/m0/attacks/poisoned-tool-description/fixtures.ts",
+  "benchmarks/m0/attacks/spoofed-tool-output/fixtures.ts",
+];
+
+export function evaluatorVersion(root: string = process.cwd()): string {
+  // Content hash over the declared input set. Sorted path+digest manifest over
+  // raw bytes (no comment stripping, no transformations).
+  const entries: ArtifactDigest[] = EVALUATOR_INPUTS.map((rel) => {
+    const abs = join(root, ...rel.split("/"));
+    let bytes: Buffer;
+    try {
+      bytes = readFileSync(abs);
+    } catch {
+      throw new Error(`EVALUATOR_INPUT_MISSING: declared input ${rel} absent under ${root}`);
+    }
+    return { path: rel, digest: sha256(bytes) };
   });
   return manifestDigest(entries);
 }

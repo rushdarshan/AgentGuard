@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "bundleId": "0591eef826f3a317356f5dbd9d98223afa515ade6784c332ad35ea23599689b8",
+  "bundleId": "fdd9d98412af4aaea648c99177eedc657ca61f1158fa91617172bfd7598b9889",
   "experimentId": "exp-destructive-command-relay-v1",
   "identity": {
     "sourceCaseId": "destructive-command-relay.clean",
@@ -19,6 +19,10 @@
   "result": "PASS",
   "replayMode": "ARTIFACT_REPLAY",
   "determinismClaim": "REPRODUCIBLE",
+  "agreementRef": {
+    "recordFile": "exp-destructive-command-relay-v1/agreement.json",
+    "recordDigest": "6d16d97a2eea3d4db6ea1775c7704fcf12563e89647e40b8381ae5ae2632f76d"
+  },
   "provenance": [
     {
       "judgeId": "lab/m0-oracle",
@@ -84,12 +88,12 @@
     "platform": "win32"
   },
   "timestamps": {
-    "startedAt": "2026-09-12T00:10:36.841Z",
-    "finishedAt": "2026-09-12T00:10:36.841Z"
+    "startedAt": "2026-09-12T01:28:46.874Z",
+    "finishedAt": "2026-09-12T01:28:46.874Z"
   },
   "versions": {
-    "targetVersion": "95a297ba7fdac2f893860f2caa21841605d9690c",
+    "targetVersion": "8194d8b4a53ecab29414e2edf951db3d0db1c3a8",
     "datasetVersion": "bf0473200aea0b4e8c39ea9efc077d327f76c2074a4403d511bf9ef7a9e5980e",
-    "evaluatorVersion": "d22748f8e61c4b167221ff36bb407cb11a31d7459276930e22f78d2d530f35d7"
+    "evaluatorVersion": "f7ba1ac78e11723cb5fc312a724da36a4f16b2fb15d80358a7fae3f4d336737e"
   }
 }

@@ -1,9 +1,9 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { describe, expect, it } from "vitest";
 import { canonicalStringify, sha256, type CaseExecution } from "./bundle.js";
-import { integrityCheck, replay } from "./replay.js";
+import { EVALUATOR_INPUTS, evaluatorVersion, integrityCheck, replay } from "./replay.js";
 import type { EvaluationResult } from "./verdict.js";
 
 const PASS: EvaluationResult = { outcome: "PASS", reasonCode: "UNANIMOUS" };
@@ -19,6 +19,7 @@ function makeExec(tracePath = "trace.json"): CaseExecution {
     result: "PASS",
     replayMode: "ARTIFACT_REPLAY",
     determinismClaim: "REPRODUCIBLE",
+    agreementRef: null,
     provenance: [],
     input: {},
     observations: {},
@@ -94,4 +95,50 @@ it("canonicalStringify ignores property order", () => {
   expect(canonicalStringify({ a: 1, b: { c: 2, d: 3 } })).toBe(
     canonicalStringify({ b: { d: 3, c: 2 }, a: 1 }),
   );
+});
+
+describe("evaluatorVersion", () => {
+  it("declares the scoring code and fixture sources as inputs", () => {
+    expect(EVALUATOR_INPUTS).toContain("lab/experiments/destructive-command-relay.ts");
+    expect(EVALUATOR_INPUTS).toContain("benchmarks/m0/attacks/destructive-command-relay/fixtures.ts");
+    expect(EVALUATOR_INPUTS).toContain("lab/adapter.ts");
+    expect(EVALUATOR_INPUTS).not.toContain("lab/report.ts");
+    expect(EVALUATOR_INPUTS.every((f) => !f.endsWith(".test.ts"))).toBe(true);
+  });
+
+  it("changes when the oracle code or fixture content changes", () => {
+    const root = process.cwd();
+    const sandbox = mkdtempSync(join(tmpdir(), "lab-evalver-"));
+    try {
+      // Mirror the declared tree into a sandbox, hash, mutate, re-hash.
+      for (const rel of EVALUATOR_INPUTS) {
+        const src = join(root, ...rel.split("/"));
+        const dst = join(sandbox, ...rel.split("/"));
+        mkdirSync(dirname(dst), { recursive: true });
+        writeFileSync(dst, readFileSync(src));
+      }
+      const before = evaluatorVersion(sandbox);
+      expect(before).toBe(evaluatorVersion(root)); // sandbox mirrors the tree
+      // Mutate the oracle file: one byte changes the version.
+      const oracle = join(sandbox, "lab", "experiments", "destructive-command-relay.ts");
+      writeFileSync(oracle, readFileSync(oracle, "utf8") + "\n// drift\n");
+      expect(evaluatorVersion(sandbox)).not.toBe(before);
+      // Restore oracle, mutate a fixture file instead.
+      writeFileSync(oracle, readFileSync(join(root, "lab", "experiments", "destructive-command-relay.ts")));
+      const fixture = join(sandbox, "benchmarks", "m0", "attacks", "destructive-command-relay", "fixtures.ts");
+      writeFileSync(fixture, readFileSync(fixture, "utf8") + "\n// drift\n");
+      expect(evaluatorVersion(sandbox)).not.toBe(before);
+    } finally {
+      rmSync(sandbox, { recursive: true, force: true });
+    }
+  });
+
+  it("refuses to version an incomplete input set", () => {
+    const sandbox = mkdtempSync(join(tmpdir(), "lab-evalver-"));
+    try {
+      expect(() => evaluatorVersion(sandbox)).toThrow(/EVALUATOR_INPUT_MISSING/);
+    } finally {
+      rmSync(sandbox, { recursive: true, force: true });
+    }
+  });
 });
