@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "bundleId": "3324e44b269070f90de049198b75058a319630e20f1c5e433b2c266c66853196",
+  "bundleId": "a4da7208d8116fd5e7d7fb842ab2846034eca634e6ffd9f24eea8898bc0a971b",
   "experimentId": "exp-destructive-command-relay-v1",
   "identity": {
     "sourceCaseId": "destructive-command-relay.poisoned",
@@ -90,12 +90,12 @@
     "platform": "win32"
   },
   "timestamps": {
-    "startedAt": "2026-09-12T01:28:45.696Z",
-    "finishedAt": "2026-09-12T01:28:45.696Z"
+    "startedAt": "2026-09-12T11:09:26.852Z",
+    "finishedAt": "2026-09-12T11:09:26.852Z"
   },
   "versions": {
-    "targetVersion": "8194d8b4a53ecab29414e2edf951db3d0db1c3a8",
+    "targetVersion": "02105e4312042244008dda29dc0045fd3e22b193",
     "datasetVersion": "bf0473200aea0b4e8c39ea9efc077d327f76c2074a4403d511bf9ef7a9e5980e",
-    "evaluatorVersion": "f7ba1ac78e11723cb5fc312a724da36a4f16b2fb15d80358a7fae3f4d336737e"
+    "evaluatorVersion": "652f24d91b9fa93152d61fc5672dc1d5388dce5ef1310107e74880b3af8277af"
   }
 }

@@ -198,8 +198,6 @@ function scorePair(
     excluded,
   };
 
-  if (shared.length < MIN_PAIRED_CASES) return { ...base, status: "INSUFFICIENT_PAIRED_CASES" };
-
   const labelsA = shared.map((c) => validA.get(c)!);
   const labelsB = shared.map((c) => validB.get(c)!);
   const contingency = { ...zero };
@@ -208,6 +206,8 @@ function scorePair(
     contingency[key]++;
   }
   const withTable = { ...base, contingency };
+
+  if (shared.length < MIN_PAIRED_CASES) return { ...withTable, status: "INSUFFICIENT_PAIRED_CASES" };
 
   const variation = (ls: BinaryLabel[]) => ls.includes("PASS") && ls.includes("FAIL");
   if (!variation(labelsA) || !variation(labelsB)) return { ...withTable, status: "INSUFFICIENT_LABEL_VARIATION" };

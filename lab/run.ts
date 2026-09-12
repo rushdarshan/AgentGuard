@@ -30,7 +30,16 @@ export interface CliArgs {
 
 export function parseArgs(argv: string[]): CliArgs {
   const args: CliArgs = { mode: "generate", faults: false, replayMode: "artifact_replay" };
-  for (const a of argv) {
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === "--mode") {
+      const mode = argv[++i];
+      if (mode !== "generate" && mode !== "verify" && mode !== "replay") {
+        throw new Error(`UNKNOWN_ARG: --mode ${String(mode)}`);
+      }
+      args.mode = mode;
+      continue;
+    }
     if (a === "--mode=generate" || a === "generate") args.mode = "generate";
     else if (a === "--mode=verify" || a === "verify") args.mode = "verify";
     else if (a === "--mode=replay" || a === "replay") args.mode = "replay";
@@ -58,7 +67,8 @@ function main(): void {
     const committedReport = readFileSync(join(resultsRoot, "REPORT.md"), "utf8");
     const rendered = renderReportFromCommitted(agentRoot, resultsRoot);
     if (rendered !== committedReport) outcome.failures.push("REPORT.md diverges from committed bundles");
-    if (!outcome.ok) {
+    const ok = outcome.failures.length === 0;
+    if (!ok) {
       for (const f of outcome.failures) console.error(`VERIFY_FAIL: ${f}`);
       process.exitCode = 1;
       return;

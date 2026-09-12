@@ -409,6 +409,47 @@ export interface VerificationOutcome {
   failures: string[];
 }
 
+function inventoryFailures(
+  resultsRoot: string,
+  executions: CaseExecution[],
+  traces: Trace[],
+): string[] {
+  const failures: string[] = [];
+  const expectedKeys = new Set(
+    traces.map((t) =>
+      new CaseIdentity({
+        sourceCaseId: t.fixture_id,
+        arm: t.condition,
+        seed: t.seed,
+        scenario: t.family,
+      }).key,
+    ),
+  );
+  const actualKeys = new Set(executions.map((e) => new CaseIdentity(e.identity).key));
+  for (const key of expectedKeys) if (!actualKeys.has(key)) failures.push(`MISSING_CASE_BUNDLE: ${key}`);
+  for (const key of actualKeys) if (!expectedKeys.has(key)) failures.push(`UNEXPECTED_CASE_BUNDLE: ${key}`);
+  if (executions.length !== expectedKeys.size) failures.push(`CASE_COUNT_MISMATCH: expected ${expectedKeys.size}, found ${executions.length}`);
+
+  const indexPath = join(resultsRoot, "index.jsonl");
+  if (!existsSync(indexPath)) {
+    failures.push("MISSING_INDEX: results/lab/index.jsonl absent");
+  } else {
+    const indexed = readFileSync(indexPath, "utf8")
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => JSON.parse(line) as { experimentId?: string; caseKey?: string; file?: string; bundleId?: string })
+      .filter((entry) => entry.experimentId === EXPERIMENT_ID);
+    const indexedKeys = new Set(indexed.map((entry) => entry.caseKey ?? ""));
+    for (const key of expectedKeys) if (!indexedKeys.has(key)) failures.push(`MISSING_INDEX_ENTRY: ${key}`);
+    for (const entry of indexed) {
+      const exec = executions.find((e) => new CaseIdentity(e.identity).key === entry.caseKey);
+      if (!exec || entry.bundleId !== exec.bundleId) failures.push(`INDEX_ENTRY_MISMATCH: ${entry.caseKey ?? "<missing>"}`);
+    }
+    if (indexed.length !== expectedKeys.size) failures.push(`INDEX_COUNT_MISMATCH: expected ${expectedKeys.size}, found ${indexed.length}`);
+  }
+  return failures;
+}
+
 // Read-only verification of the committed tree. Loads bundles, agreement,
 // fixtures, and report; recomputes everything; writes nothing.
 export function verifySlice(agentRoot: string, resultsRoot: string): VerificationOutcome {
@@ -419,9 +460,9 @@ export function verifySlice(agentRoot: string, resultsRoot: string): Verificatio
   } catch (e) {
     return { ok: false, failures: [`bundles unreadable: ${(e as Error).message}`] };
   }
-  if (executions.length === 0) failures.push("no committed bundles");
-
   const traces = familyTraces(agentRoot);
+  failures.push(...inventoryFailures(resultsRoot, executions, traces));
+  if (executions.length === 0) failures.push("no committed bundles");
   const traceDigest = digestFiles(agentRoot, [join(agentRoot, TRACES_PATH)])[0].digest;
   const expectedDataset = sha256(`${TRACES_PATH}:${traceDigest}:${FAMILY}`);
   const currentEvaluator = evaluatorVersion();
@@ -439,6 +480,20 @@ export function verifySlice(agentRoot: string, resultsRoot: string): Verificatio
       failures.push(`${key}: dataset version drift (recorded ${exec.versions.datasetVersion.slice(0, 12)})`);
     }
     if (!exec.agreementRef) failures.push(`${key}: missing agreement reference`);
+    else {
+      if (exec.agreementRef.recordFile !== `${EXPERIMENT_ID}/${AGREEMENT_RECORD_FILE}`) {
+        failures.push(`${key}: agreement reference points to unexpected record`);
+      } else {
+        try {
+          const record = readAgreementRecord(resultsRoot, EXPERIMENT_ID);
+          if (agreementRecordDigest(record) !== exec.agreementRef.recordDigest) {
+            failures.push(`${key}: agreement reference digest mismatch`);
+          }
+        } catch (e) {
+          failures.push(`${key}: agreement reference unreadable: ${(e as Error).message}`);
+        }
+      }
+    }
   }
 
   // Fixtures: re-derive every label from the traces and compare canonically.
@@ -468,6 +523,9 @@ export function verifySlice(agentRoot: string, resultsRoot: string): Verificatio
     failures.push(`agreement: ${(e as Error).message}`);
   }
 
+  let replayResult: ReplayOutcome = { verified: 0, failures: [] };
+  if (executions.length > 0) replayResult = replaySlice(agentRoot, resultsRoot, "ARTIFACT_REPLAY");
+  failures.push(...replayResult.failures.map((failure) => `REPLAY: ${failure}`));
   return { ok: failures.length === 0, failures };
 }
 
@@ -493,6 +551,9 @@ export function replaySlice(
   } catch (e) {
     return { verified: 0, failures: [`bundles unreadable: ${(e as Error).message}`] };
   }
+  const traces = familyTraces(agentRoot);
+  failures.push(...inventoryFailures(resultsRoot, executions, traces));
+  if (executions.length === 0) failures.push("NO_BUNDLES: artifact replay requires a nonempty experiment");
   const currentEvaluator = evaluatorVersion();
   for (const exec of executions) {
     const key = new CaseIdentity(exec.identity).key;

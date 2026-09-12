@@ -3,9 +3,10 @@
 // every oracle runs via execFile with explicit argv (no shell quoting, no
 // PATH lookup). Usage: node unlazy-gates/check.mjs G1
 import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 
-const ROOT = new URL("..", import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const NODE = process.execPath;
 const VITEST = join(ROOT, "node_modules", "vitest", "vitest.mjs");
 const TSX = join(ROOT, "node_modules", "tsx", "dist", "cli.mjs");

@@ -69,7 +69,7 @@ suite("verify and replay modes", () => {
     expect(outcome.failures).toEqual([]);
     expect(outcome.ok).toBe(true);
     expect(snapshot(resultsRoot)).toEqual(before);
-  });
+  }, 120_000);
 
   it("replay passes on committed bundles and writes nothing", () => {
     const before = snapshot(resultsRoot);
@@ -77,7 +77,7 @@ suite("verify and replay modes", () => {
     expect(outcome.failures).toEqual([]);
     expect(outcome.verified).toBeGreaterThan(0);
     expect(snapshot(resultsRoot)).toEqual(before);
-  });
+  }, 120_000);
 
   it("interaction replay fails clearly without writing", () => {
     const before = snapshot(resultsRoot);

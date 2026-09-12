@@ -30,17 +30,16 @@ runs:
       with:
         node-version: "20"
 
-    - name: Install AgentGuard
+    - name: Install checkout dependencies
       shell: bash
       run: |
-        npm install -g agentguard
-      # ponytail: npm global install, no extra setup
+        npm ci
 
     - name: Run AgentGuard tests
       id: run-tests
       shell: bash
       run: |
-        agentguard test --url "${{ inputs.url }}" --output json > agentguard-report.json
+        npx tsx src/cli/index.ts test --url "${{ inputs.url }}" --output json > agentguard-report.json
         SCORE=$(cat agentguard-report.json | node -e "const d=require('fs').readFileSync('/dev/stdin','utf8');const j=JSON.parse(d);console.log(Math.round((j.summary?.passed/j.summary?.total||0)*100))")
         echo "score=$SCORE" >> $GITHUB_OUTPUT
         PASSED=$([ $SCORE -ge ${{ inputs.threshold }} ] && echo "true" || echo "false")
@@ -49,7 +48,7 @@ runs:
     - name: Generate hardening config
       shell: bash
       run: |
-        agentguard harden agentguard-report.json > agentguard-hardening.yaml
+        npx tsx src/cli/index.ts harden agentguard-report.json > agentguard-hardening.yaml
         echo "## AgentGuard Hardening Config" >> $GITHUB_STEP_SUMMARY
         cat agentguard-hardening.yaml >> $GITHUB_STEP_SUMMARY
 

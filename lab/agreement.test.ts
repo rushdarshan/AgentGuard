@@ -40,6 +40,7 @@ describe("computeAgreement", () => {
     expect(MIN_PAIRED_CASES).toBe(5);
     expect(s.pairs[0].status).toBe("INSUFFICIENT_PAIRED_CASES");
     expect(s.pairs[0].kappa).toBeNull();
+    expect(s.pairs[0].contingency).toEqual({ passPass: 2, passFail: 0, failPass: 0, failFail: 2 });
     expect(s.meanPairwiseKappa).toBeNull();
   });
 

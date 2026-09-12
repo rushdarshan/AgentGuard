@@ -53,41 +53,33 @@ export function adaptFusedVerdict(fv: unknown): EvaluationResult {
     return { outcome: "EVALUATOR_ERROR", reasonCode: "NO_VALID_JUDGMENTS", detail: "all judges timed out or produced no verdict" };
   }
 
+  // Rule 3/4: partial runs must establish quorum before instability is
+  // considered. Every surviving judge must agree; two agreeing judges do not
+  // override a third surviving disagreement.
+  if (f.consensus === "partial") {
+    if (survivors.length < 2) {
+      return {
+        outcome: "EVALUATOR_ERROR",
+        reasonCode: "INSUFFICIENT_SURVIVORS",
+        detail: `partial consensus: ${survivors.length} survivor(s)`,
+      };
+    }
+    const first = survivors[0].passed;
+    if (survivors.some((v) => v.passed !== first)) {
+      return { outcome: "ABSTAIN", reasonCode: "SURVIVOR_DISAGREEMENT", detail: "partial survivors disagree" };
+    }
+    if (f.unstable === true) {
+      return { outcome: "ABSTAIN", reasonCode: "UNSTABLE_OR_CONFLICT", detail: "partial consensus is marked unstable" };
+    }
+    return { outcome: first ? "PASS" : "FAIL", reasonCode: "PARTIAL_SUFFICIENT", degraded: true };
+  }
+
   // Rule 3: instability / unresolved disagreement -> ABSTAIN.
   if (f.unstable === true || f.consensus === "conflict") {
     return {
       outcome: "ABSTAIN",
       reasonCode: "UNSTABLE_OR_CONFLICT",
       detail: `consensus=${f.consensus}, unstable=${String(f.unstable === true)}`,
-    };
-  }
-
-  // Rule 4: partial consensus — PASS/FAIL only under the stated sufficiency
-  // rule (>=2 surviving judges agreeing with the fused decision). Fewer than
-  // 2 survivors is an evaluator-side insufficiency (EVALUATOR_ERROR); 2+
-  // survivors that fail to reach 2 agreeing is unresolved disagreement
-  // (ABSTAIN), per the locked precedence table.
-  if (f.consensus === "partial") {
-    const agree = survivors.filter((v) => v.passed === f.passed).length;
-    if (survivors.length < 2) {
-      return {
-        outcome: "EVALUATOR_ERROR",
-        reasonCode: "INSUFFICIENT_SURVIVORS",
-        detail: `partial consensus: ${survivors.length} survivor(s), ${agree} agreeing`,
-      };
-    }
-    if (agree >= 2) {
-      return {
-        outcome: f.passed ? "PASS" : "FAIL",
-        reasonCode: "PARTIAL_SUFFICIENT",
-        degraded: true,
-        detail: "partial consensus with >=2 agreeing survivors",
-      };
-    }
-    return {
-      outcome: "ABSTAIN",
-      reasonCode: "SURVIVOR_DISAGREEMENT",
-      detail: `${agree}/${survivors.length} survivors agree with fused passed`,
     };
   }
 

@@ -11,6 +11,14 @@ shell execution works). unlazy-gates/check.mjs therefore cannot execute here
 as its direct CHECK command in PowerShell, exit 0, with the decisive output
 recorded in EVIDENCE. In a normal terminal the dispatcher works unchanged.
 
+Supersession note (verify pass): the working tree changed after these gates
+were recorded (uncommitted audit-driven fixes: adapter quorum, inventory
+checks, stable-digest scope, read-only writes, schema presence, report IDs,
+CI checkout, `--mode X` form). Fresh evidence on the current tree: full suite
+28 files / 185 tests green, `openspec validate` valid,
+`verify ok: 60 bundles…` exit 0, `replay ok: 60/60` exit 0.
+See the /opsx-verify report for adjudication of each residual.
+
 - [x] G1: Bundle identity digest excludes bundleId, readBundle verifies digest and schema
   CHECK: npx vitest run lab/bundle.test.ts; if ($LASTEXITCODE -eq 0) { 'GATE G1 PASSED' }
   EXPECT: GATE G1 PASSED

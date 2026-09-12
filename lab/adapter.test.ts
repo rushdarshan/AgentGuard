@@ -79,7 +79,7 @@ describe("adaptFusedVerdict precedence", () => {
     expect(r.outcome).toBe("ABSTAIN");
   });
 
-  it("rule 4: partial with >=2 agreeing survivors -> degraded PASS", () => {
+  it("rule 4: partial with unanimous survivors -> degraded PASS", () => {
     const r = adaptFusedVerdict({
       modelVerdicts: [v("a", true), v("b", true), v("c", undefined, true)],
       passed: true,
@@ -88,6 +88,27 @@ describe("adaptFusedVerdict precedence", () => {
     expect(r.outcome).toBe("PASS");
     expect(r.degraded).toBe(true);
     expect(r.reasonCode).toBe("PARTIAL_SUFFICIENT");
+  });
+
+  it("rule 4: partial disagreement is ABSTAIN even when two survivors agree with fused passed", () => {
+    const r = adaptFusedVerdict({
+      modelVerdicts: [v("a", true), v("b", true), v("c", false), v("d", undefined, true)],
+      passed: true,
+      consensus: "partial",
+    });
+    expect(r.outcome).toBe("ABSTAIN");
+    expect(r.reasonCode).toBe("SURVIVOR_DISAGREEMENT");
+  });
+
+  it("rule 4: insufficient partial quorum beats instability", () => {
+    const r = adaptFusedVerdict({
+      modelVerdicts: [v("a", true), v("b", undefined, true)],
+      passed: true,
+      consensus: "partial",
+      unstable: true,
+    });
+    expect(r.outcome).toBe("EVALUATOR_ERROR");
+    expect(r.reasonCode).toBe("INSUFFICIENT_SURVIVORS");
   });
 
   it("rule 4: partial with one survivor -> EVALUATOR_ERROR", () => {

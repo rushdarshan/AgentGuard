@@ -119,7 +119,7 @@ export function renderReport(input: ReportInput | SliceSummary): string {
     const ordered = [...demos].sort((a, b) => String(a.faultDemonstration) < String(b.faultDemonstration) ? -1 : 1);
     for (const d of ordered) {
       const check = verifyFaultDemo(d);
-      lines.push(`| ${d.faultDemonstration} | ${check.accepted ? "yes" : "NO"} | ${check.reason} | ${d.bundleId.slice(0, 12)} |`);
+      lines.push(`| ${d.faultDemonstration} | ${check.accepted ? "yes" : "NO"} | ${check.reason} | ${d.faultDemonstration} |`);
     }
     lines.push(`Demonstration records are flagged in metadata and excluded from the slice statistics above.`);
   }

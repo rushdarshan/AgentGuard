@@ -142,10 +142,13 @@ export function computeBundleId(exec: Omit<CaseExecution, "bundleId">): string {
 // unacknowledged methodology or input change fails the drift test and forces a
 // deliberate re-baseline.
 export function stableBundleDigest(exec: CaseExecution): string {
-  const { bundleId: _id, timestamps: _ts, ...stable } = exec;
+  const { bundleId: _id, timestamps: _ts, environment: _env, versions, ...stable } = exec;
+  const { targetVersion: _target, ...stableVersions } = versions;
   void _id;
   void _ts;
-  return sha256(canonicalStringify(stable));
+  void _env;
+  void _target;
+  return sha256(canonicalStringify({ ...stable, versions: stableVersions }));
 }
 
 export function bundlePath(resultsRoot: string, experimentId: string, identity: CaseIdentityFields): string {
@@ -158,6 +161,9 @@ export function writeBundle(resultsRoot: string, exec: CaseExecution, mode: Writ
   const bundleId = computeBundleId(body);
   const withId: CaseExecution = { ...exec, bundleId };
   const path = bundlePath(resultsRoot, exec.experimentId, exec.identity);
+  if (mode !== "generate" && !existsSync(path)) {
+    throw new Error(`READ_ONLY_WRITE_REJECTED: ${mode} cannot create ${path}`);
+  }
   if (existsSync(path)) {
     const existingId = readBundleIdOnly(path);
     if (existingId === bundleId) return bundleId; // idempotent rewrite; write nothing
@@ -219,6 +225,9 @@ export function validateCaseExecution(exec: unknown): asserts exec is CaseExecut
   if (typeof e.schemaVersion !== "number") fail("schemaVersion is not a number");
   if (typeof e.bundleId !== "string" || !e.bundleId) fail("bundleId is not a non-empty string");
   if (typeof e.experimentId !== "string" || !e.experimentId) fail("experimentId is not a non-empty string");
+  for (const field of ["input", "observations", "environment", "timestamps", "agreementRef"] as const) {
+    if (!Object.prototype.hasOwnProperty.call(e, field)) fail(`${field} is required`);
+  }
   try {
     new CaseIdentity(e.identity as CaseIdentityFields);
   } catch (err) {
@@ -257,6 +266,7 @@ export function validateCaseExecution(exec: unknown): asserts exec is CaseExecut
     if (!["PASS", "FAIL", "ABSTAIN", "EVALUATOR_ERROR"].includes(p.parsedLabel as string)) {
       fail(`provenance parsedLabel ${String(p.parsedLabel)} unknown`);
     }
+    if (!Object.prototype.hasOwnProperty.call(p, "rawResponse")) fail("provenance rawResponse is required");
   }
   if (!Array.isArray(e.traces)) fail("traces is not an array");
   for (const t of e.traces as Record<string, unknown>[]) {
