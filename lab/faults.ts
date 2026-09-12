@@ -144,9 +144,8 @@ export function applyFault(
       );
     }
     case "duplicate_result": {
-      // Representation: a second label for the same (case, judge). Detection
-      // is production computeAgreement, which excludes the duplicate with
-      // DUPLICATE_LABEL instead of scoring it twice.
+      // Keep the duplicate label as evidence of the malformed record, and
+      // also exercise the writer boundary when a results directory is given.
       const first = copy.provenance[0];
       copy.provenance = [...copy.provenance, clone(first)];
       copy.result = deriveResult(copy.completedEvaluation, copy.evidenceIntegrity);
@@ -171,10 +170,26 @@ export function applyFault(
       const excluded = summary.pairs.every((p) =>
         p.excluded.some((e) => e.caseKey === key && e.reason === "DUPLICATE_LABEL"),
       );
+      let publicationRejected = true;
+      if (ctx.resultsDir) {
+        const conflicting = clone(exec);
+        conflicting.bundleId = "";
+        conflicting.provenance = conflicting.provenance.map((p, i) =>
+          i === 0 ? { ...p, parsedLabel: p.parsedLabel === "PASS" ? "FAIL" : "PASS" } : p,
+        );
+        try {
+          writeBundle(ctx.resultsDir, conflicting, "verify");
+          publicationRejected = false;
+        } catch (error) {
+          publicationRejected = error instanceof Error && /DUPLICATE_IDENTITY_CONFLICT/.test(error.message);
+        }
+      }
       return faultResult(
         copy,
-        excluded,
-        excluded ? "duplicate_result: second label excluded as DUPLICATE_LABEL" : "duplicate_result NOT detected",
+        excluded && publicationRejected,
+        excluded && publicationRejected
+          ? "duplicate_result: conflicting publication rejected and duplicate label excluded"
+          : "duplicate_result NOT detected",
       );
     }
   }

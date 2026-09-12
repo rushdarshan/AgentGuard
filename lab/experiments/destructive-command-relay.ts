@@ -553,6 +553,9 @@ export function demoFailures(resultsRoot: string, currentEvaluator: string): str
   } catch (e) {
     return [`demos unreadable: ${(e as Error).message}`];
   }
+  if (demos.length !== FAULT_NAMES.length) {
+    failures.push(`FAULT_DEMO_COUNT_MISMATCH: expected ${FAULT_NAMES.length}, found ${demos.length}`);
+  }
   const seen = new Set(demos.map((d) => String(d.faultDemonstration)));
   for (const fault of FAULT_NAMES) {
     if (!seen.has(fault)) failures.push(`MISSING_FAULT_DEMO: ${fault}`);
@@ -573,18 +576,25 @@ export function demoFailures(resultsRoot: string, currentEvaluator: string): str
   if (!existsSync(indexPath)) {
     failures.push("MISSING_INDEX: results/lab/index.jsonl absent");
   } else {
-    const indexed = new Set(
-      readFileSync(indexPath, "utf8")
+    const indexed = readFileSync(indexPath, "utf8")
         .split("\n")
         .filter(Boolean)
-        .map((line) => JSON.parse(line) as { experimentId?: string; caseKey?: string; bundleId?: string })
-        .filter((entry) => entry.experimentId === FAULT_DEMO_EXPERIMENT_ID)
-        .map((entry) => `${entry.caseKey ?? ""}\u0000${entry.bundleId ?? ""}`),
-    );
+        .map((line) => JSON.parse(line) as { experimentId?: string; caseKey?: string; bundleId?: string; file?: string; result?: string })
+        .filter((entry) => entry.experimentId === FAULT_DEMO_EXPERIMENT_ID);
     for (const d of demos) {
       const key = new CaseIdentity(d.identity).key;
-      if (!indexed.has(`${key}\u0000${d.bundleId}`)) failures.push(`MISSING_DEMO_INDEX_ENTRY: ${key}`);
+      const entry = indexed.find((candidate) => candidate.caseKey === key && candidate.bundleId === d.bundleId);
+      if (!entry) {
+        failures.push(`MISSING_DEMO_INDEX_ENTRY: ${key}`);
+        continue;
+      }
+      const expectedFile = `${FAULT_DEMO_EXPERIMENT_ID}/${key}.json`;
+      if (entry.file !== expectedFile) failures.push(`DEMO_INDEX_FILE_MISMATCH: ${key}`);
+      if (entry.result !== d.result) failures.push(`DEMO_INDEX_RESULT_MISMATCH: ${key}`);
+      const resolved = join(resultsRoot, ...(entry.file ?? "").split("/"));
+      if (!existsSync(resolved)) failures.push(`DEMO_INDEX_DANGLING_FILE: ${key}`);
     }
+    if (indexed.length !== demos.length) failures.push(`DEMO_INDEX_COUNT_MISMATCH: expected ${demos.length}, found ${indexed.length}`);
   }
   return failures;
 }

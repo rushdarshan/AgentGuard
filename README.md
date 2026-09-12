@@ -85,6 +85,7 @@ AgentGuard runs a complete adversarial test suite against your agent endpoint, v
 - [How It Works](#how-it-works)
 - [Quick Start](#quick-start)
 - [Commands](#commands)
+- [AgentGuard Lab](#agentguard-lab)
 - [Attack Categories](#attack-categories)
 - [Bias-Resistant Multi-Judge Consensus](#bias-resistant-multi-judge-consensus)
 - [Why Neo4j](#why-neo4j)
@@ -169,6 +170,61 @@ npx tsx src/cli/index.ts pre-push --url https://my-agent.com        # blocks pus
 ```
 
 Writes `.git/hooks/pre-push` that runs 3 quick adversarial tests before every push.
+
+---
+
+## AgentGuard Lab
+
+The Lab is the repository's deterministic evidence and replay layer. It consumes
+the committed M0 trace fixture, writes one evidence bundle per case, records
+judge-level provenance, computes agreement, and re-scores saved observations
+without re-running the target agent.
+
+The Lab has three explicit modes:
+
+| Mode | Writes files | Purpose |
+|------|--------------|---------|
+| `generate` | Yes | Build the 60-case evidence set and derived report |
+| `verify` | No | Check schema, hashes, source lineage, provenance, inventory, index entries, agreement, fault demonstrations, and report drift |
+| `replay` | No | Re-score committed bundles and reject evaluator or artifact mismatches |
+
+Run the checked-in evidence workflow:
+
+```bash
+# Install dependencies
+npm ci
+
+# Run the Lab tests
+npm test -- --run lab
+
+# Rebuild the evidence set, including the five fault demonstrations
+npx tsx lab/run.ts generate --faults
+
+# Verify without changing evidence
+npx tsx lab/run.ts --mode verify
+
+# Replay the 60 committed case bundles
+npx tsx lab/run.ts --mode replay
+```
+
+Verification fails when a required case, index entry, bundle, source trace,
+agreement reference, provenance record, fault demonstration, or generated
+report is missing or inconsistent. `verify` and `replay` do not repair files.
+
+The Lab intentionally supports artifact replay only. Interaction replay and
+fresh target execution are separate concerns and are not claimed by this
+workflow. Lab evidence is stored under `results/lab/`; the design and
+acceptance requirements live under `openspec/changes/add-agentguard-lab/`.
+
+GitHub Actions runs the same checkout-based Lab workflow in
+`.github/workflows/lab.yml`:
+
+```text
+npm ci
+npm test -- --run lab
+npx tsx lab/run.ts --mode verify
+npx tsx lab/run.ts --mode replay
+```
 
 ---
 
@@ -517,7 +573,7 @@ When MySQL is unavailable, AgentGuard falls back to in-memory storage. No databa
 git clone https://github.com/rushdarshan/AgentGuard.git
 cd AgentGuard
 cp .env.example .env     # configure API keys
-npm install
+npm ci
 npm run dev              # server (:4000) + client (:3001)
 ```
 
@@ -527,6 +583,22 @@ npm run dev              # server (:4000) + client (:3001)
 - One or more LLM API keys: OpenRouter, Groq, or Gemini (in `.env`)
 - For Indic attacks: Sarvam AI API key (optional)
 - For graph features: Neo4j AuraDB instance (optional, JS fallback works without it)
+
+The deterministic Lab workflow does not need API keys. The full application,
+voice demo, proxy, and hosted graph features may need the optional services
+listed above.
+
+### Validation
+
+```bash
+npm test                 # full Vitest suite
+npm run lint             # ESLint
+npm run typecheck        # full application TypeScript check
+```
+
+The Lab tests and evidence commands are the narrow trust checks for
+`lab/` and `results/lab/`. The full repository typecheck covers the entire
+application and may expose unrelated legacy errors outside the Lab.
 
 ### Project Structure
 
@@ -542,4 +614,3 @@ src/
 server/
 └── index.ts         # Express + tRPC server entry
 ```
-
