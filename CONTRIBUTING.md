@@ -39,15 +39,62 @@ Requires Node.js 20+. API keys in `.env` (see `.env.example`).
 ## Testing
 
 ```bash
-npm test       # if it exists — run it
+npx vitest run src        # Unit tests
+npx vitest run lab        # Lab tests
+npx vitest run             # All tests
+npm run lint              # Lint
+npm run typecheck         # Typecheck
+npx tsx lab/run.ts --mode=verify   # Lab evidence verification
+npx tsx lab/run.ts --mode=replay   # Lab artifact replay
 ```
 
-No test suite yet? Manual testing:
-- `npx agentguard test --url <endpoint>` against a real agent
-- Verify the dashboard renders at localhost:3000
-- Run `npm run demo` and click through the UI
+### Test-to-Module Map
 
-If you add a non-trivial function, include a `demo()` self-check at the bottom of the file. One assert beats zero.
+| Module | Test pattern | What it covers |
+|--------|-------------|----------------|
+| `src/_core/proxy.ts` | `src/_core/harden.test.ts` | Egress proxy, hardening |
+| `src/_core/judge.ts` | `src/_core/judge.test.ts` | Multi-model judge, fused verdict |
+| `src/_core/llm/*.ts` | `src/_core/llm.test.ts` | LLM adapters, heuristic judge |
+| `src/_core/stats.ts` | `src/_core/stats.test.ts` | Wilson CI, formatting |
+| `src/_core/report.ts` | `src/_core/report.test.ts` | Report generation |
+| `src/_core/pii.ts` | `src/_core/pii.test.ts` | PII detection |
+| `src/routers.ts` | `src/routers.test.ts` | API router handlers |
+| `lab/adapter.ts` | `lab/adapter.test.ts` | FusedVerdict → CaseExecution precedence |
+| `lab/agreement.ts` | `lab/agreement.test.ts` | Dataset-level κ, exclusion tracking |
+| `lab/bundle.ts` | `lab/bundle.test.ts` | Content-hash bundles, tamper detection |
+| `lab/faults.ts` | `lab/faults.test.ts` | Five in-process fault demonstrations |
+| `lab/verdict.ts` | `lab/verdict.test.ts` | Three-part CaseExecution model |
+| `lab/replay.ts` | `lab/replay.test.ts` | Artifact replay, canonical projection |
+| `benchmarks/m0/` | `benchmarks/m0/*.test.ts` | M0 runner, oracle, table generation |
+
+### Diagnosing Failures
+
+| Symptom | Likely cause | Check |
+|---------|-------------|-------|
+| `EVALUATOR_ERROR` in Lab report | Adapter couldn't map FusedVerdict to CaseExecution | Read the adapter precedence table in `lab/adapter.ts` |
+| `INFRASTRUCTURE_ERROR` | Missing trace or evidence integrity failure | Check the bundle's `evidenceIntegrity.findings` array |
+| `REPLAY_MISMATCH` | Canonical projection differs between runs | Compare the replayed bundle against the committed bytes |
+| `ABSTAIN` | Judges disagree or insufficient survivors | Check `agreement.json` for per-pair κ and exclusion reasons |
+| M0 shows `undefined` for blocked ASR | No blocked-attack traces exist | Check `results/m0/traces.jsonl` for `blocked` condition |
+| `NaN` in Wilson CI | 0 paired cases | Check experiment coverage; κ is undefined with no paired data |
+
+### Reproducibility
+
+Lab results are generated from committed evidence bundles. To verify:
+```bash
+npx tsx lab/run.ts --mode=verify   # Check schema, hashes, provenance, drift
+npx tsx lab/run.ts --mode=replay   # Re-score and reject mismatches
+npx vitest run lab                  # Run all lab tests
+```
+
+The REPORT.md is regenerated from the evidence bundles and protected by a
+regeneration drift test (`lab/report.drift.test.ts`). If you change the
+report renderer, regenerate and re-commit the report before pushing.
+
+M0 results are regenerated from `benchmarks/m0/runner.ts`:
+```bash
+npx tsx benchmarks/m0/runner.ts     # Regenerate traces + table
+```
 
 ## Architecture
 

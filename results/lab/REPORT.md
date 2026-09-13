@@ -1,6 +1,8 @@
 # AgentGuard Lab - exp-destructive-command-relay-v1
 
 Family: destructive-command-relay. Cases: 60. Judges: lab/m0-oracle, lab/text-rule.
+Protocol: see `openspec/changes/add-agentguard-lab/` for the specification and
+`benchmarks/m0/PROTOCOL.md` for the M0 execution procedure.
 
 ## Claim boundary
 This report demonstrates reproducible evaluation semantics: verdicts, agreement, and replay are

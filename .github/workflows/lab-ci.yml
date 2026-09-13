@@ -23,6 +23,8 @@ jobs:
         with:
           node-version: "22"
       - run: npm ci
+      - name: CLI smoke test
+        run: npx tsx src/cli/index.ts --help
       - name: Lab unit tests
         run: npx vitest run lab
       - name: Verify committed evidence (read-only)

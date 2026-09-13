@@ -3,17 +3,31 @@
 **Adversarial testing harness · Runtime proxy · Pre-push gate**
 
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
-![HACKHAZARDS](https://img.shields.io/badge/HACKHAZARDS-%2726-red)
+![Status](https://img.shields.io/badge/status-maintained-brightgreen)
 ![Neo4j](https://img.shields.io/badge/Neo4j-AuraDB-4581C3)
 ![Sarvam](https://img.shields.io/badge/Sarvam-AI-FF6F00)
 ![Render](https://img.shields.io/badge/Render-Deploy-46E3B7)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6)
 
-> Built for HACKHAZARDS '26
-
-
 https://github.com/user-attachments/assets/6181bed7-a4e5-41ad-a24c-c1f635eb1ecf
 
+## Status
+
+| Component | State | Evidence |
+|-----------|-------|----------|
+| Egress proxy (`src/_core/proxy.ts`) | Working | `npx tsx src/cli/index.ts proxy` |
+| Lab evidence framework (`lab/`) | Working | 60 cases verified + replayed; 5 faults exercised |
+| CLI (`src/cli/`) | Working | `npx tsx src/cli/index.ts --help` |
+| M0 benchmark (`benchmarks/m0/`) | Working | 20 seeds × 5 families; results in `results/m0/` |
+| Cascade graph (Neo4j) | Requires Neo4j AuraDB | Optional; JS fallback available |
+| Voice testing (Sarvam) | Experimental | Requires Sarvam API key |
+| Render deploy + cron | Working | `render.yaml` configured |
+
+Lab commands run without API keys. The full application, voice demo, proxy,
+and hosted graph features may need the optional services listed in
+[Prerequisites](#prerequisites).
+
+---
 
 ## Why AgentGuard
 
@@ -49,9 +63,9 @@ AgentGuard runs a complete adversarial test suite against your agent endpoint, v
 
 | Feature | Description |
 |---------|-------------|
-| 🕵️ Adversarial Testing | 10 attack categories, multi-model judge, heuristic fallback |
-| 📊 Cascade Graph | Force-directed failure propagation visualization |
-| 🗣️ Voice Testing | Mic → Sarvam STT → LLM Judge → TTS verdict (Hindi) |
+| 🕵️ Adversarial Testing | 5 attack families (mapped to OWASP LLM + ATLAS + MITRE), heuristic judge |
+| 📊 Cascade Graph | Failure propagation visualization (requires Neo4j; JS fallback available) |
+| 🗣️ Voice Testing | Mic → Sarvam STT → LLM Judge → TTS verdict (experimental, requires API key) |
 | 📄 Document Upload | PDF → chunk → keyword searchable graph |
 | 🔬 Graph Explorer | Upload JSON test runs, query with natural language |
 | 🛡️ Proxy Mode | Forward proxy with real-time traffic judgment |
@@ -101,56 +115,51 @@ AgentGuard runs a complete adversarial test suite against your agent endpoint, v
 
 ## What Makes AgentGuard Different
 
-Most AI agent testing tools are manual, single-model, and English-only. AgentGuard is the first **CI pipeline for AI agent reliability**:
+Most AI agent testing tools are manual, single-model, and English-only. AgentGuard provides:
 
-- **10 attack categories** — OWASP LLM + ATLAS + MITRE coverage
-- **Multi-model judge** — Consensus verdicts from 3 LLMs, not one
-- **Failure cascade graphs** — Neo4j-powered propagation analysis
-- **Indic language support** — Generate attacks in Hindi/Hinglish, test voice channels
-- **CI/CD native** — GitHub Action, pre-push hook, automated cron scanning
+- **5 attack families** — mapped to OWASP LLM01–09, OWASP Agentic ASI01–06, MITRE ATLAS ML-0017–0027
+- **Heuristic judge** — deterministic evaluation with Wilson 95% CI; multi-model judge planned for M1
+- **Failure cascade graphs** — Neo4j-powered propagation analysis (optional; JS fallback)
+- **Indic language support** — Generate attacks in Hindi/Hinglish via Sarvam AI (experimental)
+- **CI/CD native** — GitHub Action for Lab evidence verification
 
 ## How It Works
 
 1. **Configure** — Point AgentGuard at your agent endpoint
-2. **Test** — 10 attack categories × N prompts each, parallel execution
-3. **Evaluate** — Multi-model judge + heuristic fallback, Wilson CI confidence
+2. **Test** — 5 attack families × N prompts each, parallel execution
+3. **Evaluate** — Heuristic judge with Wilson 95% CI; multi-model judge planned for M1
 4. **Harden** — Generate blocking rules, deploy pre-push gate, schedule nightly scans
 
 ---
 
 ## Quick Start
 
+Requires **Node.js ≥ 20**. No API keys needed for the Lab workflow.
+
 ```bash
-# Run a test against any agent endpoint
-npx tsx src/cli/index.ts test --url https://your-agent.com/chat
-
-# Interactive dashboard (pre-seeded demo data)
-npm run demo
-
-# Install pre-push hook
-npx tsx src/cli/index.ts pre-push --url https://your-agent.com/chat --install
-
-# Proxy mode — intercept and judge live traffic
-npx tsx src/cli/index.ts proxy --port 9090
-
-# Nightly CI scan (via Render cron)
-# Already configured in render.yaml — deploys automatically
-```
+git clone https://github.com/rushdarshan/AgentGuard.git
+cd AgentGuard
+npm ci
 
 ---
 
 ## Commands
 
+**CLI** — prefix all with `npx tsx src/cli/index.ts`:
+
 | Command | Description |
 |---------|-------------|
-| `test --url <url>` | Run 10-category adversarial attack suite against an agent endpoint |
+| `test --url <url>` | Run adversarial attack suite against an agent endpoint |
 | `proxy --port 9090` | Start HTTP forward proxy that judges agent→API traffic in real time |
-| `pre-push --threshold 80` | Gate a git push on minimum readiness score (set `--install` to install hook) |
-| `harden <report.json>` | Generate guardrail configuration from a test run's failed findings |
-| `publish <report.html>` | Deploy an HTML report via Render Deploy Hook or print instructions |
-| `validate <report.json>` | Validate a report JSON file against the JSON Schema |
+| `pre-push --threshold 80` | Block pushes below score |
 
-All commands prefixed with `npx tsx src/cli/index.ts` (not yet published to npm — `private: true` in package.json).
+**Lab** — run directly with `npx tsx lab/run.ts`:
+
+| Mode | Description |
+|------|-------------|
+| `--mode=generate --faults` | Build the 60-case evidence set with fault demonstrations |
+| `--mode=verify` | Check schema, hashes, provenance, and report drift |
+| `--mode=replay` | Re-score committed bundles and reject mismatches |
 
 ### Proxy Mode
 
@@ -249,9 +258,9 @@ Each test produces: prompt, response, pass/fail, PII detected (with character-le
 
 ---
 
-## Bias-Resistant Multi-Judge Consensus
+## Judge Design
 
-Most red-teaming tools use a single LLM call to judge attack outcomes — which is susceptible to position bias, framing bias, and single-point failure. AgentGuard uses **three distinct safeguards**:
+Most red-teaming tools use a single LLM call to judge attack outcomes — which is susceptible to position bias, framing bias, and single-point failure. AgentGuard's full application uses **three distinct safeguards**:
 
 ### 1. Swap-Position Double-Judging
 
@@ -282,6 +291,10 @@ Category-level pass rates include a **95% Wilson score interval** — statistica
 ### 4. Heuristic Fallback
 
 When all LLM providers time out (10s timeout per call), a regex-based heuristic judges responses using refusal keywords, hallucination signals, and PII patterns. The report labels heuristic judgments so you can distinguish LLM-evaluated from rule-evaluated findings.
+
+> **Lab note:** The Lab evidence workflow (`lab/`) uses only the heuristic judge
+> for reproducible, keyless evaluation. Multi-model judging is a full-application
+> feature (M1 milestone).
 
 ### 5. Disprove Phase (Reproducibility Filter)
 
@@ -469,18 +482,16 @@ flowchart TB
 
 | Feature | AgentGuard | PyRIT (Microsoft) | garak (NVISO) | No-Mistakes |
 |---------|-----------|-------------------|---------------|-------------|
-| Multi-judge consensus | ✓ swap-position double-judging + Cohen's κ | Single judge | Single judge | — |
+| Multi-judge consensus | Planned (M1) | Single judge | Single judge | — |
 | Wilson 95% CI | ✓ | ✗ | ✗ | — |
 | Failure cascade graphs | ✓ Louvain + PageRank | ✗ | ✗ | — |
-| Cross-run graph delta | ✓ | ✗ | ✗ | — |
 | Runtime proxy | ✓ | ✗ | ✗ | ✓ (closed) |
-| Pre-push git hook | ✓ | ✗ | ✗ | ✓ |
 | GitHub Action | ✓ | ✗ | ✗ | ✗ |
-| Indic-language attacks | ✓ Sarvam AI | ✗ | ✗ | ✗ |
-| Attack generation | ✓ Built-in + LLM | ✓ | ✓ | — |
+| Indic-language attacks | Experimental (Sarvam) | ✗ | ✗ | ✗ |
+| Attack generation | ✓ Built-in heuristic | ✓ | ✓ | — |
 | OWASP/ATLAS mapping | ✓ Triple taxonomy | ✓ LLM only | ✓ LLM only | — |
-| Reproducibility filter | ✓ Adversarial disprove phase | ✗ | ✗ | — |
-| Install | npm global | Python venv | Python venv | — |
+| Reproducibility filter | ✓ Lab artifact replay | ✗ | ✗ | — |
+| Deterministic replay | ✓ Lab only | ✗ | ✗ | — |
 
 **AgentGuard wins on:** multi-judge rigor, graph-based analysis, CI/CD integration, runtime protection, and Indic language support.
 
