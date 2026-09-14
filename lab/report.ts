@@ -134,5 +134,7 @@ export function renderReport(input: ReportInput | SliceSummary): string {
   }
   lines.push(`- label provenance: every recorded label carries origin, judgeId, config/input hashes, raw response, parsed label`);
   lines.push(``);
+  lines.push(`Protocol: see \`benchmarks/m0/PROTOCOL.md\` for the exact execution procedure.`);
+  lines.push(``);
   return lines.join("\n");
 }
